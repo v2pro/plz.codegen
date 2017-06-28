@@ -3,16 +3,16 @@ package wombat
 import (
 	"testing"
 	"github.com/stretchr/testify/require"
-	"github.com/v2pro/plz/tags"
+	"github.com/v2pro/plz/tagging"
 )
 
 func Test_int_required(t *testing.T) {
 	type TestObject struct {
 		myField int
 	}
-	tags.Define(func(o *TestObject) tags.Tags {
-		return tags.D(tags.S(),
-			tags.F(&o.myField, "validate", "required"),
+	tagging.Define(func(o *TestObject) tagging.Tags {
+		return tagging.D(tagging.S(),
+			tagging.F(&o.myField, "validate", "required"),
 		)
 	})
 	should := require.New(t)

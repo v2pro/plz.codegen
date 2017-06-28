@@ -4,11 +4,13 @@ import (
 	"reflect"
 	"fmt"
 	"unsafe"
-	"github.com/v2pro/plz/tags"
+	"github.com/v2pro/plz/tagging"
+	"github.com/v2pro/plz"
+	"github.com/v2pro/plz/acc"
 )
 
 func Validate(obj interface{}) error {
-	validator, err := validatorOfType(reflect.TypeOf(obj), nil)
+	validator, err := validatorOfType(plz.AccessorOf(reflect.TypeOf(obj)), nil)
 	if err != nil {
 		return err
 	}
@@ -24,38 +26,37 @@ func Validate(obj interface{}) error {
 }
 
 type Validator interface {
-	Validate(collector ResultCollector, ptr unsafe.Pointer) error
+	Validate(collector ResultCollector, obj interface{}) error
 }
 
-func validatorOfType(typ reflect.Type, fieldTags tags.FieldTags) (Validator, error) {
-	switch typ.Kind() {
+func validatorOfType(accessor acc.Accessor, fieldTags map[string]interface{}) (Validator, error) {
+	switch accessor.Kind() {
 	case reflect.Struct:
-		return validatorOfStruct(typ)
+		return validatorOfStruct(accessor)
 	case reflect.Int:
-		return validatorOfInt(typ, fieldTags)
+		return validatorOfInt(accessor, fieldTags)
 	default:
-		return nil, fmt.Errorf("do not know how to validate: %v", typ)
+		return nil, fmt.Errorf("do not know how to validate: %v", accessor)
 	}
 }
 
-func validatorOfStruct(typ reflect.Type) (Validator, error) {
+func validatorOfStruct(accessor acc.Accessor) (Validator, error) {
 	fields := []structValidatorField{}
-	structTags := tags.Get(typ)
-	for i := 0; i < typ.NumField(); i++ {
-		field := typ.Field(i)
-		fieldTags := structTags.Fields[field.Name]
-		valueValidator, err := validatorOfType(field.Type, fieldTags)
+	for i := 0; i < accessor.NumField(); i++ {
+		field := accessor.Field(i)
+		fieldTags := field.Tags
+		valueValidator, err := validatorOfType(field.Accessor, fieldTags)
 		if err != nil {
 			return nil, fmt.Errorf("field %s: %v", field.Name, err.Error())
 		}
-		fields = append(fields, structValidatorField{field.Offset, field.Name, valueValidator})
+		fields = append(fields, structValidatorField{field, valueValidator})
 	}
 	return &structValidator{fields}, nil
 }
 
-func validatorOfInt(typ reflect.Type, fieldTags tags.FieldTags) (Validator, error) {
+func validatorOfInt(accessor acc.Accessor, fieldTags tagging.FieldTags) (Validator, error) {
 	if "required" == fieldTags["validate"] {
-		return &intRequiredValidator{}, nil
+		return &intRequiredValidator{accessor}, nil
 	}
 	return nil, nil
 }
@@ -65,26 +66,26 @@ type structValidator struct {
 }
 
 type structValidatorField struct {
-	offset         uintptr
-	fieldName      string
+	field          acc.StructField
 	valueValidator Validator
 }
 
-func (validator *structValidator) Validate(collector ResultCollector, ptr unsafe.Pointer) error {
-	for _, field := range validator.fields {
-		fieldPtr := unsafe.Pointer(uintptr(ptr) + field.offset)
-		collector.Enter(field.fieldName, fieldPtr)
-		field.valueValidator.Validate(collector, fieldPtr)
+func (validator *structValidator) Validate(collector ResultCollector, obj interface{}) error {
+	for _, fieldValidator := range validator.fields {
+		fieldAccessor := fieldValidator.field.Accessor
+		collector.Enter(fieldValidator.field.Name, unsafe.Pointer(fieldAccessor.Uintptr(obj)))
+		fieldValidator.valueValidator.Validate(collector, obj)
 		collector.Leave()
 	}
 	return nil
 }
 
 type intRequiredValidator struct {
+	accessor acc.Accessor
 }
 
-func (validator *intRequiredValidator) Validate(collector ResultCollector, ptr unsafe.Pointer) error {
-	val := *((*int)(ptr))
+func (validator *intRequiredValidator) Validate(collector ResultCollector, obj interface{}) error {
+	val := validator.accessor.Int(obj)
 	if val == 0 {
 		collector.CollectError(fmt.Errorf("int is zero"))
 	}

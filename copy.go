@@ -4,8 +4,8 @@ import (
 	"github.com/v2pro/plz"
 	"reflect"
 	"fmt"
-	_ "github.com/v2pro/plz/accessor/native"
-	"github.com/v2pro/plz/accessor"
+	_ "github.com/v2pro/plz/acc/native"
+	"github.com/v2pro/plz/acc"
 )
 
 func Copy(dst interface{}, src interface{}) error {
@@ -18,7 +18,7 @@ func Copy(dst interface{}, src interface{}) error {
 	return copier.Copy(dst, src)
 }
 
-func copierOf(dstAcc accessor.Accessor, srcAcc accessor.Accessor) (Copier, error) {
+func copierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	if dstAcc.Kind() != srcAcc.Kind() {
 		return nil, fmt.Errorf("kind mismatch: %v", dstAcc, srcAcc)
 	}
@@ -32,7 +32,7 @@ func copierOf(dstAcc accessor.Accessor, srcAcc accessor.Accessor) (Copier, error
 	}
 }
 
-func copierOfStruct(dstAcc accessor.Accessor, srcAcc accessor.Accessor) (Copier, error) {
+func copierOfStruct(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	bindings := map[string]*binding{}
 	for i := 0; i < dstAcc.NumField(); i++ {
 		field := dstAcc.Field(i)
@@ -62,8 +62,8 @@ func copierOfStruct(dstAcc accessor.Accessor, srcAcc accessor.Accessor) (Copier,
 }
 
 type binding struct {
-	srcAcc accessor.Accessor
-	dstAcc accessor.Accessor
+	srcAcc acc.Accessor
+	dstAcc acc.Accessor
 }
 
 type Copier interface {
@@ -85,8 +85,8 @@ func (copier *structCopier) Copy(dst interface{}, src interface{}) error {
 }
 
 type stringCopier struct {
-	srcAcc accessor.Accessor
-	dstAcc accessor.Accessor
+	srcAcc acc.Accessor
+	dstAcc acc.Accessor
 }
 
 func (copier stringCopier) Copy(dst interface{}, src interface{}) error {
