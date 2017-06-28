@@ -5,7 +5,7 @@ import (
 	"github.com/json-iterator/go/require"
 )
 
-func Test_copy(t *testing.T) {
+func Test_copy_struct(t *testing.T) {
 	should := require.New(t)
 	type A struct {
 		Field string
@@ -15,5 +15,15 @@ func Test_copy(t *testing.T) {
 	}
 	var a A
 	should.Nil(Copy(&a, B{"hello"}))
+	should.Equal("hello", a.Field)
+}
+
+func Test_copy_byte_array_into_struct(t *testing.T) {
+	should := require.New(t)
+	type A struct {
+		Field string
+	}
+	var a A
+	should.Nil(Copy(&a, []byte(`{"Field":"hello"}`)))
 	should.Equal("hello", a.Field)
 }
