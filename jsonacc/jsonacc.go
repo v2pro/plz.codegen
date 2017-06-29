@@ -23,7 +23,7 @@ func init() {
 			return &mapAccessor{elemAccessor: elemAccessor}
 		case reflect.Struct:
 			elemAccessor := &emptyInterfaceAccessor{}
-			return &mapAccessor{elemAccessor: elemAccessor}
+			return &structAccessor{mapAccessor: mapAccessor{elemAccessor: elemAccessor}, typ: dstType}
 		}
 		return nil
 	})
