@@ -11,7 +11,7 @@ import (
 func Test_int(t *testing.T) {
 	should := require.New(t)
 	var v *int
-	accessor := plz.AccessorOfProfile(reflect.TypeOf(v), "json")
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault, "1")
+	accessor := plz.AccessorOf(reflect.TypeOf(v), reflect.TypeOf(iter))
 	should.Equal(1, accessor.Int(iter))
 }
