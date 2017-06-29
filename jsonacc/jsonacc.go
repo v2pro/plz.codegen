@@ -21,6 +21,9 @@ func init() {
 		case reflect.Map:
 			elemAccessor := plz.AccessorOf(dstType.Elem(), srcType)
 			return &mapAccessor{elemAccessor: elemAccessor}
+		case reflect.Struct:
+			elemAccessor := &emptyInterfaceAccessor{}
+			return &mapAccessor{elemAccessor: elemAccessor}
 		}
 		return nil
 	})

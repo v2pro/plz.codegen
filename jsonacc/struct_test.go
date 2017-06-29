@@ -18,6 +18,8 @@ func Test_struct_decode(t *testing.T) {
 		`{"Field": 1}`)
 	accessor := plz.AccessorOf(reflect.TypeOf(v), reflect.TypeOf(iter))
 	should.Equal(reflect.Map, accessor.Kind())
+	should.Equal(reflect.String, accessor.Key().Kind())
+	should.Equal(reflect.Interface, accessor.Elem().Kind())
 	elems := []int{}
 	accessor.IterateMap(iter, func(key interface{}, elem interface{}) bool {
 		elems = append(elems, accessor.Elem().Int(elem))
