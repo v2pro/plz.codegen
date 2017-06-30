@@ -20,3 +20,10 @@ func Test_copy_json_to_slice(t *testing.T) {
 	should.Nil(Copy(&a, b))
 	should.Equal([]int{1, 2, 3}, a)
 }
+
+func Test_copy_interface_slice_to_slice(t *testing.T) {
+	should := require.New(t)
+	a := []interface{}{}
+	should.Nil(Copy(&a, []interface{}{1, 2, 3}))
+	should.Equal([]interface{}{1, 2, 3}, a)
+}

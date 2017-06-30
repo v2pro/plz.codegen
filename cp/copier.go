@@ -19,6 +19,8 @@ func CopierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 		return &stringCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
 	case acc.Int:
 		return &intCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
+	case acc.Interface:
+		return &interfaceCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
 	case acc.Map:
 		return copierOfMap(dstAcc, srcAcc)
 	case acc.Array:
@@ -50,4 +52,20 @@ type intCopier struct {
 func (copier intCopier) Copy(dst interface{}, src interface{}) error {
 	copier.dstAcc.SetInt(dst, copier.srcAcc.Int(src))
 	return nil
+}
+
+type interfaceCopier struct {
+	srcAcc acc.Accessor
+	dstAcc acc.Accessor
+}
+
+func (copier interfaceCopier) Copy(dst interface{}, src interface{}) error {
+	kind := copier.srcAcc.KindOf(src)
+	switch kind {
+	case acc.Int:
+		copier.dstAcc.SetInt(dst, copier.srcAcc.Int(src))
+	case acc.String:
+		copier.dstAcc.SetString(dst, copier.srcAcc.String(src))
+	}
+	return fmt.Errorf("do not know how to copy %v at runtime", kind)
 }
