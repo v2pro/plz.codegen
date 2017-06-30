@@ -10,13 +10,12 @@ import (
 
 func Test_map_decode(t *testing.T) {
 	should := require.New(t)
-	v := map[string]int{}
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault,
 		`{"Field": 1}`)
-	accessor := plz.AccessorOf(reflect.TypeOf(v), reflect.TypeOf(iter))
-	should.Equal(reflect.Map, accessor.Kind())
+	accessor := plz.AccessorOf(reflect.TypeOf(iter))
+	should.Equal(reflect.Interface, accessor.Kind())
 	should.Equal(reflect.String, accessor.Key().Kind())
-	should.Equal(reflect.Int, accessor.Elem().Kind())
+	should.Equal(reflect.Interface, accessor.Elem().Kind())
 	keys := []string{}
 	elems := []int{}
 	accessor.IterateMap(iter, func(key interface{}, elem interface{}) bool {
@@ -24,4 +23,6 @@ func Test_map_decode(t *testing.T) {
 		elems = append(elems, accessor.Elem().Int(elem))
 		return true
 	})
+	should.Equal([]string{"Field"}, keys)
+	should.Equal([]int{1}, elems)
 }
