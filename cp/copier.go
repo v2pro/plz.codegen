@@ -10,14 +10,16 @@ func CopierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	if dstAcc.Kind() == reflect.Struct && srcAcc.Kind() == reflect.Map {
 		return mapToStruct(dstAcc, srcAcc)
 	}
-	if dstAcc.Kind() != srcAcc.Kind() {
-		return nil, fmt.Errorf("kind mismatch: %v", dstAcc, srcAcc)
+	if dstAcc.Kind() != srcAcc.Kind() && srcAcc.Kind() != reflect.Interface {
+		return nil, fmt.Errorf("kind mismatch: %v => %v", srcAcc.Kind(), dstAcc.Kind())
 	}
 	switch dstAcc.Kind() {
 	case reflect.Struct:
 		return structToStruct(dstAcc, srcAcc)
 	case reflect.String:
 		return &stringCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
+	case reflect.Map:
+		return copierOfMap(dstAcc, srcAcc)
 	default:
 		return nil, fmt.Errorf("do not know how to copy %#v => %#v", srcAcc, dstAcc)
 	}

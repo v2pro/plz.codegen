@@ -30,3 +30,15 @@ func Test_copy_map_to_struct(t *testing.T) {
 	should.Nil(Copy(&a, b))
 	should.Equal("hello", a.Field)
 }
+
+func Test_copy_struct_to_map(t *testing.T) {
+	should := require.New(t)
+	type B struct {
+		Field string
+	}
+	b := B{"hello"}
+	a := map[string]string{
+	}
+	should.Nil(Copy(a, b))
+	should.Equal("hello", a["Field"])
+}
