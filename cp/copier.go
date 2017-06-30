@@ -18,8 +18,12 @@ func CopierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 		return structToStruct(dstAcc, srcAcc)
 	case reflect.String:
 		return &stringCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
+	case reflect.Int:
+		return &intCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
 	case reflect.Map:
 		return copierOfMap(dstAcc, srcAcc)
+	case reflect.Slice:
+		return copierOfArray(dstAcc, srcAcc)
 	default:
 		return nil, fmt.Errorf("do not know how to copy %#v => %#v", srcAcc, dstAcc)
 	}
@@ -36,5 +40,15 @@ type stringCopier struct {
 
 func (copier stringCopier) Copy(dst interface{}, src interface{}) error {
 	copier.dstAcc.SetString(dst, copier.srcAcc.String(src))
+	return nil
+}
+
+type intCopier struct {
+	srcAcc acc.Accessor
+	dstAcc acc.Accessor
+}
+
+func (copier intCopier) Copy(dst interface{}, src interface{}) error {
+	copier.dstAcc.SetInt(dst, copier.srcAcc.Int(src))
 	return nil
 }

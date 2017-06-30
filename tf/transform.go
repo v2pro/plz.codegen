@@ -57,6 +57,10 @@ func (accessor *transformedAccessor) IterateMap(obj interface{}, cb func(key int
 	accessor.fromAccessor.IterateMap(obj, cb)
 }
 
+func (accessor *transformedAccessor) IterateArray(obj interface{}, cb func(elem interface{}) bool) {
+	accessor.fromAccessor.IterateArray(obj, cb)
+}
+
 func (accessor *transformedAccessor) Int(obj interface{}) int {
 	return accessor.fromAccessor.Int(obj)
 }
