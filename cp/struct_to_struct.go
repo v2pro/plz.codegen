@@ -1,6 +1,8 @@
 package cp
 
-import "github.com/v2pro/plz/acc"
+import (
+	"github.com/v2pro/plz/acc"
+)
 
 func structToStruct(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	fieldCopiers, err := createFieldCopiers(dstAcc, srcAcc)
