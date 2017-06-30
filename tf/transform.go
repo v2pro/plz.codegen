@@ -5,15 +5,40 @@ import (
 )
 
 func Transform(fromAccessor acc.Accessor, toAccessor acc.Accessor) (acc.Accessor, error) {
-	kind := toAccessor.Kind()
-	if fromAccessor.Kind() == acc.Struct && kind == acc.Struct {
+	if fromAccessor.Kind() == toAccessor.Kind() {
 		return fromAccessor, nil
 	}
+	if fromAccessor.Kind() == acc.Interface {
+		if toAccessor.Kind().IsSingleValue() {
+			return fromAccessor, nil
+		}
+	}
+	kind := toAccessor.Kind()
 	if fromAccessor.Kind() != acc.Struct && kind == acc.Struct {
 		kind = acc.Map
 	}
+	keyAccessor, err := Transform(fromAccessor.Key(), toAccessor.Key())
+	if err != nil {
+		return nil, err
+	}
+	elemAccessor, err := Transform(fromAccessor.Elem(), toAccessor.Elem())
+	if err != nil {
+		return nil, err
+	}
+	fields := []acc.StructField{}
+	for i := 0; i < toAccessor.NumField(); i++ {
+		field := toAccessor.Field(i)
+		field.Accessor, err = Transform(fromAccessor.Elem(), field.Accessor)
+		fields = append(fields, field)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &transformedAccessor{
 		kind:         kind,
+		fields:       fields,
+		keyAccessor:  keyAccessor,
+		elemAccessor: elemAccessor,
 		toAccessor:   toAccessor,
 		fromAccessor: fromAccessor,
 	}, nil
@@ -22,6 +47,9 @@ func Transform(fromAccessor acc.Accessor, toAccessor acc.Accessor) (acc.Accessor
 type transformedAccessor struct {
 	acc.NoopAccessor
 	kind         acc.Kind
+	fields       []acc.StructField
+	keyAccessor  acc.Accessor
+	elemAccessor acc.Accessor
 	toAccessor   acc.Accessor
 	fromAccessor acc.Accessor
 }
@@ -35,21 +63,19 @@ func (accessor *transformedAccessor) GoString() string {
 }
 
 func (accessor *transformedAccessor) Key() acc.Accessor {
-	return accessor.fromAccessor.Key()
+	return accessor.keyAccessor
 }
 
 func (accessor *transformedAccessor) Elem() acc.Accessor {
-	return accessor.fromAccessor.Elem()
+	return accessor.elemAccessor
 }
 
 func (accessor *transformedAccessor) NumField() int {
-	return accessor.toAccessor.NumField()
+	return len(accessor.fields)
 }
 
 func (accessor *transformedAccessor) Field(index int) acc.StructField {
-	field := accessor.toAccessor.Field(index)
-	field.Accessor = accessor.Elem()
-	return field
+	return accessor.fields[index]
 }
 
 func (accessor *transformedAccessor) IterateMap(obj interface{}, cb func(key interface{}, elem interface{}) bool) {
