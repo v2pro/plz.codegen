@@ -32,6 +32,11 @@ func (accessor *iterAcc) Int(obj interface{}) int {
 	return iter.ReadInt()
 }
 
+func (accessor *iterAcc) String(obj interface{}) string {
+	iter := obj.(*jsoniter.Iterator)
+	return iter.ReadString()
+}
+
 func (accessor *iterAcc) Key() acc.Accessor {
 	return &mapKeyAccessor{}
 }

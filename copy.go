@@ -3,6 +3,7 @@ package wombat
 import (
 	"github.com/v2pro/plz"
 	"reflect"
+	_ "github.com/v2pro/wombat/jsonacc"
 	_ "github.com/v2pro/plz/acc/native"
 	"github.com/v2pro/wombat/cp"
 	"github.com/v2pro/wombat/tf"
