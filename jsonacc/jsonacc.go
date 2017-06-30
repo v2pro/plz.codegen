@@ -19,8 +19,8 @@ type iterAcc struct {
 	acc.NoopAccessor
 }
 
-func (accessor *iterAcc) Kind() reflect.Kind {
-	return reflect.Interface
+func (accessor *iterAcc) Kind() acc.Kind {
+	return acc.Interface
 }
 
 func (accessor *iterAcc) GoString() string {
@@ -63,8 +63,8 @@ type mapKeyAccessor struct {
 	acc.NoopAccessor
 }
 
-func (accessor *mapKeyAccessor) Kind() reflect.Kind {
-	return reflect.String
+func (accessor *mapKeyAccessor) Kind() acc.Kind {
+	return acc.String
 }
 
 func (accessor *mapKeyAccessor) GoString() string {

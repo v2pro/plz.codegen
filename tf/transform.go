@@ -2,16 +2,15 @@ package tf
 
 import (
 	"github.com/v2pro/plz/acc"
-	"reflect"
 )
 
 func Transform(fromAccessor acc.Accessor, toAccessor acc.Accessor) (acc.Accessor, error) {
 	kind := toAccessor.Kind()
-	if fromAccessor.Kind() == reflect.Struct && kind == reflect.Struct {
+	if fromAccessor.Kind() == acc.Struct && kind == acc.Struct {
 		return fromAccessor, nil
 	}
-	if fromAccessor.Kind() != reflect.Struct && kind == reflect.Struct {
-		kind = reflect.Map
+	if fromAccessor.Kind() != acc.Struct && kind == acc.Struct {
+		kind = acc.Map
 	}
 	return &transformedAccessor{
 		kind:         kind,
@@ -22,12 +21,12 @@ func Transform(fromAccessor acc.Accessor, toAccessor acc.Accessor) (acc.Accessor
 
 type transformedAccessor struct {
 	acc.NoopAccessor
-	kind         reflect.Kind
+	kind         acc.Kind
 	toAccessor   acc.Accessor
 	fromAccessor acc.Accessor
 }
 
-func (accessor *transformedAccessor) Kind() reflect.Kind {
+func (accessor *transformedAccessor) Kind() acc.Kind {
 	return accessor.kind
 }
 

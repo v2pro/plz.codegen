@@ -6,6 +6,7 @@ import (
 	"github.com/v2pro/plz"
 	"reflect"
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz/acc"
 )
 
 func Test_map_decode(t *testing.T) {
@@ -13,9 +14,9 @@ func Test_map_decode(t *testing.T) {
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault,
 		`{"Field": 1}`)
 	accessor := plz.AccessorOf(reflect.TypeOf(iter))
-	should.Equal(reflect.Interface, accessor.Kind())
-	should.Equal(reflect.String, accessor.Key().Kind())
-	should.Equal(reflect.Interface, accessor.Elem().Kind())
+	should.Equal(acc.Interface, accessor.Kind())
+	should.Equal(acc.String, accessor.Key().Kind())
+	should.Equal(acc.Interface, accessor.Elem().Kind())
 	keys := []string{}
 	elems := []int{}
 	accessor.IterateMap(iter, func(key interface{}, elem interface{}) bool {

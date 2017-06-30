@@ -2,27 +2,26 @@ package cp
 
 import (
 	"github.com/v2pro/plz/acc"
-	"reflect"
 	"fmt"
 )
 
 func CopierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
-	if dstAcc.Kind() == reflect.Struct && srcAcc.Kind() == reflect.Map {
+	if dstAcc.Kind() == acc.Struct && srcAcc.Kind() == acc.Map {
 		return mapToStruct(dstAcc, srcAcc)
 	}
-	if dstAcc.Kind() != srcAcc.Kind() && srcAcc.Kind() != reflect.Interface {
+	if dstAcc.Kind() != srcAcc.Kind() && srcAcc.Kind() != acc.Interface {
 		return nil, fmt.Errorf("kind mismatch: %v => %v", srcAcc.Kind(), dstAcc.Kind())
 	}
 	switch dstAcc.Kind() {
-	case reflect.Struct:
+	case acc.Struct:
 		return structToStruct(dstAcc, srcAcc)
-	case reflect.String:
+	case acc.String:
 		return &stringCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
-	case reflect.Int:
+	case acc.Int:
 		return &intCopier{dstAcc: dstAcc, srcAcc: srcAcc}, nil
-	case reflect.Map:
+	case acc.Map:
 		return copierOfMap(dstAcc, srcAcc)
-	case reflect.Slice:
+	case acc.Array:
 		return copierOfArray(dstAcc, srcAcc)
 	default:
 		return nil, fmt.Errorf("do not know how to copy %#v => %#v", srcAcc, dstAcc)

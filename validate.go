@@ -31,9 +31,9 @@ type Validator interface {
 
 func validatorOfType(accessor acc.Accessor, fieldTags map[string]interface{}) (Validator, error) {
 	switch accessor.Kind() {
-	case reflect.Struct:
+	case acc.Struct:
 		return validatorOfStruct(accessor)
-	case reflect.Int:
+	case acc.Int:
 		return validatorOfInt(accessor, fieldTags)
 	default:
 		return nil, fmt.Errorf("do not know how to validate: %v", accessor)
