@@ -3,7 +3,7 @@ package cp
 import "github.com/v2pro/plz/acc"
 
 func mapToStruct(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
-	fieldCopiers, err := createFieldCopiers(dstAcc, srcAcc)
+	fieldCopiers, err := createMapToStructFieldCopiers(dstAcc, srcAcc)
 	if err != nil {
 		return nil, err
 	}
@@ -13,6 +13,19 @@ func mapToStruct(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 		srcKeyAcc: srcAcc.Key(),
 		srcElemAcc: srcAcc.Elem(),
 	}, nil
+}
+
+func createMapToStructFieldCopiers(dstAcc acc.Accessor, srcAcc acc.Accessor) (map[string]Copier, error) {
+	fieldCopiers := map[string]Copier{}
+	for i := 0; i < dstAcc.NumField(); i++ {
+		field := dstAcc.Field(i)
+		var err error
+		fieldCopiers[field.Name], err = CopierOf(field.Accessor, srcAcc.Elem())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return fieldCopiers, nil
 }
 
 type mapToStructCopier struct {

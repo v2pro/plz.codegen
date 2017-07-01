@@ -4,7 +4,7 @@ import (
 	"github.com/v2pro/plz/acc"
 )
 
-func copierOfArray(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
+func arrayToArray(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	elemCopier, err := CopierOf(dstAcc.Elem(), srcAcc.Elem())
 	if err != nil {
 		return nil, err

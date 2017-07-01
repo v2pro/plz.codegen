@@ -2,7 +2,7 @@ package cp
 
 import "github.com/v2pro/plz/acc"
 
-func copierOfMap(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
+func mapToMap(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	keyCopier, err := CopierOf(dstAcc.Key(), srcAcc.Key())
 	if err != nil {
 		return nil, err
