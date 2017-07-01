@@ -28,9 +28,8 @@ type mapCopier struct {
 
 func (copier *mapCopier) Copy(dst interface{}, src interface{}) error {
 	copier.srcAcc.IterateMap(src, func(key interface{}, elem interface{}) bool {
-		copier.dstAcc.SetMap(dst, func(dstKey interface{}) {
+		copier.dstAcc.SetMap(dst, func(dstKey interface{}, dstElem interface{}) {
 			copier.keyCopier.Copy(dstKey, key)
-		}, func(dstElem interface{}) {
 			copier.elemCopier.Copy(dstElem, elem)
 		})
 		return true

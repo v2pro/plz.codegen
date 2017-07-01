@@ -38,9 +38,8 @@ type structToMapCopier struct {
 
 func (copier *structToMapCopier) Copy(dst interface{}, src interface{}) (err error) {
 	for fieldName, fieldCopier := range copier.fieldCopiers {
-		copier.dstAcc.SetMap(dst, func(dstKey interface{}) {
+		copier.dstAcc.SetMap(dst, func(dstKey interface{}, dstElem interface{}) {
 			copier.dstKeyAcc.SetString(dstKey, fieldName)
-		}, func(dstElem interface{}) {
 			err = fieldCopier.Copy(dstElem, src)
 		})
 	}

@@ -23,10 +23,13 @@ type arrayCopier struct {
 }
 
 func (copier *arrayCopier) Copy(dst interface{}, src interface{}) error {
-	copier.srcAcc.IterateArray(src, func(elem interface{}) bool {
-		copier.dstAcc.AppendArray(dst, func(dstElem interface{}) {
-			copier.elemCopier.Copy(dstElem, elem)
-		})
+	fill := copier.dstAcc.FillArray(dst)
+	copier.srcAcc.IterateArray(src, func(srcElem interface{}) bool {
+		dstElem := fill()
+		if dstElem == nil {
+			return false
+		}
+		copier.elemCopier.Copy(dstElem, srcElem)
 		return true
 	})
 	return nil
