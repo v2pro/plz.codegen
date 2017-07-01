@@ -6,18 +6,20 @@ import (
 )
 
 func CopierOf(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
-	if (srcAcc.Kind() == acc.Map || srcAcc.Kind() == acc.Interface) && dstAcc.Kind() == acc.Struct {
+	srcKind := srcAcc.Kind()
+	dstKind := dstAcc.Kind()
+	if (srcKind == acc.Map || srcKind == acc.Interface) && dstKind == acc.Struct {
 		return mapToStruct(dstAcc, srcAcc)
 	}
-	if srcAcc.Kind() == acc.Struct && (dstAcc.Kind() == acc.Map || dstAcc.Kind() == acc.Interface) {
+	if srcKind == acc.Struct && (dstKind == acc.Map || dstKind == acc.Interface) {
 		return structToMap(dstAcc, srcAcc)
 	}
-	if srcAcc.Kind() != acc.Interface && dstAcc.Kind() != acc.Interface && dstAcc.Kind() != srcAcc.Kind() {
-		return nil, fmt.Errorf("kind mismatch: %#v => %#v", srcAcc.Kind(), dstAcc.Kind())
+	if srcKind != acc.Interface && dstKind != acc.Interface && dstKind != srcKind {
+		return nil, fmt.Errorf("kind mismatch: %#v => %#v", srcKind, dstKind)
 	}
-	kind := srcAcc.Kind()
+	kind := srcKind
 	if kind == acc.Interface {
-		kind = dstAcc.Kind()
+		kind = dstKind
 	}
 	switch kind {
 	case acc.Struct:
@@ -67,12 +69,10 @@ type interfaceCopier struct {
 }
 
 func (copier interfaceCopier) Copy(dst interface{}, src interface{}) error {
-	kind := copier.srcAcc.KindOf(src)
-	switch kind {
-	case acc.Int:
-		copier.dstAcc.SetInt(dst, copier.srcAcc.Int(src))
-	case acc.String:
-		copier.dstAcc.SetString(dst, copier.srcAcc.String(src))
+	srcAcc := copier.srcAcc.AccessorOf(src)
+	realCopier, err := CopierOf(copier.dstAcc, srcAcc)
+	if err != nil {
+		return err
 	}
-	return fmt.Errorf("do not know how to copy %v at runtime", kind)
+	return realCopier.Copy(dst, src)
 }

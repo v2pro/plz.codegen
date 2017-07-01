@@ -22,17 +22,20 @@ type arrayCopier struct {
 	srcAcc     acc.Accessor
 }
 
-func (copier *arrayCopier) Copy(dst interface{}, src interface{}) error {
+func (copier *arrayCopier) Copy(dst interface{}, src interface{}) (err error) {
 	copier.dstAcc.FillArray(dst, func(filler acc.ArrayFiller) {
 		copier.srcAcc.IterateArray(src, func(srcElem interface{}) bool {
 			dstElem := filler.Next()
 			if dstElem == nil {
 				return false
 			}
-			copier.elemCopier.Copy(dstElem, srcElem)
+			err = copier.elemCopier.Copy(dstElem, srcElem)
+			if err != nil {
+				return false
+			}
 			filler.Fill()
 			return true
 		})
 	})
-	return nil
+	return
 }
