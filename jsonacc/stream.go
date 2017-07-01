@@ -30,22 +30,59 @@ func (accessor *streamAccessor) SetString(obj interface{}, val string) {
 	stream.WriteString(val)
 }
 
+func (accessor *streamAccessor) SetInt(obj interface{}, val int) {
+	stream := obj.(*jsoniter.Stream)
+	stream.WriteInt(val)
+}
+
 func (accessor *streamAccessor) FillMap(obj interface{}, cb func(filler acc.MapFiller)) {
 	stream := obj.(*jsoniter.Stream)
 	stream.WriteObjectStart()
-	cb(&jsonMapFiller{obj})
+	cb(&jsonMapFiller{stream, obj, true})
 	stream.WriteObjectEnd()
 }
 
 type jsonMapFiller struct {
+	stream *jsoniter.Stream
 	obj interface{}
+	isFirst bool
 }
 
 func (filler *jsonMapFiller) Next() (interface{}, interface{}) {
+	if filler.isFirst {
+		filler.isFirst = false
+	} else {
+		filler.stream.WriteMore()
+	}
 	return filler.obj, filler.obj
 }
 
 func (filler *jsonMapFiller) Fill() {
+}
+
+func (accessor *streamAccessor) FillArray(obj interface{}, cb func(filler acc.ArrayFiller)) {
+	stream := obj.(*jsoniter.Stream)
+	stream.WriteArrayStart()
+	cb(&jsonArrayFiller{stream, obj, true})
+	stream.WriteArrayEnd()
+}
+
+type jsonArrayFiller struct {
+	stream *jsoniter.Stream
+	obj interface{}
+	isFirst bool
+}
+
+func (filler *jsonArrayFiller) Next() interface{} {
+	if filler.isFirst {
+		filler.isFirst = false
+	} else {
+		filler.stream.WriteMore()
+	}
+	return filler.obj
+}
+
+func (filler *jsonArrayFiller) Fill() {
 }
 
 type mapKeyWriter struct {

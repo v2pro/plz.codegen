@@ -28,7 +28,7 @@ func Test_map_decode(t *testing.T) {
 	should.Equal([]int{1}, elems)
 }
 
-func Test_map_encode(t *testing.T) {
+func Test_map_encode_one(t *testing.T) {
 	should := require.New(t)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
 	accessor := plz.AccessorOf(reflect.TypeOf(stream))
@@ -39,4 +39,21 @@ func Test_map_encode(t *testing.T) {
 		filler.Fill()
 	})
 	should.Equal(`{"hello":"world"}`, string(stream.Buffer()))
+}
+
+func Test_map_encode_many(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	accessor := plz.AccessorOf(reflect.TypeOf(stream))
+	accessor.FillMap(stream, func(filler acc.MapFiller) {
+		key, elem := filler.Next()
+		accessor.Key().SetString(key, "hello")
+		accessor.Elem().SetString(elem, "world")
+		filler.Fill()
+		key, elem = filler.Next()
+		accessor.Key().SetString(key, "k")
+		accessor.Elem().SetString(elem, "v")
+		filler.Fill()
+	})
+	should.Equal(`{"hello":"world","k":"v"}`, string(stream.Buffer()))
 }

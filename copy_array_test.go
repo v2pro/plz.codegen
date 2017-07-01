@@ -48,3 +48,11 @@ func Test_copy_interface_slice_to_slice(t *testing.T) {
 	should.Nil(Copy(&a, []interface{}{1, 2, 3}))
 	should.Equal([]interface{}{1, 2, 3}, a)
 }
+
+func Test_copy_slice_to_json(t *testing.T) {
+	should := require.New(t)
+	a := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	b := []int{1,2,3}
+	should.Nil(Copy(a, b))
+	should.Equal("[1,2,3]", string(a.Buffer()))
+}
