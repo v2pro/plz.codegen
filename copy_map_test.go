@@ -63,3 +63,14 @@ func Test_copy_json_to_struct(t *testing.T) {
 	should.Nil(Copy(&a, b))
 	should.Equal("hello", a.Field)
 }
+
+func Test_copy_struct_to_json(t *testing.T) {
+	should := require.New(t)
+	a := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	type B struct {
+		Field string
+	}
+	b := B{"hello"}
+	should.Nil(Copy(a, b))
+	should.Equal(`{"Field":"hello"}`, string(a.Buffer()))
+}

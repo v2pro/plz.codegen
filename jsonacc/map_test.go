@@ -24,6 +24,19 @@ func Test_map_decode(t *testing.T) {
 		elems = append(elems, accessor.Elem().Int(elem))
 		return true
 	})
-	should.Equal([]string{"Field"}, keys)
+	should.Equal([]string{"Field "}, keys)
 	should.Equal([]int{1}, elems)
+}
+
+func Test_map_encode(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	accessor := plz.AccessorOf(reflect.TypeOf(stream))
+	accessor.FillMap(stream, func(filler acc.MapFiller) {
+		key, elem := filler.Next()
+		accessor.Key().SetString(key, "hello")
+		accessor.Elem().SetString(elem, "world")
+		filler.Fill()
+	})
+	should.Equal(`{"hello":"world"}`, string(stream.Buffer()))
 }

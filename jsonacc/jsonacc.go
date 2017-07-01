@@ -8,69 +8,12 @@ import (
 
 func init() {
 	acc.Providers = append(acc.Providers, func(typ reflect.Type) acc.Accessor {
-		if reflect.TypeOf((*jsoniter.Iterator)(nil)) != typ {
-			return nil
+		if reflect.TypeOf((*jsoniter.Iterator)(nil)) == typ {
+			return &iteratorAccessor{}
 		}
-		return &iterAcc{}
+		if reflect.TypeOf((*jsoniter.Stream)(nil)) == typ {
+			return &streamAccessor{}
+		}
+		return nil
 	})
-}
-
-type iterAcc struct {
-	acc.NoopAccessor
-}
-
-func (accessor *iterAcc) Kind() acc.Kind {
-	return acc.Interface
-}
-
-func (accessor *iterAcc) GoString() string {
-	return "interface{}"
-}
-
-func (accessor *iterAcc) Int(obj interface{}) int {
-	iter := obj.(*jsoniter.Iterator)
-	return iter.ReadInt()
-}
-
-func (accessor *iterAcc) String(obj interface{}) string {
-	iter := obj.(*jsoniter.Iterator)
-	return iter.ReadString()
-}
-
-func (accessor *iterAcc) Key() acc.Accessor {
-	return &mapKeyAccessor{}
-}
-
-func (accessor *iterAcc) Elem() acc.Accessor {
-	return accessor
-}
-
-func (accessor *iterAcc) IterateMap(obj interface{}, cb func(key interface{}, elem interface{}) bool) {
-	iter := obj.(*jsoniter.Iterator)
-	iter.ReadMapCB(func(iter *jsoniter.Iterator, field string) bool {
-		return cb(field, iter)
-	})
-}
-
-func (accessor *iterAcc) IterateArray(obj interface{}, cb func(elem interface{}) bool) {
-	iter := obj.(*jsoniter.Iterator)
-	iter.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-		return cb(iter)
-	})
-}
-
-type mapKeyAccessor struct {
-	acc.NoopAccessor
-}
-
-func (accessor *mapKeyAccessor) Kind() acc.Kind {
-	return acc.String
-}
-
-func (accessor *mapKeyAccessor) GoString() string {
-	return "string"
-}
-
-func (accessor *mapKeyAccessor) String(obj interface{}) string {
-	return obj.(string)
 }

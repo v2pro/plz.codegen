@@ -11,8 +11,8 @@ func structToMap(dstAcc acc.Accessor, srcAcc acc.Accessor) (Copier, error) {
 	}
 	return &structToMapCopier{
 		fieldCopiers: fieldCopiers,
-		dstAcc: dstAcc,
-		dstKeyAcc: dstAcc.Key(),
+		dstAcc:       dstAcc,
+		dstKeyAcc:    dstAcc.Key(),
 	}, nil
 }
 
@@ -32,17 +32,21 @@ func createStructToMapFieldCopiers(dstAcc acc.Accessor, srcAcc acc.Accessor) (ma
 
 type structToMapCopier struct {
 	fieldCopiers map[string]Copier
-	dstAcc acc.Accessor
-	dstKeyAcc acc.Accessor
+	dstAcc       acc.Accessor
+	dstKeyAcc    acc.Accessor
 }
 
 func (copier *structToMapCopier) Copy(dst interface{}, src interface{}) (err error) {
-	for fieldName, fieldCopier := range copier.fieldCopiers {
-		copier.dstAcc.SetMap(dst, func(dstKey interface{}, dstElem interface{}) {
+	copier.dstAcc.FillMap(dst, func(filler acc.MapFiller) {
+		for fieldName, fieldCopier := range copier.fieldCopiers {
+			dstKey, dstElem := filler.Next()
 			copier.dstKeyAcc.SetString(dstKey, fieldName)
 			err = fieldCopier.Copy(dstElem, src)
-		})
-	}
+			if err != nil {
+				return
+			}
+			filler.Fill()
+		}
+	})
 	return
 }
-

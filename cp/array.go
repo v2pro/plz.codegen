@@ -23,14 +23,16 @@ type arrayCopier struct {
 }
 
 func (copier *arrayCopier) Copy(dst interface{}, src interface{}) error {
-	fill := copier.dstAcc.FillArray(dst)
-	copier.srcAcc.IterateArray(src, func(srcElem interface{}) bool {
-		dstElem := fill()
-		if dstElem == nil {
-			return false
-		}
-		copier.elemCopier.Copy(dstElem, srcElem)
-		return true
+	copier.dstAcc.FillArray(dst, func(filler acc.ArrayFiller) {
+		copier.srcAcc.IterateArray(src, func(srcElem interface{}) bool {
+			dstElem := filler.Next()
+			if dstElem == nil {
+				return false
+			}
+			copier.elemCopier.Copy(dstElem, srcElem)
+			filler.Fill()
+			return true
+		})
 	})
 	return nil
 }
