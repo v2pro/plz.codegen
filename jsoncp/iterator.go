@@ -1,10 +1,10 @@
 package jsoncp
 
 import (
-	"github.com/v2pro/plz/lang"
-	"unsafe"
 	"github.com/json-iterator/go"
+	"github.com/v2pro/plz/lang"
 	"reflect"
+	"unsafe"
 )
 
 type iteratorAccessor struct {

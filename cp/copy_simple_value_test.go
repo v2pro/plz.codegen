@@ -1,9 +1,9 @@
 package cp
 
 import (
-	"testing"
-	"github.com/v2pro/plz/util"
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz/util"
+	"testing"
 )
 
 func Test_copy_int_to_ptr_int(t *testing.T) {

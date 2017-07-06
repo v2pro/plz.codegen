@@ -1,8 +1,8 @@
 package jsoncp
 
 import (
-	"github.com/v2pro/plz/lang"
 	"github.com/json-iterator/go"
+	"github.com/v2pro/plz/lang"
 	"unsafe"
 )
 

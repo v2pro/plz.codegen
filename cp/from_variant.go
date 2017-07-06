@@ -2,8 +2,8 @@ package cp
 
 import (
 	"github.com/v2pro/plz/lang"
-	"unsafe"
 	"github.com/v2pro/plz/util"
+	"unsafe"
 )
 
 type fromVariantCopier struct {

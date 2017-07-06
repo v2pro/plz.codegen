@@ -1,10 +1,10 @@
 package jsoncp
 
 import (
-	"testing"
 	"github.com/json-iterator/go"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/util"
+	"testing"
 )
 
 func Test_decode_map_into_map(t *testing.T) {

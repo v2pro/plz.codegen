@@ -1,12 +1,12 @@
 package jsoncp
 
 import (
-	"testing"
-	"reflect"
 	"github.com/json-iterator/go"
 	"github.com/json-iterator/go/require"
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
+	"reflect"
+	"testing"
 )
 
 func Test_decode_number_into_ptr_int(t *testing.T) {

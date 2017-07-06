@@ -1,11 +1,11 @@
 package jsoncp
 
 import (
-	"github.com/v2pro/plz/lang"
-	"reflect"
 	"github.com/json-iterator/go"
-	_ "github.com/v2pro/wombat/cp"
+	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
+	_ "github.com/v2pro/wombat/cp"
+	"reflect"
 )
 
 var iteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))

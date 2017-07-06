@@ -1,9 +1,9 @@
 package cp
 
 import (
-	"unsafe"
-	"github.com/v2pro/plz/util"
 	"github.com/v2pro/plz/lang"
+	"github.com/v2pro/plz/util"
+	"unsafe"
 )
 
 func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {

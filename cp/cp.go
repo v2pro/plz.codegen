@@ -1,9 +1,9 @@
 package cp
 
 import (
-	_ "github.com/v2pro/plz_native_accessor"
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
+	_ "github.com/v2pro/plz_native_accessor"
 )
 
 func init() {
@@ -70,4 +70,3 @@ func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) 
 	}
 	return nil, nil
 }
-

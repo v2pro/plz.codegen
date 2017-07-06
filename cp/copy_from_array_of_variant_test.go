@@ -1,9 +1,9 @@
 package cp
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/util"
+	"testing"
 )
 
 func Test_copy_slice_of_variant_to_ptr_slice(t *testing.T) {

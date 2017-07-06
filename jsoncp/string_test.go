@@ -1,12 +1,12 @@
 package jsoncp
 
 import (
-	"testing"
 	"github.com/json-iterator/go"
-	"github.com/v2pro/plz/lang"
-	"reflect"
-	"github.com/v2pro/plz/util"
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz/lang"
+	"github.com/v2pro/plz/util"
+	"reflect"
+	"testing"
 )
 
 func Test_decode_string_into_ptr_string(t *testing.T) {

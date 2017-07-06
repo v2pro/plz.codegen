@@ -1,8 +1,8 @@
 package cp
 
 import (
-	"unsafe"
 	"github.com/v2pro/plz/lang"
+	"unsafe"
 )
 
 type intCopier struct {
