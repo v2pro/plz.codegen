@@ -31,12 +31,12 @@ func (accessor *streamAccessor) GoString() string {
 //func (accessor *streamAccessor) Elem() lang.Accessor {
 //	return accessor
 //}
-//
-//func (accessor *streamAccessor) SetString(obj interface{}, val string) {
-//	stream := obj.(*jsoniter.Stream)
-//	stream.WriteString(val)
-//}
-//
+
+func (accessor *streamAccessor) SetString(ptr unsafe.Pointer, val string) {
+	stream := (*jsoniter.Stream)(ptr)
+	stream.WriteString(val)
+}
+
 func (accessor *streamAccessor) SetInt(ptr unsafe.Pointer, val int) {
 	stream := (*jsoniter.Stream)(ptr)
 	stream.WriteInt(val)

@@ -28,3 +28,10 @@ func Test_decode_string_into_ptr_variant(t *testing.T) {
 	should.Nil(util.Copy(&val, iter))
 	should.Equal("hello", val)
 }
+
+func Test_encode_string(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	should.Nil(util.Copy(stream, "hello"))
+	should.Equal(`"hello"`, string(stream.Buffer()))
+}
