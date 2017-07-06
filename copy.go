@@ -11,6 +11,11 @@ func init() {
 }
 
 func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) {
+	if dstAccessor.Kind() == lang.Struct && dstAccessor.RandomAccessible() {
+		if srcAccessor.Kind() == lang.Struct {
+			return newStructToStructCopier(dstAccessor, srcAccessor)
+		}
+	}
 	if srcAccessor.Kind() == dstAccessor.Kind() {
 		switch srcAccessor.Kind() {
 		case lang.Int:
