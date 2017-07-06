@@ -1,14 +1,39 @@
 package jsonacc
-//
-//import (
-//	"testing"
-//	"github.com/json-iterator/go"
-//	"github.com/v2pro/plz"
-//	"reflect"
-//	"github.com/stretchr/testify/require"
-//	"github.com/v2pro/plz/lang"
-//	"unsafe"
-//)
+
+import (
+	"testing"
+	"github.com/json-iterator/go"
+	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz/util"
+)
+
+func Test_decode_map_into_map(t *testing.T) {
+	should := require.New(t)
+	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"Field": 1}`)
+	val := map[string]int{}
+	should.Nil(util.Copy(val, iter))
+	should.Equal(map[string]int{"Field": 1}, val)
+}
+
+func Test_decode_map_into_ptr_variant(t *testing.T) {
+	should := require.New(t)
+	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"Field": 1}`)
+	var val interface{}
+	should.Nil(util.Copy(&val, iter))
+	should.Equal(map[string]interface{}{"Field": float64(1)}, val)
+}
+
+func Test_decode_map_into_struct(t *testing.T) {
+	should := require.New(t)
+	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `{"Field": 1}`)
+	type TestObject struct {
+		Field int
+	}
+	val := TestObject{}
+	should.Nil(util.Copy(&val, iter))
+	should.Equal(1, val.Field)
+}
+
 //
 //func Test_map_decode(t *testing.T) {
 //	should := require.New(t)

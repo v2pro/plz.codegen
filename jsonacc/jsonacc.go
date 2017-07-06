@@ -45,6 +45,10 @@ func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) 
 		// already updated kind
 		return nil, nil
 	}
-	srcIteratorAccessor.kind = dstAccessor.Kind()
+	if dstAccessor.Kind() == lang.Struct {
+		srcIteratorAccessor.kind = lang.Map
+	} else {
+		srcIteratorAccessor.kind = dstAccessor.Kind()
+	}
 	return util.CopierOf(dstAccessor, srcIteratorAccessor)
 }

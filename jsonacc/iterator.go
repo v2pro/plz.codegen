@@ -23,11 +23,12 @@ func (accessor *iteratorAccessor) GoString() string {
 	return "iteratorAccessor"
 }
 
-//
-//func (accessor *iteratorAccessor) Key() lang.Accessor {
-//	return &mapKeyReader{}
-//}
-//
+func (accessor *iteratorAccessor) Key() lang.Accessor {
+	return &mapKeyReader{
+		lang.NoopAccessor{"mapKeyReader"},
+	}
+}
+
 func (accessor *iteratorAccessor) Elem() lang.Accessor {
 	return &iteratorAccessor{
 		lang.NoopAccessor{"iteratorAccessor"},
@@ -77,14 +78,13 @@ func (accessor *iteratorAccessor) String(ptr unsafe.Pointer) string {
 	return iter.ReadString()
 }
 
-//
-//func (accessor *iteratorAccessor) IterateMap(obj interface{}, cb func(key interface{}, elem interface{}) bool) {
-//	iter := obj.(*jsoniter.Iterator)
-//	iter.ReadMapCB(func(iter *jsoniter.Iterator, field string) bool {
-//		return cb(field, iter)
-//	})
-//}
-//
+func (accessor *iteratorAccessor) IterateMap(ptr unsafe.Pointer, cb func(key unsafe.Pointer, elem unsafe.Pointer) bool) {
+	iter := (*jsoniter.Iterator)(ptr)
+	iter.ReadMapCB(func(iter *jsoniter.Iterator, field string) bool {
+		return cb(lang.AddressOf(field), unsafe.Pointer(iter))
+	})
+}
+
 func (accessor *iteratorAccessor) IterateArray(ptr unsafe.Pointer, cb func(index int, elem unsafe.Pointer) bool) {
 	iter := (*jsoniter.Iterator)(ptr)
 	index := 0
@@ -99,26 +99,28 @@ func (accessor *iteratorAccessor) New() interface{} {
 	switch accessor.kind {
 	case lang.Array:
 		return []interface{}{}
+	case lang.Map:
+		return map[string]interface{}{}
 	}
 	panic("not implemented")
 }
-//
-//type mapKeyReader struct {
-//	lang.NoopAccessor
-//}
-//
-//func (accessor *mapKeyReader) ReadOnly() bool {
-//	return true
-//}
-//
-//func (accessor *mapKeyReader) Kind() lang.Kind {
-//	return lang.String
-//}
-//
-//func (accessor *mapKeyReader) GoString() string {
-//	return "string"
-//}
-//
-//func (accessor *mapKeyReader) String(obj interface{}) string {
-//	return obj.(string)
-//}
+
+type mapKeyReader struct {
+	lang.NoopAccessor
+}
+
+func (accessor *mapKeyReader) ReadOnly() bool {
+	return true
+}
+
+func (accessor *mapKeyReader) Kind() lang.Kind {
+	return lang.String
+}
+
+func (accessor *mapKeyReader) GoString() string {
+	return "string"
+}
+
+func (accessor *mapKeyReader) String(ptr unsafe.Pointer) string {
+	return *((*string)(ptr))
+}
