@@ -42,40 +42,51 @@ func provideStreamCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, e
 		// use default impl
 		return nil, nil
 	}
-	dstStreamAccessor, isStream := dstAccessor.(*streamAccessor)
-	if !isStream {
-		return nil, nil
-	}
 	if dstAccessor.Kind() != lang.Variant {
 		// already updated kind
 		return nil, nil
 	}
+	dstStreamAccessor, isStream := dstAccessor.(*streamAccessor)
+	if !isStream {
+		return nil, nil
+	}
 	if srcAccessor.Kind() == lang.Struct {
-		dstStreamAccessor.kind = lang.Map
+		dstStreamAccessor = &streamAccessor{
+			lang.NoopAccessor{"streamAccessor"},
+			lang.Map,
+		}
 	} else {
-		dstStreamAccessor.kind = srcAccessor.Kind()
+		dstStreamAccessor = &streamAccessor{
+			lang.NoopAccessor{"streamAccessor"},
+			srcAccessor.Kind(),
+		}
 	}
 	return util.CopierOf(dstStreamAccessor, srcAccessor)
 }
-
 
 func provideIteratorCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) {
 	if dstAccessor.Kind() == lang.Variant {
 		// use default impl
 		return nil, nil
 	}
-	srcIteratorAccessor, isIterator := srcAccessor.(*iteratorAccessor)
-	if !isIterator {
-		return nil, nil
-	}
 	if srcAccessor.Kind() != lang.Variant {
 		// already updated kind
 		return nil, nil
 	}
+	srcIteratorAccessor, isIterator := srcAccessor.(*iteratorAccessor)
+	if !isIterator {
+		return nil, nil
+	}
 	if dstAccessor.Kind() == lang.Struct {
-		srcIteratorAccessor.kind = lang.Map
+		srcIteratorAccessor = &iteratorAccessor{
+			lang.NoopAccessor{"iteratorAccessor"},
+			lang.Map,
+		}
 	} else {
-		srcIteratorAccessor.kind = dstAccessor.Kind()
+		srcIteratorAccessor = &iteratorAccessor{
+			lang.NoopAccessor{"iteratorAccessor"},
+			dstAccessor.Kind(),
+		}
 	}
 	return util.CopierOf(dstAccessor, srcIteratorAccessor)
 }
