@@ -71,3 +71,29 @@ func Test_copy_struct_to_ptr_struct_with_no_match(t *testing.T) {
 	should.Nil(util.Copy(&a, B{"hello"}))
 	should.Equal("", a.Field1)
 }
+
+func Test_copy_struct_with_ptr(t *testing.T) {
+	should := require.New(t)
+	type A struct {
+		Field *string
+	}
+	type B struct {
+		Field string
+	}
+	var a A
+	should.Nil(util.Copy(&a, B{"hello"}))
+	should.Equal("hello", *a.Field)
+}
+
+func Test_copy_struct_with_ptr_ptr(t *testing.T) {
+	should := require.New(t)
+	type A struct {
+		Field **string
+	}
+	type B struct {
+		Field string
+	}
+	var a A
+	should.Nil(util.Copy(&a, B{"hello"}))
+	should.Equal("hello", **a.Field)
+}
