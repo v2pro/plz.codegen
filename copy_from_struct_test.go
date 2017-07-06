@@ -6,6 +6,20 @@ import (
 	"github.com/v2pro/plz/util"
 )
 
+func Test_copy_struct_to_map(t *testing.T) {
+	should := require.New(t)
+	type TestObject struct {
+		Field1 string
+		Field2 string
+	}
+	a := map[string]string{}
+	should.Nil(util.Copy(a, TestObject{"1", "2"}))
+	should.Equal(map[string]string{
+		"Field1": "1",
+		"Field2": "2",
+	}, a)
+}
+
 func Test_copy_struct_to_ptr_struct_with_exact_fields(t *testing.T) {
 	should := require.New(t)
 	type A struct {
