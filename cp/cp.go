@@ -46,6 +46,11 @@ func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) 
 				srcAcc: srcAccessor,
 				dstAcc: dstAccessor,
 			}, nil
+		case lang.Float64:
+			return &float64Copier{
+				srcAcc: srcAccessor,
+				dstAcc: dstAccessor,
+			}, nil
 		case lang.String:
 			return &stringCopier{
 				srcAcc: srcAccessor,
