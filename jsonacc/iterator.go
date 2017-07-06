@@ -69,11 +69,10 @@ func (accessor *iteratorAccessor) Float64(ptr unsafe.Pointer) float64 {
 	return iter.ReadFloat64()
 }
 
-//
-//func (accessor *iteratorAccessor) String(obj unsafe.Pointer) string {
-//	iter := obj.(*jsoniter.Iterator)
-//	return iter.ReadString()
-//}
+func (accessor *iteratorAccessor) String(ptr unsafe.Pointer) string {
+	iter := (*jsoniter.Iterator)(ptr)
+	return iter.ReadString()
+}
 //
 //func (accessor *iteratorAccessor) IterateMap(obj interface{}, cb func(key interface{}, elem interface{}) bool) {
 //	iter := obj.(*jsoniter.Iterator)
