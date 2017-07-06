@@ -11,6 +11,7 @@ type stringCopier struct {
 }
 
 func (copier *stringCopier) Copy(dst unsafe.Pointer, src unsafe.Pointer) error {
-	copier.dstAcc.SetString(dst, copier.srcAcc.String(src))
+	val := copier.srcAcc.String(src)
+	copier.dstAcc.SetString(dst, val)
 	return nil
 }

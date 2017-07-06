@@ -12,10 +12,7 @@ type toVariantCopier struct {
 }
 
 func (copier *toVariantCopier) Copy(dst, src unsafe.Pointer) error {
-	dstElem, dstElemAcc := copier.dstAcc.VariantElem(dst)
-	if dstElem == nil {
-		dstElem, dstElemAcc = copier.dstAcc.InitVariant(dst, copier.srcAcc)
-	}
+	dstElem, dstElemAcc := copier.dstAcc.InitVariant(dst, copier.srcAcc)
 	elemCopier, err := util.CopierOf(dstElemAcc, copier.srcAcc)
 	if err != nil {
 		return err
