@@ -2,27 +2,43 @@ package jsonacc
 
 import (
 	"github.com/json-iterator/go"
-	"github.com/v2pro/plz/acc"
+	"github.com/v2pro/plz/lang"
 )
 
 type iteratorAccessor struct {
-	acc.NoopAccessor
+	lang.NoopAccessor
+	kind lang.Kind
 }
 
-func (accessor *iteratorAccessor) Kind() acc.Kind {
-	return acc.Interface
+func (accessor *iteratorAccessor) Kind() lang.Kind {
+	return accessor.kind
 }
 
 func (accessor *iteratorAccessor) GoString() string {
-	return "interface{}"
+	return "iteratorAccessor"
 }
 
-func (accessor *iteratorAccessor) Key() acc.Accessor {
+func (accessor *iteratorAccessor) Key() lang.Accessor {
 	return &mapKeyReader{}
 }
 
-func (accessor *iteratorAccessor) Elem() acc.Accessor {
-	return accessor
+func (accessor *iteratorAccessor) Elem() lang.Accessor {
+	return &iteratorAccessor{kind: lang.Variant}
+}
+
+func (accessor *iteratorAccessor) PtrElem(obj interface{}) (interface{}, lang.Accessor) {
+	iter := obj.(*jsoniter.Iterator)
+	switch iter.WhatIsNext() {
+	case jsoniter.Array:
+		return obj, &iteratorAccessor{kind: lang.Array}
+	case jsoniter.Object:
+		return obj, &iteratorAccessor{kind: lang.Map}
+	case jsoniter.Number:
+		fallthrough
+	case jsoniter.String:
+		return obj, &iteratorAccessor{kind: lang.Variant}
+	}
+	panic("not implemented")
 }
 
 func (accessor *iteratorAccessor) Int(obj interface{}) int {
@@ -42,19 +58,22 @@ func (accessor *iteratorAccessor) IterateMap(obj interface{}, cb func(key interf
 	})
 }
 
-func (accessor *iteratorAccessor) IterateArray(obj interface{}, cb func(elem interface{}) bool) {
+func (accessor *iteratorAccessor) IterateArray(obj interface{}, cb func(index int, elem interface{}) bool) {
 	iter := obj.(*jsoniter.Iterator)
+	index := 0
 	iter.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-		return cb(iter)
+		currentIndex := index
+		index++
+		return cb(currentIndex, iter)
 	})
 }
 
 type mapKeyReader struct {
-	acc.NoopAccessor
+	lang.NoopAccessor
 }
 
-func (accessor *mapKeyReader) Kind() acc.Kind {
-	return acc.String
+func (accessor *mapKeyReader) Kind() lang.Kind {
+	return lang.String
 }
 
 func (accessor *mapKeyReader) GoString() string {
@@ -64,4 +83,3 @@ func (accessor *mapKeyReader) GoString() string {
 func (accessor *mapKeyReader) String(obj interface{}) string {
 	return obj.(string)
 }
-

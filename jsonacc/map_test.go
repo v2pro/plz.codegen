@@ -14,9 +14,9 @@ func Test_map_decode(t *testing.T) {
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault,
 		`{"Field": 1}`)
 	accessor := plz.AccessorOf(reflect.TypeOf(iter))
-	should.Equal(acc.Interface, accessor.Kind())
-	should.Equal(acc.String, accessor.Key().Kind())
-	should.Equal(acc.Interface, accessor.Elem().Kind())
+	should.Equal(lang.Interface, accessor.Kind())
+	should.Equal(lang.String, accessor.Key().Kind())
+	should.Equal(lang.Interface, accessor.Elem().Kind())
 	keys := []string{}
 	elems := []int{}
 	accessor.IterateMap(iter, func(key interface{}, elem interface{}) bool {
@@ -32,7 +32,7 @@ func Test_map_encode_one(t *testing.T) {
 	should := require.New(t)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
 	accessor := plz.AccessorOf(reflect.TypeOf(stream))
-	accessor.FillMap(stream, func(filler acc.MapFiller) {
+	accessor.FillMap(stream, func(filler lang.MapFiller) {
 		key, elem := filler.Next()
 		accessor.Key().SetString(key, "hello")
 		accessor.Elem().SetString(elem, "world")
@@ -45,7 +45,7 @@ func Test_map_encode_many(t *testing.T) {
 	should := require.New(t)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
 	accessor := plz.AccessorOf(reflect.TypeOf(stream))
-	accessor.FillMap(stream, func(filler acc.MapFiller) {
+	accessor.FillMap(stream, func(filler lang.MapFiller) {
 		key, elem := filler.Next()
 		accessor.Key().SetString(key, "hello")
 		accessor.Elem().SetString(elem, "world")

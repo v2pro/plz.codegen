@@ -26,7 +26,7 @@ func Test_array_encode_one(t *testing.T) {
 	should := require.New(t)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil , 1024)
 	accessor := plz.AccessorOf(reflect.TypeOf(stream))
-	accessor.FillArray(stream, func(filler acc.ArrayFiller) {
+	accessor.FillArray(stream, func(filler lang.ArrayFiller) {
 		elem := filler.Next()
 		accessor.Elem().SetInt(elem, 1)
 		filler.Fill()
@@ -38,7 +38,7 @@ func Test_array_encode_many(t *testing.T) {
 	should := require.New(t)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil , 1024)
 	accessor := plz.AccessorOf(reflect.TypeOf(stream))
-	accessor.FillArray(stream, func(filler acc.ArrayFiller) {
+	accessor.FillArray(stream, func(filler lang.ArrayFiller) {
 		elem := filler.Next()
 		accessor.Elem().SetInt(elem, 1)
 		filler.Fill()

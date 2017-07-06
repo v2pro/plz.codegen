@@ -1,18 +1,23 @@
 package jsonacc
 
 import (
-	"github.com/v2pro/plz/acc"
+	"github.com/v2pro/plz/lang"
 	"reflect"
 	"github.com/json-iterator/go"
 )
 
 func init() {
-	acc.Providers = append(acc.Providers, func(typ reflect.Type) acc.Accessor {
+	lang.AccessorProviders = append(lang.AccessorProviders, func(typ reflect.Type) lang.Accessor {
 		if reflect.TypeOf((*jsoniter.Iterator)(nil)) == typ {
-			return &iteratorAccessor{}
+			return &iteratorAccessor{
+				lang.NoopAccessor{"iteratorAccessor"},
+				lang.Variant,
+			}
 		}
 		if reflect.TypeOf((*jsoniter.Stream)(nil)) == typ {
-			return &streamAccessor{}
+			return &streamAccessor{
+				lang.NoopAccessor{"streamAccessor"},
+			}
 		}
 		return nil
 	})

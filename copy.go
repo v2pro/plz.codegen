@@ -1,19 +1,39 @@
 package wombat
 
 import (
-	"github.com/v2pro/plz"
-	"reflect"
-	_ "github.com/v2pro/wombat/jsonacc"
-	_ "github.com/v2pro/plz/acc/native"
-	"github.com/v2pro/wombat/cp"
+	_ "github.com/v2pro/plz_native_accessor"
+	"github.com/v2pro/plz/lang"
+	"github.com/v2pro/plz/util"
 )
 
-func Copy(dst interface{}, src interface{}) error {
-	dstAcc := plz.AccessorOf(reflect.TypeOf(dst))
-	srcAcc := plz.AccessorOf(reflect.TypeOf(src))
-	copier, err := cp.CopierOf(dstAcc, srcAcc)
-	if err != nil {
-		return err
+func init() {
+	util.CopierProviders = append(util.CopierProviders, provideCopier)
+}
+
+func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) {
+	if srcAccessor.Kind() == dstAccessor.Kind() {
+		switch srcAccessor.Kind() {
+		case lang.Int:
+			return &intCopier{
+				srcAcc: srcAccessor,
+				dstAcc: dstAccessor,
+			}, nil
+		case lang.String:
+			return &stringCopier{
+				srcAcc: srcAccessor,
+				dstAcc: dstAccessor,
+			}, nil
+		case lang.Array:
+			elemCopier, err := util.CopierOf(dstAccessor.Elem(), srcAccessor.Elem())
+			if err != nil {
+				return nil, err
+			}
+			return &arrayCopier{
+				srcAcc:     srcAccessor,
+				dstAcc:     dstAccessor,
+				elemCopier: elemCopier,
+			}, nil
+		}
 	}
-	return copier.Copy(dst, src)
+	return nil, nil
 }

@@ -1,27 +1,27 @@
 package jsonacc
 
 import (
-	"github.com/v2pro/plz/acc"
+	"github.com/v2pro/plz/lang"
 	"github.com/json-iterator/go"
 )
 
 type streamAccessor struct {
-	acc.NoopAccessor
+	lang.NoopAccessor
 }
 
-func (accessor *streamAccessor) Kind() acc.Kind {
-	return acc.Interface
+func (accessor *streamAccessor) Kind() lang.Kind {
+	return lang.Variant
 }
 
 func (accessor *streamAccessor) GoString() string {
 	return "interface{}"
 }
 
-func (accessor *streamAccessor) Key() acc.Accessor {
+func (accessor *streamAccessor) Key() lang.Accessor {
 	return &mapKeyWriter{}
 }
 
-func (accessor *streamAccessor) Elem() acc.Accessor {
+func (accessor *streamAccessor) Elem() lang.Accessor {
 	return accessor
 }
 
@@ -35,7 +35,7 @@ func (accessor *streamAccessor) SetInt(obj interface{}, val int) {
 	stream.WriteInt(val)
 }
 
-func (accessor *streamAccessor) FillMap(obj interface{}, cb func(filler acc.MapFiller)) {
+func (accessor *streamAccessor) FillMap(obj interface{}, cb func(filler lang.MapFiller)) {
 	stream := obj.(*jsoniter.Stream)
 	stream.WriteObjectStart()
 	cb(&jsonMapFiller{stream, obj, true})
@@ -43,8 +43,8 @@ func (accessor *streamAccessor) FillMap(obj interface{}, cb func(filler acc.MapF
 }
 
 type jsonMapFiller struct {
-	stream *jsoniter.Stream
-	obj interface{}
+	stream  *jsoniter.Stream
+	obj     interface{}
 	isFirst bool
 }
 
@@ -60,37 +60,44 @@ func (filler *jsonMapFiller) Next() (interface{}, interface{}) {
 func (filler *jsonMapFiller) Fill() {
 }
 
-func (accessor *streamAccessor) FillArray(obj interface{}, cb func(filler acc.ArrayFiller)) {
+func (accessor *streamAccessor) FillArray(obj interface{}, cb func(filler lang.ArrayFiller)) {
 	stream := obj.(*jsoniter.Stream)
 	stream.WriteArrayStart()
-	cb(&jsonArrayFiller{stream, obj, true})
+	cb(&jsonArrayFiller{
+		stream:  stream,
+		obj:     obj,
+		isFirst: true,
+	})
 	stream.WriteArrayEnd()
 }
 
 type jsonArrayFiller struct {
-	stream *jsoniter.Stream
-	obj interface{}
+	stream  *jsoniter.Stream
+	index   int
+	obj     interface{}
 	isFirst bool
 }
 
-func (filler *jsonArrayFiller) Next() interface{} {
+func (filler *jsonArrayFiller) Next() (int, interface{}) {
 	if filler.isFirst {
 		filler.isFirst = false
 	} else {
 		filler.stream.WriteMore()
 	}
-	return filler.obj
+	currentIndex := filler.index
+	filler.index++
+	return currentIndex, filler.obj
 }
 
 func (filler *jsonArrayFiller) Fill() {
 }
 
 type mapKeyWriter struct {
-	acc.NoopAccessor
+	lang.NoopAccessor
 }
 
-func (accessor *mapKeyWriter) Kind() acc.Kind {
-	return acc.String
+func (accessor *mapKeyWriter) Kind() lang.Kind {
+	return lang.String
 }
 
 func (accessor *mapKeyWriter) GoString() string {
