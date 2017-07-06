@@ -1,4 +1,4 @@
-package wombat
+package cp
 
 import (
 	"github.com/v2pro/plz/lang"

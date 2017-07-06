@@ -1,4 +1,4 @@
-package wombat
+package cp
 
 import (
 	"unsafe"

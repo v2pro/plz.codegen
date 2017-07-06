@@ -1,62 +1,64 @@
 package cp
-//
-//import (
-//	"github.com/v2pro/plz/lang"
-//	"github.com/v2pro/plz/util"
-//)
-//
-//func structToStruct(dstAcc lang.Accessor, srcAcc lang.Accessor) (util.Copier, error) {
-//	fieldCopiers, err := createStructToStructFieldCopiers(dstAcc, srcAcc)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &structToStructCopier{fieldCopiers}, nil
-//}
-//
-//func createStructToStructFieldCopiers(dstAcc lang.Accessor, srcAcc lang.Accessor) (map[string]Copier, error) {
-//	bindings := map[string]*binding{}
-//	for i := 0; i < dstAcc.NumField(); i++ {
-//		field := dstAcc.Field(i)
-//		bindings[field.Name()] = &binding{
-//			dstAcc: field.Accessor(),
-//		}
-//	}
-//	for i := 0; i < srcAcc.NumField(); i++ {
-//		field := srcAcc.Field(i)
-//		binding := bindings[field.Name()]
-//		if binding == nil {
-//			continue
-//		}
-//		binding.srcAcc = field.Accessor()
-//	}
-//	fieldCopiers := map[string]util.Copier{}
-//	for fieldName, v := range bindings {
-//		if v.srcAcc != nil && v.dstAcc != nil {
-//			copier, err := CopierOf(v.dstAcc, v.srcAcc)
-//			if err != nil {
-//				return nil, err
-//			}
-//			fieldCopiers[fieldName] = copier
-//		}
-//	}
-//	return fieldCopiers, nil
-//}
-//
-//type binding struct {
-//	srcAcc lang.Accessor
-//	dstAcc lang.Accessor
-//}
-//
-//type structToStructCopier struct {
-//	fieldCopiers map[string]util.Copier
-//}
-//
-//func (copier *structToStructCopier) Copy(dst interface{}, src interface{}) error {
-//	for _, fieldCopier := range copier.fieldCopiers {
-//		err := fieldCopier.Copy(dst, src)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
+
+import (
+	"unsafe"
+	"github.com/v2pro/plz/util"
+	"github.com/v2pro/plz/lang"
+)
+
+func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {
+	fieldCopiers := make([]util.Copier, srcAcc.NumField())
+	dstFields := map[string]lang.StructField{}
+	for i := 0; i < dstAcc.NumField(); i++ {
+		field := dstAcc.Field(i)
+		dstFields[field.Name()] = field
+	}
+	for i := 0; i < srcAcc.NumField(); i++ {
+		field := srcAcc.Field(i)
+		dstField := dstFields[field.Name()]
+		if dstField == nil {
+			fieldCopiers[i] = &skipCopier{field.Accessor()}
+		} else {
+			copier, err := util.CopierOf(dstField.Accessor(), field.Accessor())
+			if err != nil {
+				return nil, err
+			}
+			fieldCopiers[i] = &structFieldCopier{
+				elemCopier: copier,
+				dstIndex:   dstField.Index(),
+				dstAcc:     dstAcc,
+			}
+		}
+	}
+	return &structToStructCopier{
+		fieldCopiers: fieldCopiers,
+		srcAcc:       srcAcc,
+	}, nil
+}
+
+type structToStructCopier struct {
+	fieldCopiers []util.Copier
+	srcAcc       lang.Accessor
+}
+
+func (copier *structToStructCopier) Copy(dst, src unsafe.Pointer) (err error) {
+	copier.srcAcc.IterateArray(src, func(index int, srcElem unsafe.Pointer) bool {
+		err = copier.fieldCopiers[index].Copy(dst, srcElem)
+		if err != nil {
+			return false
+		}
+		return true
+	})
+	return
+}
+
+type structFieldCopier struct {
+	elemCopier util.Copier
+	dstIndex   int
+	dstAcc     lang.Accessor
+}
+
+func (copier *structFieldCopier) Copy(dst, src unsafe.Pointer) error {
+	dstElem := copier.dstAcc.ArrayIndex(dst, copier.dstIndex)
+	return copier.elemCopier.Copy(dstElem, src)
+}
