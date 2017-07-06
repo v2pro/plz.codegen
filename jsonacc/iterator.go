@@ -28,10 +28,13 @@ func (accessor *iteratorAccessor) GoString() string {
 //	return &mapKeyReader{}
 //}
 //
-//func (accessor *iteratorAccessor) Elem() lang.Accessor {
-//	return &iteratorAccessor{kind: lang.Variant}
-//}
-//
+func (accessor *iteratorAccessor) Elem() lang.Accessor {
+	return &iteratorAccessor{
+		lang.NoopAccessor{"iteratorAccessor"},
+		lang.Variant,
+	}
+}
+
 func (accessor *iteratorAccessor) VariantElem(ptr unsafe.Pointer) (unsafe.Pointer, lang.Accessor) {
 	iter := (*jsoniter.Iterator)(ptr)
 	switch iter.WhatIsNext() {
@@ -73,6 +76,7 @@ func (accessor *iteratorAccessor) String(ptr unsafe.Pointer) string {
 	iter := (*jsoniter.Iterator)(ptr)
 	return iter.ReadString()
 }
+
 //
 //func (accessor *iteratorAccessor) IterateMap(obj interface{}, cb func(key interface{}, elem interface{}) bool) {
 //	iter := obj.(*jsoniter.Iterator)
@@ -81,15 +85,23 @@ func (accessor *iteratorAccessor) String(ptr unsafe.Pointer) string {
 //	})
 //}
 //
-//func (accessor *iteratorAccessor) IterateArray(obj interface{}, cb func(index int, elem interface{}) bool) {
-//	iter := obj.(*jsoniter.Iterator)
-//	index := 0
-//	iter.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-//		currentIndex := index
-//		index++
-//		return cb(currentIndex, iter)
-//	})
-//}
+func (accessor *iteratorAccessor) IterateArray(ptr unsafe.Pointer, cb func(index int, elem unsafe.Pointer) bool) {
+	iter := (*jsoniter.Iterator)(ptr)
+	index := 0
+	iter.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
+		currentIndex := index
+		index++
+		return cb(currentIndex, unsafe.Pointer(iter))
+	})
+}
+
+func (accessor *iteratorAccessor) New() interface{} {
+	switch accessor.kind {
+	case lang.Array:
+		return []interface{}{}
+	}
+	panic("not implemented")
+}
 //
 //type mapKeyReader struct {
 //	lang.NoopAccessor
