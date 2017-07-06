@@ -1,4 +1,4 @@
-package jsonacc
+package jsoncp
 
 import (
 	"github.com/v2pro/plz/lang"

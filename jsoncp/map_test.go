@@ -1,4 +1,4 @@
-package jsonacc
+package jsoncp
 
 import (
 	"testing"
