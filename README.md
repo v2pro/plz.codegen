@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/v2pro/wombat/branch/master/graph/badge.svg)](https://codecov.io/gh/v2pro/wombat)
 [![rcard](https://goreportcard.com/badge/github.com/v2pro/wombat)](https://goreportcard.com/report/github.com/v2pro/wombat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/v2pro/wombat/master/LICENSE)
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/json-iterator/Lobby)
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/v2pro/Lobby)
 
 <img src="wombat.png" width="250">
 
