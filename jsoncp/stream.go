@@ -27,10 +27,13 @@ func (accessor *streamAccessor) GoString() string {
 //func (accessor *streamAccessor) Key() lang.Accessor {
 //	return &mapKeyWriter{}
 //}
-//
-//func (accessor *streamAccessor) Elem() lang.Accessor {
-//	return accessor
-//}
+
+func (accessor *streamAccessor) Elem() lang.Accessor {
+	return &streamAccessor{
+		lang.NoopAccessor{"streamAccessor"},
+		lang.Variant,
+	}
+}
 
 func (accessor *streamAccessor) SetString(ptr unsafe.Pointer, val string) {
 	stream := (*jsoniter.Stream)(ptr)
@@ -68,37 +71,35 @@ func (accessor *streamAccessor) SetInt(ptr unsafe.Pointer, val int) {
 //func (filler *jsonMapFiller) Fill() {
 //}
 //
-//func (accessor *streamAccessor) FillArray(obj interface{}, cb func(filler lang.ArrayFiller)) {
-//	stream := obj.(*jsoniter.Stream)
-//	stream.WriteArrayStart()
-//	cb(&jsonArrayFiller{
-//		stream:  stream,
-//		obj:     obj,
-//		isFirst: true,
-//	})
-//	stream.WriteArrayEnd()
-//}
-//
-//type jsonArrayFiller struct {
-//	stream  *jsoniter.Stream
-//	index   int
-//	obj     interface{}
-//	isFirst bool
-//}
-//
-//func (filler *jsonArrayFiller) Next() (int, interface{}) {
-//	if filler.isFirst {
-//		filler.isFirst = false
-//	} else {
-//		filler.stream.WriteMore()
-//	}
-//	currentIndex := filler.index
-//	filler.index++
-//	return currentIndex, filler.obj
-//}
-//
-//func (filler *jsonArrayFiller) Fill() {
-//}
+func (accessor *streamAccessor) FillArray(ptr unsafe.Pointer, cb func(filler lang.ArrayFiller)) {
+	stream := (*jsoniter.Stream)(ptr)
+	stream.WriteArrayStart()
+	cb(&jsonArrayFiller{
+		stream:  stream,
+		isFirst: true,
+	})
+	stream.WriteArrayEnd()
+}
+
+type jsonArrayFiller struct {
+	stream  *jsoniter.Stream
+	index   int
+	isFirst bool
+}
+
+func (filler *jsonArrayFiller) Next() (int, unsafe.Pointer) {
+	if filler.isFirst {
+		filler.isFirst = false
+	} else {
+		filler.stream.WriteMore()
+	}
+	currentIndex := filler.index
+	filler.index++
+	return currentIndex, unsafe.Pointer(filler.stream)
+}
+
+func (filler *jsonArrayFiller) Fill() {
+}
 //
 //type mapKeyWriter struct {
 //	lang.NoopAccessor

@@ -25,6 +25,13 @@ func Test_decode_array_into_ptr_variant(t *testing.T) {
 	should.Equal([]interface{}{float64(1), float64(2), float64(3)}, elems)
 }
 
+func Test_encode_slice_of_int(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	should.Nil(util.Copy(stream, []int{1, 2, 3}))
+	should.Equal("[1,2,3]", string(stream.Buffer()))
+}
+
 //
 //func Test_array_decode(t *testing.T) {
 //	should := require.New(t)
