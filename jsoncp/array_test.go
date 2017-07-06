@@ -38,3 +38,12 @@ func Test_encode_slice_of_variant(t *testing.T) {
 	should.Nil(util.Copy(stream, []interface{}{1, "2", 3}))
 	should.Equal(`[1,"2",3]`, string(stream.Buffer()))
 }
+
+func Test_encode_slice_of_ptr_int(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	two := 2
+	three := 3
+	should.Nil(util.Copy(stream, []*int{nil, &two, &three}))
+	should.Equal("[null,2,3]", string(stream.Buffer()))
+}

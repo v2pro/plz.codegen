@@ -33,18 +33,6 @@ func Test_copy_struct_to_ptr_struct_with_exact_fields(t *testing.T) {
 	should.Equal("hello", a.Field)
 }
 
-func Test_copy_struct_to_struct(t *testing.T) {
-	should := require.New(t)
-	type A struct {
-		Field string
-	}
-	type B struct {
-		Field string
-	}
-	var a A
-	should.NotNil(util.Copy(a, B{"hello"}))
-}
-
 func Test_copy_struct_to_ptr_struct_with_more_src(t *testing.T) {
 	should := require.New(t)
 	type A struct {
@@ -97,6 +85,19 @@ func Test_copy_struct_with_ptr(t *testing.T) {
 	var a A
 	should.Nil(util.Copy(&a, B{"hello"}))
 	should.Equal("hello", *a.Field)
+}
+
+func Test_copy_struct_with_nil_ptr(t *testing.T) {
+	should := require.New(t)
+	type C struct {
+		Field string
+	}
+	type B struct {
+		Field1 *C
+		Field2 *C
+	}
+	a := map[string]interface{}{}
+	should.Nil(util.Copy(a, B{}))
 }
 
 func Test_copy_struct_with_ptr_ptr(t *testing.T) {

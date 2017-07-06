@@ -30,6 +30,18 @@ func Test_copy_slice_of_struct_into_slice_of_variant(t *testing.T) {
 	should.Equal(TestObject{"world"}, a[1])
 }
 
+func Test_copy_slice_of_slice_into_slice_of_variant(t *testing.T) {
+	should := require.New(t)
+	type TestObject struct {
+		Field string
+	}
+	a := []interface{}{}
+	should.Nil(util.Copy(&a, [][]int{{1, 2}, {3, 4}}))
+	should.Equal(2, len(a))
+	should.Equal([]int{1, 2}, a[0])
+	should.Equal([]int{3, 4}, a[1])
+}
+
 func Test_copy_slice_of_variant_into_variant(t *testing.T) {
 	should := require.New(t)
 	type TestObject struct {

@@ -13,6 +13,10 @@ type arrayCopier struct {
 }
 
 func (copier *arrayCopier) Copy(dst unsafe.Pointer, src unsafe.Pointer) (err error) {
+	if src == nil {
+		copier.dstAcc.Skip(dst)
+		return nil
+	}
 	copier.dstAcc.FillArray(dst, func(filler lang.ArrayFiller) {
 		copier.srcAcc.IterateArray(src, func(index int, srcElem unsafe.Pointer) bool {
 			_, dstElem := filler.Next()

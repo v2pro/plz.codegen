@@ -27,21 +27,32 @@ func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) 
 				elemCopier: copier,
 				dstIndex:   dstField.Index(),
 				dstAcc:     dstAcc,
+				srcAcc:     field.Accessor(),
 			}
 		}
 	}
 	return &structToStructCopier{
 		fieldCopiers: fieldCopiers,
 		srcAcc:       srcAcc,
+		dstAcc:       dstAcc,
 	}, nil
 }
 
 type structToStructCopier struct {
 	fieldCopiers []util.Copier
 	srcAcc       lang.Accessor
+	dstAcc       lang.Accessor
 }
 
 func (copier *structToStructCopier) Copy(dst, src unsafe.Pointer) (err error) {
+	if src == nil {
+		copier.dstAcc.Skip(dst)
+		return nil
+	}
+	if dst == nil {
+		copier.srcAcc.Skip(src)
+		return nil
+	}
 	copier.srcAcc.IterateArray(src, func(index int, srcElem unsafe.Pointer) bool {
 		err = copier.fieldCopiers[index].Copy(dst, srcElem)
 		if err != nil {
@@ -56,9 +67,18 @@ type structFieldCopier struct {
 	elemCopier util.Copier
 	dstIndex   int
 	dstAcc     lang.Accessor
+	srcAcc     lang.Accessor
 }
 
 func (copier *structFieldCopier) Copy(dst, src unsafe.Pointer) error {
+	if dst == nil {
+		copier.srcAcc.Skip(src)
+		return nil
+	}
+	if src == nil {
+		copier.dstAcc.Skip(dst)
+		return nil
+	}
 	dstElem := copier.dstAcc.ArrayIndex(dst, copier.dstIndex)
 	return copier.elemCopier.Copy(dstElem, src)
 }

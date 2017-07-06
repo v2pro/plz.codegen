@@ -34,6 +34,11 @@ func (accessor *streamAccessor) Elem() lang.Accessor {
 	}
 }
 
+func (accessor *streamAccessor) Skip(ptr unsafe.Pointer) {
+	stream := (*jsoniter.Stream)(ptr)
+	stream.WriteNil()
+}
+
 func (accessor *streamAccessor) SetString(ptr unsafe.Pointer, val string) {
 	stream := (*jsoniter.Stream)(ptr)
 	stream.WriteString(val)

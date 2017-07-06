@@ -4,6 +4,7 @@ import (
 	"github.com/v2pro/plz/lang"
 	"unsafe"
 	"github.com/json-iterator/go"
+	"reflect"
 )
 
 type iteratorAccessor struct {
@@ -95,12 +96,14 @@ func (accessor *iteratorAccessor) IterateArray(ptr unsafe.Pointer, cb func(index
 	})
 }
 
-func (accessor *iteratorAccessor) New() interface{} {
+func (accessor *iteratorAccessor) New() (interface{}, lang.Accessor) {
 	switch accessor.kind {
 	case lang.Array:
-		return []interface{}{}
+		obj := []interface{}{}
+		return obj, lang.AccessorOf(reflect.TypeOf(&obj))
 	case lang.Map:
-		return map[string]interface{}{}
+		obj := map[string]interface{}{}
+		return obj, lang.AccessorOf(reflect.TypeOf(obj))
 	}
 	panic("not implemented")
 }

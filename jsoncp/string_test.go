@@ -35,3 +35,10 @@ func Test_encode_string(t *testing.T) {
 	should.Nil(util.Copy(stream, "hello"))
 	should.Equal(`"hello"`, string(stream.Buffer()))
 }
+
+func Test_encode_ptr_string_nil(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	should.Nil(util.Copy(stream, (*string)(nil)))
+	should.Equal(`null`, string(stream.Buffer()))
+}
