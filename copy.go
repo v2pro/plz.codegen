@@ -16,6 +16,11 @@ func provideCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error) 
 			return newStructToStructCopier(dstAccessor, srcAccessor)
 		}
 	}
+	if dstAccessor.Kind() == lang.Map {
+		if srcAccessor.Kind() == lang.Map {
+			return newMapToMapCopier(dstAccessor, srcAccessor)
+		}
+	}
 	if srcAccessor.Kind() == dstAccessor.Kind() {
 		switch srcAccessor.Kind() {
 		case lang.Int:

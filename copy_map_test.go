@@ -1,24 +1,18 @@
 package wombat
-//
-//import (
-//	"testing"
-//	"github.com/json-iterator/go/require"
-//	"github.com/json-iterator/go"
-//)
-//
-//func Test_copy_struct_to_struct(t *testing.T) {
-//	should := require.New(t)
-//	type A struct {
-//		Field string
-//	}
-//	type B struct {
-//		Field string
-//	}
-//	var a A
-//	should.Nil(Copy(&a, B{"hello"}))
-//	should.Equal("hello", a.Field)
-//}
-//
+
+import (
+	"testing"
+	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz/util"
+)
+
+func Test_copy_map_to_map(t *testing.T) {
+	should := require.New(t)
+	a := map[string]string{}
+	should.Nil(util.Copy(a, map[string]string{"hello": "world"}))
+	should.Equal(map[string]string{"hello": "world"}, a)
+}
+
 //func Test_copy_map_to_struct(t *testing.T) {
 //	should := require.New(t)
 //	type A struct {
