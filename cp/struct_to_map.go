@@ -34,11 +34,11 @@ func (copier *structToMapCopier) Copy(dst, src unsafe.Pointer) (err error) {
 	copier.dstAcc.FillMap(dst, func(filler lang.MapFiller) {
 		copier.srcAcc.IterateArray(src, func(index int, srcElem unsafe.Pointer) bool {
 			dstKey, dstElem := filler.Next()
+			copier.dstAcc.Key().SetString(dstKey, copier.srcAcc.Field(index).Name())
 			err = copier.fieldCopiers[index].Copy(dstElem, srcElem)
 			if err != nil {
 				return false
 			}
-			copier.dstAcc.Key().SetString(dstKey, copier.srcAcc.Field(index).Name())
 			filler.Fill()
 			return true
 		})
