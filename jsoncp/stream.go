@@ -2,10 +2,13 @@ package jsoncp
 
 import (
 	"github.com/v2pro/plz/lang"
+	"github.com/json-iterator/go"
+	"unsafe"
 )
 
 type streamAccessor struct {
 	lang.NoopAccessor
+	kind lang.Kind
 }
 
 func (accessor *streamAccessor) ReadOnly() bool {
@@ -13,12 +16,13 @@ func (accessor *streamAccessor) ReadOnly() bool {
 }
 
 func (accessor *streamAccessor) Kind() lang.Kind {
-	return lang.Variant
+	return accessor.kind
 }
 
 func (accessor *streamAccessor) GoString() string {
-	return "interface{}"
+	return "jsoncp.streamAccessor"
 }
+
 //
 //func (accessor *streamAccessor) Key() lang.Accessor {
 //	return &mapKeyWriter{}
@@ -33,10 +37,11 @@ func (accessor *streamAccessor) GoString() string {
 //	stream.WriteString(val)
 //}
 //
-//func (accessor *streamAccessor) SetInt(obj interface{}, val int) {
-//	stream := obj.(*jsoniter.Stream)
-//	stream.WriteInt(val)
-//}
+func (accessor *streamAccessor) SetInt(ptr unsafe.Pointer, val int) {
+	stream := (*jsoniter.Stream)(ptr)
+	stream.WriteInt(val)
+}
+
 //
 //func (accessor *streamAccessor) FillMap(obj interface{}, cb func(filler lang.MapFiller)) {
 //	stream := obj.(*jsoniter.Stream)

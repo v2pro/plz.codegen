@@ -20,7 +20,7 @@ func (accessor *iteratorAccessor) Kind() lang.Kind {
 }
 
 func (accessor *iteratorAccessor) GoString() string {
-	return "iteratorAccessor"
+	return "jsoncp.iteratorAccessor"
 }
 
 func (accessor *iteratorAccessor) Key() lang.Accessor {
