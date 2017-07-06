@@ -3,7 +3,6 @@ package wombat
 import (
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
-	"fmt"
 	"unsafe"
 )
 
@@ -14,9 +13,6 @@ func newStructToMapCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {
 		copier, err := util.CopierOf(dstAcc.Elem(), field.Accessor())
 		if err != nil {
 			return nil, err
-		}
-		if copier == nil {
-			return nil, fmt.Errorf("no copier for %#v => %#v", field.Accessor(), dstAcc.Elem())
 		}
 		fieldCopiers[i] = copier
 	}

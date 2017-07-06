@@ -4,7 +4,6 @@ import (
 	"unsafe"
 	"github.com/v2pro/plz/util"
 	"github.com/v2pro/plz/lang"
-	"fmt"
 )
 
 func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {
@@ -23,9 +22,6 @@ func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) 
 			copier, err := util.CopierOf(dstField.Accessor(), field.Accessor())
 			if err != nil {
 				return nil, err
-			}
-			if copier == nil {
-				return nil, fmt.Errorf("no copier for %#v => %#v", field.Accessor(), dstField.Accessor())
 			}
 			fieldCopiers[i] = &structFieldCopier{
 				elemCopier: copier,
