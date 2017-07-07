@@ -50,3 +50,4 @@ func Test_field_rename_to_original(t *testing.T) {
 	should.Equal(1, acc.NumField())
 	should.Equal("Field", acc.Field(0).Name())
 }
+

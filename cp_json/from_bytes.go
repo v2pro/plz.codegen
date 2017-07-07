@@ -12,7 +12,7 @@ import (
 var byteArrayType = reflect.TypeOf([]byte{})
 
 func provideFromBytesCopier(dstType, srcType reflect.Type) (util.ObjectCopier, error) {
-	isFromBytes := srcType == byteArrayType && dstType.Kind() == reflect.Ptr && tagging.Get(dstType.Elem()).Tags["codec"] == "json"
+	isFromBytes := srcType == byteArrayType && dstType.Kind() == reflect.Ptr && tagging.Get(dstType.Elem()).Tags["codec"].Text() == "json"
 	if !isFromBytes {
 		return nil, nil
 	}

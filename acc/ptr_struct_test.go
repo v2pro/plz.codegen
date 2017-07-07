@@ -37,23 +37,6 @@ func Test_ptr_struct_num_field(t *testing.T) {
 	should.Equal(2, objAcc(v).NumField())
 }
 
-func Test_ptr_struct_field_name_tags(t *testing.T) {
-	type TestObject struct {
-		Field1 int `json:"field1"`
-		Field2 int `json:"field2"`
-	}
-	should := require.New(t)
-	v := &TestObject{1, 2}
-	should.Equal("Field1", objAcc(v).Field(0).Name())
-	should.Equal(map[string]interface{}{
-		"json": "field1",
-	}, objAcc(v).Field(0).Tags())
-	should.Equal("Field2", objAcc(v).Field(1).Name())
-	should.Equal(map[string]interface{}{
-		"json": "field2",
-	}, objAcc(v).Field(1).Tags())
-}
-
 func Test_ptr_struct_field_accessor(t *testing.T) {
 	type TestObject struct {
 		Field1 int `json:"field1"`

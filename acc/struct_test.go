@@ -45,13 +45,9 @@ func Test_struct_field_name_tags(t *testing.T) {
 	should := require.New(t)
 	v := TestObject{1, 2}
 	should.Equal("Field1", objAcc(v).Field(0).Name())
-	should.Equal(map[string]interface{}{
-		"json": "field1",
-	}, objAcc(v).Field(0).Tags())
+	should.Equal("field1", objAcc(v).Field(0).Tags()["json"].Text())
 	should.Equal("Field2", objAcc(v).Field(1).Name())
-	should.Equal(map[string]interface{}{
-		"json": "field2",
-	}, objAcc(v).Field(1).Tags())
+	should.Equal("field2", objAcc(v).Field(1).Tags()["json"].Text())
 }
 
 func Test_struct_field_accessor(t *testing.T) {

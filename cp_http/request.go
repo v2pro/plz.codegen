@@ -5,6 +5,7 @@ import (
 	"unsafe"
 	"net/http"
 	"reflect"
+	"github.com/v2pro/plz/lang/tagging"
 )
 
 func newRequestAccessor(tagName string) lang.Accessor {
@@ -83,6 +84,6 @@ func (field *requestField) Name() string {
 func (field *requestField) Accessor() lang.Accessor {
 	return field.accessor
 }
-func (field *requestField) Tags() map[string]interface{} {
-	return map[string]interface{}{}
+func (field *requestField) Tags() map[string]tagging.TagValue {
+	return map[string]tagging.TagValue{}
 }

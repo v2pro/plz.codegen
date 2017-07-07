@@ -16,18 +16,16 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
 		fieldTags := tags.Fields[field.Name]
 		if fieldTags == nil {
-			fieldTags = map[string]interface{}{}
+			fieldTags = map[string]tagging.TagValue{}
 		}
 		fieldName := field.Name
-		fieldTagValue, isDefined := fieldTags[tagName].(string)
-		if isDefined {
-			if fieldTagValue == "-" {
-				fieldName = ""
-			} else {
-				renameTo := strings.Split(fieldTagValue, ",")[0]
-				if renameTo != "" {
-					fieldName = renameTo
-				}
+		fieldTagValue := fieldTags[tagName].Text()
+		if fieldTagValue == "-" {
+			fieldName = ""
+		} else {
+			renameTo := strings.Split(fieldTagValue, ",")[0]
+			if renameTo != "" {
+				fieldName = renameTo
 			}
 		}
 		fields = append(fields, &structField{
@@ -49,7 +47,7 @@ type structField struct {
 	index    int
 	name     string
 	accessor lang.Accessor
-	tags     map[string]interface{}
+	tags     map[string]tagging.TagValue
 	offset   uintptr
 }
 
@@ -65,7 +63,7 @@ func (sf *structField) Accessor() lang.Accessor {
 	return sf.accessor
 }
 
-func (sf *structField) Tags() map[string]interface{} {
+func (sf *structField) Tags() map[string]tagging.TagValue {
 	return sf.tags
 }
 
