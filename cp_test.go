@@ -2,8 +2,8 @@ package wombat
 
 import (
 	"fmt"
-	"github.com/v2pro/plz/util"
 	_ "github.com/v2pro/wombat/cp"
+	"github.com/v2pro/plz"
 )
 
 func Example_copy_struct() {
@@ -24,7 +24,7 @@ func Example_copy_struct() {
 		Properties map[string]interface{}
 	}
 	userInfo := UserInfo{}
-	util.Copy(&userInfo, User{
+	plz.Copy(&userInfo, User{
 		FirstName: "A",
 		LastName:  "B",
 		Tags:      []int{1, 2, 3},
