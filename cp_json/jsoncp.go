@@ -12,7 +12,7 @@ var iteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
 var streamType = reflect.TypeOf((*jsoniter.Stream)(nil))
 
 func init() {
-	lang.AccessorProviders = append([]func(typ reflect.Type) lang.Accessor{
+	lang.AccessorProviders = append([]func(typ reflect.Type, tagName string) lang.Accessor{
 		provideAccessor,
 	}, lang.AccessorProviders...)
 	util.ObjectCopierProviders = append([]func(dstType, srcType reflect.Type) (util.ObjectCopier, error){
@@ -25,16 +25,16 @@ func init() {
 	}, util.CopierProviders...)
 }
 
-func provideAccessor(typ reflect.Type) lang.Accessor {
+func provideAccessor(typ reflect.Type, tagName string) lang.Accessor {
 	if iteratorType == typ {
 		return &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{tagName, "iteratorAccessor"},
 			lang.Variant,
 		}
 	}
 	if streamType == typ {
 		return &streamAccessor{
-			lang.NoopAccessor{"streamAccessor"},
+			lang.NoopAccessor{tagName, "streamAccessor"},
 			lang.Variant,
 		}
 	}
@@ -56,12 +56,12 @@ func provideStreamCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier, e
 	}
 	if srcAccessor.Kind() == lang.Struct {
 		dstStreamAccessor = &streamAccessor{
-			lang.NoopAccessor{"streamAccessor"},
+			lang.NoopAccessor{"json", "streamAccessor"},
 			lang.Map,
 		}
 	} else {
 		dstStreamAccessor = &streamAccessor{
-			lang.NoopAccessor{"streamAccessor"},
+			lang.NoopAccessor{"json", "streamAccessor"},
 			srcAccessor.Kind(),
 		}
 	}
@@ -83,12 +83,12 @@ func provideIteratorCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier,
 	}
 	if dstAccessor.Kind() == lang.Struct {
 		srcIteratorAccessor = &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{"json", "iteratorAccessor"},
 			lang.Map,
 		}
 	} else {
 		srcIteratorAccessor = &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{"json", "iteratorAccessor"},
 			dstAccessor.Kind(),
 		}
 	}

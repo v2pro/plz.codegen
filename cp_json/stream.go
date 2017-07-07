@@ -29,7 +29,7 @@ func (accessor *streamAccessor) Key() lang.Accessor {
 
 func (accessor *streamAccessor) Elem() lang.Accessor {
 	return &streamAccessor{
-		lang.NoopAccessor{"streamAccessor"},
+		lang.NoopAccessor{accessor.TagName, "streamAccessor"},
 		lang.Variant,
 	}
 }

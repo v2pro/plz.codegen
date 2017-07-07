@@ -21,11 +21,11 @@ func (accessor *mapAccessor) GoString() string {
 }
 
 func (accessor *mapAccessor) Key() lang.Accessor {
-	return lang.AccessorOf(reflect.PtrTo(accessor.typ.Key()))
+	return lang.AccessorOf(reflect.PtrTo(accessor.typ.Key()), accessor.TagName)
 }
 
 func (accessor *mapAccessor) Elem() lang.Accessor {
-	return lang.AccessorOf(reflect.PtrTo(accessor.typ.Elem()))
+	return lang.AccessorOf(reflect.PtrTo(accessor.typ.Elem()), accessor.TagName)
 }
 
 func (accessor *mapAccessor) New() (interface{}, lang.Accessor) {

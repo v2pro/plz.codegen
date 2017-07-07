@@ -12,14 +12,14 @@ func init() {
 }
 
 func objAcc(obj interface{}) lang.Accessor {
-	return accessorOfNativeType(reflect.TypeOf(obj))
+	return accessorOfNativeType(reflect.TypeOf(obj), "")
 }
 
 func objPtr(obj interface{}) unsafe.Pointer {
 	return lang.AddressOf(obj)
 }
 
-func accessorOfNativeType(typ reflect.Type) lang.Accessor {
+func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 	switch typ.Kind() {
 	case reflect.Ptr:
 		elemType := typ.Elem()
@@ -27,7 +27,7 @@ func accessorOfNativeType(typ reflect.Type) lang.Accessor {
 		case reflect.Interface:
 			return &ptrVariantAccessor{
 				variantAccessor{
-					NoopAccessor: lang.NoopAccessor{"ptrVariantAccessor"},
+					NoopAccessor: lang.NoopAccessor{tagName,"ptrVariantAccessor"},
 					typ:          typ,
 				},
 			}
@@ -35,41 +35,41 @@ func accessorOfNativeType(typ reflect.Type) lang.Accessor {
 			fallthrough
 		case reflect.Ptr:
 			return &ptrPtrAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrPtrAccessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrPtrAccessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.Int:
 			return &ptrIntAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrIntAccessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrIntAccessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.Float64:
 			return &ptrFloat64Accessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrFloat64Accessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrFloat64Accessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.String:
 			return &ptrStringAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrStringAccessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrStringAccessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.Slice:
 			return &ptrSliceAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrSliceAccessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrSliceAccessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.Array:
 			return &ptrArrayAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrArrayAccessor"},
-				valueAccessor: accessorOfNativeType(elemType),
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrArrayAccessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
 		case reflect.Struct:
-			structAccessor := accessorOfNativeType(elemType).(*structAccessor)
+			structAccessor := accessorOfNativeType(elemType, tagName).(*structAccessor)
 			for i, field := range structAccessor.fields {
-				field.accessor = accessorOfNativeType(reflect.PtrTo(elemType.Field(i).Type))
+				field.accessor = accessorOfNativeType(reflect.PtrTo(elemType.Field(i).Type), tagName)
 			}
 			return &ptrStructAccessor{ptrAccessor{
-				NoopAccessor:  lang.NoopAccessor{"ptrStructAccessor"},
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrStructAccessor"},
 				valueAccessor: structAccessor,
 			}}
 			//case reflect.Interface:
@@ -90,52 +90,52 @@ func accessorOfNativeType(typ reflect.Type) lang.Accessor {
 		}
 	case reflect.Int:
 		return &intAccessor{
-			NoopAccessor: lang.NoopAccessor{"intAccessor"},
+			NoopAccessor: lang.NoopAccessor{tagName,"intAccessor"},
 			typ:          typ,
 		}
 	case reflect.Float64:
 		return &float64Accessor{
-			NoopAccessor: lang.NoopAccessor{"float64Accessor"},
+			NoopAccessor: lang.NoopAccessor{tagName,"float64Accessor"},
 			typ:          typ,
 		}
 	case reflect.String:
 		return &stringAccessor{
-			NoopAccessor: lang.NoopAccessor{"stringAccessor"},
+			NoopAccessor: lang.NoopAccessor{tagName,"stringAccessor"},
 			typ:          typ,
 		}
 	case reflect.Struct:
-		return accessorOfStruct(typ)
+		return accessorOfStruct(typ, tagName)
 	case reflect.Map:
 		templateEmptyInterface := castToEmptyInterface(reflect.New(typ).Elem().Interface())
 		if typ.Elem().Kind() == reflect.Interface {
 			return &mapInterfaceAccessor{
 				mapAccessor{
-					NoopAccessor: lang.NoopAccessor{"mapAccessor"},
+					NoopAccessor: lang.NoopAccessor{tagName, "mapAccessor"},
 					typ:          typ,
 					templateEmptyInterface: templateEmptyInterface,
 				},
 			}
 		}
 		return &mapAccessor{
-			NoopAccessor: lang.NoopAccessor{"mapAccessor"},
+			NoopAccessor: lang.NoopAccessor{tagName,"mapAccessor"},
 			typ:          typ,
 			templateEmptyInterface: templateEmptyInterface,
 		}
 	case reflect.Slice:
 		return &sliceAccessor{
-			NoopAccessor: lang.NoopAccessor{"sliceAccessor"},
-			elemAcc:      lang.AccessorOf(reflect.PtrTo(typ.Elem())),
+			NoopAccessor: lang.NoopAccessor{tagName,"sliceAccessor"},
+			elemAcc:      lang.AccessorOf(reflect.PtrTo(typ.Elem()), tagName),
 			typ:          typ,
 		}
 	case reflect.Array:
 		return &arrayAccessor{
-			NoopAccessor: lang.NoopAccessor{"arrayAccessor"},
-			elemAcc:      lang.AccessorOf(reflect.PtrTo(typ.Elem())),
+			NoopAccessor: lang.NoopAccessor{tagName,"arrayAccessor"},
+			elemAcc:      lang.AccessorOf(reflect.PtrTo(typ.Elem()), tagName),
 			typ:          typ,
 		}
 	case reflect.Interface:
 		return &variantAccessor{
-			NoopAccessor: lang.NoopAccessor{"variantAccessor"},
+			NoopAccessor: lang.NoopAccessor{tagName,"variantAccessor"},
 			typ:          typ,
 		}
 	}

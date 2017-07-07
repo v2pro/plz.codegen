@@ -59,7 +59,8 @@ func (accessor *sliceAccessor) IterateArray(ptr unsafe.Pointer, cb func(index in
 }
 
 func (accessor *sliceAccessor) New() (interface{}, lang.Accessor) {
-	return reflect.New(accessor.typ).Elem().Interface(), lang.AccessorOf(reflect.PtrTo(accessor.typ))
+	ptrAcc := lang.AccessorOf(reflect.PtrTo(accessor.typ), accessor.TagName)
+	return reflect.New(accessor.typ).Elem().Interface(), ptrAcc
 }
 
 type ptrSliceAccessor struct {
@@ -68,7 +69,7 @@ type ptrSliceAccessor struct {
 
 func (accessor *ptrSliceAccessor) Elem() lang.Accessor {
 	typ := accessor.valueAccessor.(*sliceAccessor).typ
-	return lang.AccessorOf(reflect.PtrTo(typ.Elem()))
+	return lang.AccessorOf(reflect.PtrTo(typ.Elem()), accessor.TagName)
 }
 
 func (accessor *ptrSliceAccessor) New() (interface{}, lang.Accessor) {

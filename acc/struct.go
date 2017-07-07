@@ -5,28 +5,37 @@ import (
 	"github.com/v2pro/plz/lang/tagging"
 	"reflect"
 	"unsafe"
+	"strings"
 )
 
-func accessorOfStruct(typ reflect.Type) lang.Accessor {
+func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	tags := tagging.Get(typ)
 	fields := []*structField{}
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type))
+		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
 		fieldTags := tags.Fields[field.Name]
 		if fieldTags == nil {
 			fieldTags = map[string]interface{}{}
 		}
+		fieldName := field.Name
+		fieldTagValue, isDefined := fieldTags[tagName].(string)
+		if isDefined {
+			renameTo := strings.Split(fieldTagValue, ",")[0]
+			if renameTo != "" {
+				fieldName = renameTo
+			}
+		}
 		fields = append(fields, &structField{
 			index:    i,
-			name:     field.Name,
+			name:     fieldName,
 			tags:     fieldTags,
 			accessor: fieldAcc,
 			offset:   field.Offset,
 		})
 	}
 	return &structAccessor{
-		NoopAccessor: lang.NoopAccessor{"structAccessor"},
+		NoopAccessor: lang.NoopAccessor{tagName,"structAccessor"},
 		typ:          typ,
 		fields:       fields,
 	}
@@ -100,7 +109,8 @@ func (accessor *structAccessor) IterateArray(ptr unsafe.Pointer, cb func(index i
 }
 
 func (accessor *structAccessor) New() (interface{}, lang.Accessor) {
-	return reflect.New(accessor.typ).Elem().Interface(), lang.AccessorOf(reflect.PtrTo(accessor.typ))
+	ptrAcc := lang.AccessorOf(reflect.PtrTo(accessor.typ), accessor.TagName)
+	return reflect.New(accessor.typ).Elem().Interface(), ptrAcc
 }
 
 type ptrStructAccessor struct {

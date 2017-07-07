@@ -26,13 +26,13 @@ func (accessor *iteratorAccessor) GoString() string {
 
 func (accessor *iteratorAccessor) Key() lang.Accessor {
 	return &mapKeyReader{
-		lang.NoopAccessor{"mapKeyReader"},
+		lang.NoopAccessor{accessor.TagName, "mapKeyReader"},
 	}
 }
 
 func (accessor *iteratorAccessor) Elem() lang.Accessor {
 	return &iteratorAccessor{
-		lang.NoopAccessor{"iteratorAccessor"},
+		lang.NoopAccessor{accessor.TagName, "iteratorAccessor"},
 		lang.Variant,
 	}
 }
@@ -42,22 +42,22 @@ func (accessor *iteratorAccessor) VariantElem(ptr unsafe.Pointer) (unsafe.Pointe
 	switch iter.WhatIsNext() {
 	case jsoniter.Array:
 		return ptr, &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{accessor.TagName, "iteratorAccessor"},
 			lang.Array,
 		}
 	case jsoniter.Object:
 		return ptr, &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{accessor.TagName, "iteratorAccessor"},
 			lang.Map,
 		}
 	case jsoniter.Number:
 		return ptr, &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{accessor.TagName, "iteratorAccessor"},
 			lang.Float64,
 		}
 	case jsoniter.String:
 		return ptr, &iteratorAccessor{
-			lang.NoopAccessor{"iteratorAccessor"},
+			lang.NoopAccessor{accessor.TagName, "iteratorAccessor"},
 			lang.String,
 		}
 	}
@@ -100,10 +100,10 @@ func (accessor *iteratorAccessor) New() (interface{}, lang.Accessor) {
 	switch accessor.kind {
 	case lang.Array:
 		obj := []interface{}{}
-		return obj, lang.AccessorOf(reflect.TypeOf(&obj))
+		return obj, lang.AccessorOf(reflect.TypeOf(&obj), accessor.TagName)
 	case lang.Map:
 		obj := map[string]interface{}{}
-		return obj, lang.AccessorOf(reflect.TypeOf(obj))
+		return obj, lang.AccessorOf(reflect.TypeOf(obj), accessor.TagName)
 	}
 	panic("not implemented")
 }

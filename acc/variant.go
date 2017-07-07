@@ -26,7 +26,7 @@ func (accessor *variantAccessor) VariantElem(ptr unsafe.Pointer) (unsafe.Pointer
 		return nil, nil
 	}
 	typ := reflect.TypeOf(obj)
-	return objPtr(obj), lang.AccessorOf(typ)
+	return objPtr(obj), lang.AccessorOf(typ, accessor.TagName)
 }
 
 type ptrVariantAccessor struct {
@@ -37,17 +37,17 @@ func (accessor *ptrVariantAccessor) InitVariant(ptr unsafe.Pointer, template lan
 	switch template.Kind() {
 	case lang.String:
 		return ptr, &stringVariantAccessor{
-			lang.NoopAccessor{"stringVariantAccessor"},
+			lang.NoopAccessor{accessor.TagName, "stringVariantAccessor"},
 			accessor.typ,
 		}
 	case lang.Int:
 		return ptr, &intVariantAccessor{
-			lang.NoopAccessor{"intVariantAccessor"},
+			lang.NoopAccessor{accessor.TagName, "intVariantAccessor"},
 			accessor.typ,
 		}
 	case lang.Float64:
 		return ptr, &float64VariantAccessor{
-			lang.NoopAccessor{"float64VariantAccessor"},
+			lang.NoopAccessor{accessor.TagName, "float64VariantAccessor"},
 			accessor.typ,
 		}
 	case lang.Map:

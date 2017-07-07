@@ -12,16 +12,17 @@ import (
 var byteArrayType = reflect.TypeOf([]byte{})
 
 func provideFromBytesCopier(dstType, srcType reflect.Type) (util.ObjectCopier, error) {
-	if srcType == byteArrayType && dstType.Kind() == reflect.Ptr && tagging.Get(dstType.Elem()).Tags["codec"] == "json" {
-		srcAcc := lang.AccessorOf(reflect.TypeOf((*jsoniter.Iterator)(nil)))
-		dstAcc := lang.AccessorOf(dstType)
-		copier, err := util.CopierOf(dstAcc, srcAcc)
-		if err != nil {
-			return nil, err
-		}
-		return &fromBytesCopier{copier}, nil
+	isFromBytes := srcType == byteArrayType && dstType.Kind() == reflect.Ptr && tagging.Get(dstType.Elem()).Tags["codec"] == "json"
+	if !isFromBytes {
+		return nil, nil
 	}
-	return nil, nil
+	srcAcc := lang.AccessorOf(reflect.TypeOf((*jsoniter.Iterator)(nil)), "json")
+	dstAcc := lang.AccessorOf(dstType, "json")
+	copier, err := util.CopierOf(dstAcc, srcAcc)
+	if err != nil {
+		return nil, err
+	}
+	return &fromBytesCopier{copier}, nil
 }
 
 type fromBytesCopier struct {

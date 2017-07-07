@@ -62,7 +62,7 @@ type ptrArrayAccessor struct {
 
 func (accessor *ptrArrayAccessor) Elem() lang.Accessor {
 	typ := accessor.valueAccessor.(*arrayAccessor).typ
-	return lang.AccessorOf(reflect.PtrTo(typ.Elem()))
+	return lang.AccessorOf(reflect.PtrTo(typ.Elem()), accessor.TagName)
 }
 
 func (accessor *ptrArrayAccessor) ArrayIndex(ptr unsafe.Pointer, index int) unsafe.Pointer {
