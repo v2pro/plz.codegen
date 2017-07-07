@@ -10,7 +10,7 @@ import (
 type sliceAccessor struct {
 	lang.NoopAccessor
 	elemAcc lang.Accessor
-	typ reflect.Type
+	typ     reflect.Type
 }
 
 func (accessor *sliceAccessor) Kind() lang.Kind {

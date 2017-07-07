@@ -10,7 +10,7 @@ import (
 type arrayAccessor struct {
 	lang.NoopAccessor
 	elemAcc lang.Accessor
-	typ reflect.Type
+	typ     reflect.Type
 }
 
 func (accessor *arrayAccessor) Kind() lang.Kind {

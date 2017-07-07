@@ -1,7 +1,7 @@
 package acc
 
 import (
-	"github.com/json-iterator/go/require"
+	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
 	"testing"
 	"unsafe"

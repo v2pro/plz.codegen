@@ -1,10 +1,10 @@
 package acc
 
 import (
-	"testing"
+	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
 	"reflect"
-	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 func Test_ptr_float64_kind(t *testing.T) {

@@ -110,15 +110,15 @@ func accessorOfNativeType(typ reflect.Type) lang.Accessor {
 		if typ.Elem().Kind() == reflect.Interface {
 			return &mapInterfaceAccessor{
 				mapAccessor{
-					NoopAccessor:           lang.NoopAccessor{"mapAccessor"},
-					typ:                    typ,
+					NoopAccessor: lang.NoopAccessor{"mapAccessor"},
+					typ:          typ,
 					templateEmptyInterface: templateEmptyInterface,
 				},
 			}
 		}
 		return &mapAccessor{
-			NoopAccessor:           lang.NoopAccessor{"mapAccessor"},
-			typ:                    typ,
+			NoopAccessor: lang.NoopAccessor{"mapAccessor"},
+			typ:          typ,
 			templateEmptyInterface: templateEmptyInterface,
 		}
 	case reflect.Slice:
