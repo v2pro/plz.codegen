@@ -21,9 +21,13 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 		fieldName := field.Name
 		fieldTagValue, isDefined := fieldTags[tagName].(string)
 		if isDefined {
-			renameTo := strings.Split(fieldTagValue, ",")[0]
-			if renameTo != "" {
-				fieldName = renameTo
+			if fieldTagValue == "-" {
+				fieldName = ""
+			} else {
+				renameTo := strings.Split(fieldTagValue, ",")[0]
+				if renameTo != "" {
+					fieldName = renameTo
+				}
 			}
 		}
 		fields = append(fields, &structField{
