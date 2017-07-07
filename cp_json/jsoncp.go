@@ -6,13 +6,10 @@ import (
 	"github.com/v2pro/plz/util"
 	_ "github.com/v2pro/wombat/cp"
 	"reflect"
-	"github.com/v2pro/plz/lang/tagging"
-	"unsafe"
 )
 
 var iteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
 var streamType = reflect.TypeOf((*jsoniter.Stream)(nil))
-var ptrByteArrayType = reflect.TypeOf((*[]byte)(nil))
 
 func init() {
 	lang.AccessorProviders = append([]func(typ reflect.Type) lang.Accessor{
@@ -20,6 +17,7 @@ func init() {
 	}, lang.AccessorProviders...)
 	util.ObjectCopierProviders = append([]func(dstType, srcType reflect.Type) (util.ObjectCopier, error){
 		provideToBytesCopier,
+		provideFromBytesCopier,
 	}, util.ObjectCopierProviders...)
 	util.CopierProviders = append([]func(dstAccessor, srcAccessor lang.Accessor) (util.Copier, error){
 		provideIteratorCopier,
@@ -95,32 +93,4 @@ func provideIteratorCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier,
 		}
 	}
 	return util.CopierOf(dstAccessor, srcIteratorAccessor)
-}
-
-func provideToBytesCopier(dstType, srcType reflect.Type) (util.ObjectCopier, error) {
-	if dstType == ptrByteArrayType && tagging.Get(srcType).Tags["codec"] == "json" {
-		dstAcc := lang.AccessorOf(reflect.TypeOf((*jsoniter.Stream)(nil)))
-		srcAcc := lang.AccessorOf(srcType)
-		copier, err := util.CopierOf(dstAcc, srcAcc)
-		if err != nil {
-			return nil, err
-		}
-		return &toBytesCopier{copier}, nil
-	}
-	return nil, nil
-}
-
-type toBytesCopier struct {
-	copier util.Copier
-}
-
-func (objCopier *toBytesCopier) Copy(dst, src interface{}) error {
-	ptrBytes := dst.(*[]byte)
-	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 512)
-	err := objCopier.copier.Copy(unsafe.Pointer(stream), lang.AddressOf(src))
-	if err != nil {
-		return err
-	}
-	*ptrBytes = stream.Buffer()
-	return nil
 }

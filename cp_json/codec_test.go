@@ -20,3 +20,16 @@ func Test_copy_into_bytes(t *testing.T) {
 	plz.Copy(&output, obj)
 	should.Equal(`{"Field":"hello"}`, string(output))
 }
+
+func Test_copy_from_bytes(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field string
+	}
+	tagging.Define(new(TestObject), "codec", "json")
+
+	obj := TestObject{}
+	plz.Copy(&obj, []byte(`{"Field":"hello"}`))
+	should.Equal("hello", obj.Field)
+}
