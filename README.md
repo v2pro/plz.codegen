@@ -10,4 +10,6 @@
 
 <img src="wombat.png" width="250">
 
-binding &amp; validation
+binding &amp; validation &amp; functional goodies. 
+
+implements api defined in `v2pro/plz/util` package
