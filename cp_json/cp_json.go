@@ -94,3 +94,7 @@ func provideIteratorCopier(dstAccessor, srcAccessor lang.Accessor) (util.Copier,
 	}
 	return util.CopierOf(dstAccessor, srcIteratorAccessor)
 }
+
+func objAcc(obj interface{}) lang.Accessor {
+	return lang.AccessorOf(reflect.TypeOf(obj), "")
+}

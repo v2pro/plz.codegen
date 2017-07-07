@@ -3,22 +3,19 @@ package acc
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
-	"reflect"
 	"testing"
 )
 
 func Test_string_kind(t *testing.T) {
 	should := require.New(t)
 	v := string("hello")
-	accessor := lang.AccessorOf(reflect.TypeOf(v))
-	should.Equal(lang.String, accessor.Kind())
+	should.Equal(lang.String, objAcc(v).Kind())
 }
 
 func Test_string_gostring(t *testing.T) {
 	should := require.New(t)
 	v := string("hello")
-	accessor := lang.AccessorOf(reflect.TypeOf(v))
-	should.Equal("string", accessor.GoString())
+	should.Equal("string", objAcc(v).GoString())
 }
 
 func Test_string_get_string(t *testing.T) {

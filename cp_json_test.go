@@ -14,6 +14,7 @@ func Example_encode_json() {
 		Tags      []int `json:"tags"`
 	}
 	tagging.Define(new(User), "codec", "json")
+
 	output := []byte{}
 	util.Copy(&output, User{"A", "B", []int{1, 2, 3}})
 	fmt.Println(string(output))

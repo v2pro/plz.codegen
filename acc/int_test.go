@@ -3,15 +3,13 @@ package acc
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
-	"reflect"
 	"testing"
 )
 
 func Test_int_kind(t *testing.T) {
 	should := require.New(t)
 	v := int(1)
-	accessor := lang.AccessorOf(reflect.TypeOf(v))
-	should.Equal(lang.Int, accessor.Kind())
+	should.Equal(lang.Int, objAcc(v).Kind())
 }
 
 func Test_int_gostring(t *testing.T) {

@@ -5,15 +5,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
-	"reflect"
 	"testing"
 )
 
 func Test_decode_string_into_ptr_string(t *testing.T) {
 	should := require.New(t)
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `"hello"`)
-	accessor := lang.AccessorOf(reflect.TypeOf(iter))
-	should.Equal(lang.Variant, accessor.Kind())
+	should.Equal(lang.Variant, objAcc(iter).Kind())
 	val := ""
 	should.Nil(util.Copy(&val, iter))
 	should.Equal("hello", val)
@@ -22,8 +20,7 @@ func Test_decode_string_into_ptr_string(t *testing.T) {
 func Test_decode_string_into_ptr_variant(t *testing.T) {
 	should := require.New(t)
 	iter := jsoniter.ParseString(jsoniter.ConfigDefault, `"hello"`)
-	accessor := lang.AccessorOf(reflect.TypeOf(iter))
-	should.Equal(lang.Variant, accessor.Kind())
+	should.Equal(lang.Variant, objAcc(iter).Kind())
 	var val interface{}
 	should.Nil(util.Copy(&val, iter))
 	should.Equal("hello", val)

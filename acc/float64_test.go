@@ -3,15 +3,13 @@ package acc
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz/lang"
-	"reflect"
 	"testing"
 )
 
 func Test_float64_kind(t *testing.T) {
 	should := require.New(t)
 	v := float64(1)
-	accessor := lang.AccessorOf(reflect.TypeOf(v))
-	should.Equal(lang.Float64, accessor.Kind())
+	should.Equal(lang.Float64, objAcc(v).Kind())
 }
 
 func Test_float64_gostring(t *testing.T) {
