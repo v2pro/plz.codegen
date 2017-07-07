@@ -11,22 +11,21 @@ import (
 func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	tags := tagging.Get(typ)
 	fields := []*structField{}
+	tagFields := map[string]tagging.FieldTags{}
+	for fieldName, fieldTags := range tags.Fields {
+		tagFields[fieldName] = fieldTags
+	}
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
-		fieldTags := tags.Fields[field.Name]
+		fieldTags := tagFields[field.Name]
+		delete(tagFields, field.Name)
 		if fieldTags == nil {
 			fieldTags = map[string]tagging.TagValue{}
 		}
-		fieldName := field.Name
-		fieldTagValue := fieldTags[tagName].Text()
-		if fieldTagValue == "-" {
-			fieldName = ""
-		} else {
-			renameTo := strings.Split(fieldTagValue, ",")[0]
-			if renameTo != "" {
-				fieldName = renameTo
-			}
+		fieldName := getFieldName(field, fieldTags[tagName])
+		if fieldName == "" {
+			continue
 		}
 		fields = append(fields, &structField{
 			index:    i,
@@ -36,11 +35,44 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 			offset:   field.Offset,
 		})
 	}
+	index := len(fields)
+	for fieldName, fieldTags := range tagFields {
+		tagValue := fieldTags[tagName]
+		mapValue, _ := tagValue["mapValue"].(func(ptr unsafe.Pointer) interface{})
+		if mapValue == nil {
+			continue
+		}
+		ptr := lang.AddressOf(reflect.New(typ).Interface())
+		value := mapValue(ptr)
+		fields = append(fields, &structField{
+			index:    index,
+			name:     fieldName,
+			tags:     fieldTags,
+			accessor: lang.AccessorOf(reflect.TypeOf(value), tagName),
+			offset:   0,
+			mapValue: mapValue,
+		})
+		index++
+	}
 	return &structAccessor{
-		NoopAccessor: lang.NoopAccessor{tagName,"structAccessor"},
+		NoopAccessor: lang.NoopAccessor{tagName, "structAccessor"},
 		typ:          typ,
 		fields:       fields,
 	}
+}
+
+func getFieldName(field reflect.StructField, tagValue tagging.TagValue) string {
+	fieldName := field.Name
+	fieldTagValue := tagValue.Text()
+	if fieldTagValue == "-" {
+		fieldName = ""
+	} else {
+		renameTo := strings.Split(fieldTagValue, ",")[0]
+		if renameTo != "" {
+			fieldName = renameTo
+		}
+	}
+	return fieldName
 }
 
 type structField struct {
@@ -49,6 +81,7 @@ type structField struct {
 	accessor lang.Accessor
 	tags     map[string]tagging.TagValue
 	offset   uintptr
+	mapValue func(ptr unsafe.Pointer) interface{}
 }
 
 func (sf *structField) Index() int {
@@ -95,6 +128,9 @@ func (accessor *structAccessor) RandomAccessible() bool {
 
 func (accessor *structAccessor) ArrayIndex(ptr unsafe.Pointer, index int) unsafe.Pointer {
 	field := accessor.fields[index]
+	if field.mapValue != nil {
+		return objPtr(field.mapValue(ptr))
+	}
 	return unsafe.Pointer(field.offset + uintptr(ptr))
 }
 
@@ -103,6 +139,9 @@ func (accessor *structAccessor) IterateArray(ptr unsafe.Pointer, cb func(index i
 	for index := 0; index < len(accessor.fields); index++ {
 		field := accessor.fields[index]
 		elemPtr := unsafe.Pointer(head + field.offset)
+		if field.mapValue != nil {
+			elemPtr = objPtr(field.mapValue(ptr))
+		}
 		if field.accessor.IsNil(elemPtr) {
 			elemPtr = nil
 		}

@@ -76,7 +76,11 @@ func (accessor *iteratorAccessor) Float64(ptr unsafe.Pointer) float64 {
 
 func (accessor *iteratorAccessor) String(ptr unsafe.Pointer) string {
 	iter := (*jsoniter.Iterator)(ptr)
-	return iter.ReadString()
+	val := iter.ReadString()
+	if iter.Error != nil {
+		panic(iter.Error.Error())
+	}
+	return val
 }
 
 func (accessor *iteratorAccessor) IterateMap(ptr unsafe.Pointer, cb func(key unsafe.Pointer, elem unsafe.Pointer) bool) {

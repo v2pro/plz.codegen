@@ -65,9 +65,6 @@ func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 			}}
 		case reflect.Struct:
 			structAccessor := accessorOfNativeType(elemType, tagName).(*structAccessor)
-			for i, field := range structAccessor.fields {
-				field.accessor = accessorOfNativeType(reflect.PtrTo(elemType.Field(i).Type), tagName)
-			}
 			return &ptrStructAccessor{ptrAccessor{
 				NoopAccessor:  lang.NoopAccessor{tagName,"ptrStructAccessor"},
 				valueAccessor: structAccessor,
