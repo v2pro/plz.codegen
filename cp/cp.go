@@ -3,7 +3,7 @@ package cp
 import (
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
-	_ "github.com/v2pro/plz_native_accessor"
+	_ "github.com/v2pro/wombat/acc"
 )
 
 func init() {

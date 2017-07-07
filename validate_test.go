@@ -11,7 +11,7 @@ package wombat
 //	type TestObject struct {
 //		myField int
 //	}
-//	tagging.Define(func(o *TestObject) tagging.Tags {
+//	tagging.DefineStructTags(func(o *TestObject) tagging.Tags {
 //		return tagging.D(tagging.S(),
 //			tagging.F(&o.myField, "validate", "required"),
 //		)
