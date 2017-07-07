@@ -112,3 +112,16 @@ func Test_copy_struct_with_ptr_ptr(t *testing.T) {
 	should.Nil(util.Copy(&a, B{"hello"}))
 	should.Equal("hello", **a.Field)
 }
+
+func Test_copy_struct_with_map(t *testing.T) {
+	should := require.New(t)
+	type A struct {
+		Field map[string]string
+	}
+	type B struct {
+		Field map[string]string
+	}
+	var a A
+	should.Nil(util.Copy(&a, B{map[string]string{"hello": "world"}}))
+	should.Equal(map[string]string{"hello": "world"}, a.Field)
+}

@@ -28,6 +28,10 @@ func (accessor *mapAccessor) Elem() lang.Accessor {
 	return lang.AccessorOf(reflect.PtrTo(accessor.typ.Elem()))
 }
 
+func (accessor *mapAccessor) New() (interface{}, lang.Accessor) {
+	return reflect.New(accessor.typ).Interface(), accessor
+}
+
 func (accessor *mapAccessor) IterateMap(ptr unsafe.Pointer, cb func(key unsafe.Pointer, value unsafe.Pointer) bool) {
 	obj := accessor.templateEmptyInterface
 	obj.word = ptr

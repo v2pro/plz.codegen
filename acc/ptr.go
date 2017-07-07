@@ -106,7 +106,7 @@ func (accessor *ptrPtrAccessor) IterateMap(ptr unsafe.Pointer, cb func(key unsaf
 }
 
 func (accessor *ptrPtrAccessor) FillMap(ptr unsafe.Pointer, cb func(filler lang.MapFiller)) {
-	accessor.valueAccessor.FillMap(*((*unsafe.Pointer)(ptr)), cb)
+	accessor.valueAccessor.FillMap(accessor.deRef(ptr), cb)
 }
 
 func (accessor *ptrPtrAccessor) VariantElem(ptr unsafe.Pointer) (elem unsafe.Pointer, elemAccessor lang.Accessor) {

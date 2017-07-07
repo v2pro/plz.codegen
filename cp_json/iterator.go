@@ -1,4 +1,4 @@
-package jsoncp
+package cp_json
 
 import (
 	"github.com/json-iterator/go"
