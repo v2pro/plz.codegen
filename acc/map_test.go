@@ -19,6 +19,12 @@ func Test_map_gostring(t *testing.T) {
 	should.Equal("map[int]int", objAcc(v).GoString())
 }
 
+func Test_map_random_accessible(t *testing.T) {
+	should := require.New(t)
+	v := map[int]int{1: 2}
+	should.True(objAcc(v).RandomAccessible())
+}
+
 func Test_map_key_elem(t *testing.T) {
 	should := require.New(t)
 	v := map[int]int{1: 2}
@@ -28,6 +34,22 @@ func Test_map_key_elem(t *testing.T) {
 	should.Equal("*int", objAcc(v).Elem().GoString())
 }
 
+func Test_map_index(t *testing.T) {
+	should := require.New(t)
+	v := map[int]int{1: 2}
+	elem := objAcc(v).MapIndex(objPtr(v), objPtr(1))
+	should.Equal(2, objAcc(v).Elem().Int(elem))
+	elem = objAcc(v).MapIndex(objPtr(v), objPtr(100))
+	should.Equal(unsafe.Pointer(nil), elem)
+}
+
+func Test_set_map_index(t *testing.T) {
+	should := require.New(t)
+	v := map[int]int{}
+	objAcc(v).SetMapIndex(objPtr(v), objPtr(1), objPtr(2))
+	should.Equal(map[int]int{1: 2}, v)
+}
+
 func Test_map_iterate_map(t *testing.T) {
 	should := require.New(t)
 	v := map[int]int{1: 2}
@@ -35,7 +57,7 @@ func Test_map_iterate_map(t *testing.T) {
 	elems := []int{}
 	objAcc(v).IterateMap(objPtr(v), func(key unsafe.Pointer, elem unsafe.Pointer) bool {
 		keys = append(keys, objAcc(v).Key().Int(key))
-		elems = append(elems, objAcc(v).Key().Int(elem))
+		elems = append(elems, objAcc(v).Elem().Int(elem))
 		return true
 	})
 	should.Equal([]int{1}, keys)

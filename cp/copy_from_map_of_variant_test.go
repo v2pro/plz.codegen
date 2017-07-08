@@ -37,3 +37,14 @@ func Test_copy_map_of_variant_with_nil_value(t *testing.T) {
 	should.Equal("", a.Field1)
 	should.Equal("world", a.Field2)
 }
+
+func Test_copy_map_of_variant_with_existing_value(t *testing.T) {
+	should := require.New(t)
+	existingValue := 1
+	a := map[string]interface{}{
+		"Field": &existingValue,
+	}
+	should.Nil(util.Copy(&a, map[string]interface{}{
+		"Field": 3,
+	}))
+}

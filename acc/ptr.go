@@ -105,6 +105,14 @@ func (accessor *ptrPtrAccessor) IterateMap(ptr unsafe.Pointer, cb func(key unsaf
 	accessor.valueAccessor.IterateMap(*((*unsafe.Pointer)(ptr)), cb)
 }
 
+func (accessor *ptrPtrAccessor) MapIndex(ptr unsafe.Pointer, key unsafe.Pointer) unsafe.Pointer {
+	return accessor.valueAccessor.MapIndex(*((*unsafe.Pointer)(ptr)), key)
+}
+
+func (accessor *ptrPtrAccessor) SetMapIndex(ptr unsafe.Pointer, key unsafe.Pointer, elem unsafe.Pointer) {
+	accessor.valueAccessor.SetMapIndex(*((*unsafe.Pointer)(ptr)), key, elem)
+}
+
 func (accessor *ptrPtrAccessor) FillMap(ptr unsafe.Pointer, cb func(filler lang.MapFiller)) {
 	accessor.valueAccessor.FillMap(accessor.deRef(ptr), cb)
 }

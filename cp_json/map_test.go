@@ -48,6 +48,14 @@ func Test_encode_map_of_string_to_empty_interface(t *testing.T) {
 	should.Equal(`{"Field":1}`, string(stream.Buffer()))
 }
 
+func Test_encode_map_of_string_to_empty_interface_of_ptr(t *testing.T) {
+	should := require.New(t)
+	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 1024)
+	one := 1
+	should.Nil(util.Copy(stream, map[string]interface{}{"Field": &one}))
+	should.Equal(`{"Field":1}`, string(stream.Buffer()))
+}
+
 func Test_encode_struct(t *testing.T) {
 	type TestObject struct {
 		Field1 int

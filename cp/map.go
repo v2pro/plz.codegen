@@ -31,8 +31,23 @@ type mapToMapCopier struct {
 }
 
 func (copier *mapToMapCopier) Copy(dst, src unsafe.Pointer) (err error) {
+	if src == nil {
+		copier.dstAcc.Skip(dst)
+		return nil
+	}
 	copier.dstAcc.FillMap(dst, func(filler lang.MapFiller) {
 		copier.srcAcc.IterateMap(src, func(srcKey unsafe.Pointer, srcElem unsafe.Pointer) bool {
+			if copier.dstAcc.RandomAccessible() {
+				dstElem := copier.dstAcc.MapIndex(dst, srcKey)
+				if dstElem != nil {
+					err = copier.elemCopier.Copy(dstElem, srcElem)
+					if err != nil {
+						return false
+					}
+					copier.dstAcc.SetMapIndex(dst, srcKey, dstElem)
+					return true
+				}
+			}
 			dstKey, dstElem := filler.Next()
 			err = copier.keyCopier.Copy(dstKey, srcKey)
 			if err != nil {

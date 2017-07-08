@@ -69,21 +69,6 @@ func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 				NoopAccessor:  lang.NoopAccessor{tagName,"ptrStructAccessor"},
 				valueAccessor: structAccessor,
 			}}
-			//case reflect.Interface:
-			//	return &ptrVariantAccessor{ptrAccessor{
-			//		NoopAccessor:  lang.NoopAccessor{"ptrVariantAccessor"},
-			//		valueAccessor: accessorOfNativeType(elemType),
-			//	}}
-			//case reflect.Interface:
-			//	return &variantAccessor{
-			//		lang.NoopAccessor{"variantAccessor"}}
-			//case reflect.Struct:
-			//	fallthrough
-			//case reflect.Slice:
-			//	fallthrough
-			//case reflect.Array:
-			//	return accessorOfNativeType(elemType)
-			//
 		}
 	case reflect.Int:
 		return &intAccessor{
@@ -103,21 +88,7 @@ func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 	case reflect.Struct:
 		return accessorOfStruct(typ, tagName)
 	case reflect.Map:
-		templateEmptyInterface := castToEmptyInterface(reflect.New(typ).Elem().Interface())
-		if typ.Elem().Kind() == reflect.Interface {
-			return &mapInterfaceAccessor{
-				mapAccessor{
-					NoopAccessor: lang.NoopAccessor{tagName, "mapAccessor"},
-					typ:          typ,
-					templateEmptyInterface: templateEmptyInterface,
-				},
-			}
-		}
-		return &mapAccessor{
-			NoopAccessor: lang.NoopAccessor{tagName,"mapAccessor"},
-			typ:          typ,
-			templateEmptyInterface: templateEmptyInterface,
-		}
+		return accessorOfMap(typ, tagName)
 	case reflect.Slice:
 		return &sliceAccessor{
 			NoopAccessor: lang.NoopAccessor{tagName,"sliceAccessor"},

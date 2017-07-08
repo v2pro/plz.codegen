@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+type mapField func(ptr unsafe.Pointer, mapped map[string]interface{})
+
 func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	tags := tagging.Get(typ)
 	fields := []*structField{}
@@ -15,6 +17,7 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	for fieldName, fieldTags := range tags.Fields {
 		tagFields[fieldName] = fieldTags
 	}
+	mappedVirtualFields := map[string][]mapField{}
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
@@ -24,6 +27,24 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 			fieldTags = map[string]tagging.TagValue{}
 		}
 		fieldName := getFieldName(field, fieldTags[tagName])
+		if strings.Contains(fieldName, "/") {
+			path := strings.Split(fieldName, "/")
+			templateEI := castToEmptyInterface(reflect.New(field.Type).Interface())
+			mappedVirtualFields[path[0]] = append(mappedVirtualFields[path[0]], func(ptr unsafe.Pointer, mapped map[string]interface{}) {
+				elemPtr := uintptr(ptr) + field.Offset
+				for _, elem := range path[1:len(path)-1] {
+					nextLevel := mapped[elem]
+					if nextLevel == nil {
+						nextLevel = map[string]interface{}{}
+						mapped[elem] = nextLevel
+					}
+					mapped = nextLevel.(map[string]interface{})
+				}
+				templateEI.word = unsafe.Pointer(elemPtr)
+				mapped[path[len(path)-1]] = castBackEmptyInterface(templateEI)
+			})
+			continue
+		}
 		if fieldName == "" {
 			continue
 		}
@@ -35,14 +56,46 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 			offset:   field.Offset,
 		})
 	}
+	fields = appendMappedVirtualFields(fields, mappedVirtualFields, tagName)
+	fields = appendTagDefinedVirtualFields(fields, tagName, typ, tagFields)
+	return &structAccessor{
+		NoopAccessor: lang.NoopAccessor{tagName, "structAccessor"},
+		typ:          typ,
+		fields:       fields,
+	}
+}
+
+func appendMappedVirtualFields(fields []*structField, mappedVirtualFields map[string][]mapField, tagName string) []*structField {
 	index := len(fields)
+	for virtualFieldName, mapFields := range mappedVirtualFields {
+		fields = append(fields, &structField{
+			index:    index,
+			name:     virtualFieldName,
+			tags:     map[string]tagging.TagValue{},
+			accessor: lang.AccessorOf(reflect.TypeOf(map[string]interface{}{}), tagName),
+			offset:   0,
+			mapValue: func(ptr unsafe.Pointer) interface{} {
+				mapped := map[string]interface{}{}
+				for _, mapField := range mapFields {
+					mapField(ptr, mapped)
+				}
+				return mapped
+			},
+		})
+		index++
+	}
+	return fields
+}
+
+func appendTagDefinedVirtualFields(fields []*structField, tagName string, typ reflect.Type, tagFields map[string]tagging.FieldTags) []*structField {
+	index := len(fields)
+	ptr := lang.AddressOf(reflect.New(typ).Interface())
 	for fieldName, fieldTags := range tagFields {
 		tagValue := fieldTags[tagName]
 		mapValue, _ := tagValue["mapValue"].(func(ptr unsafe.Pointer) interface{})
 		if mapValue == nil {
 			continue
 		}
-		ptr := lang.AddressOf(reflect.New(typ).Interface())
 		value := mapValue(ptr)
 		fields = append(fields, &structField{
 			index:    index,
@@ -54,11 +107,7 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 		})
 		index++
 	}
-	return &structAccessor{
-		NoopAccessor: lang.NoopAccessor{tagName, "structAccessor"},
-		typ:          typ,
-		fields:       fields,
-	}
+	return fields
 }
 
 func getFieldName(field reflect.StructField, tagValue tagging.TagValue) string {

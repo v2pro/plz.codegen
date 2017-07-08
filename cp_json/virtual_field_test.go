@@ -21,7 +21,7 @@ func Test_copy_from_virtual_field(t *testing.T) {
 			tagging.F(tagging.VirtualField("inner"), "json", tagging.V(
 				"mapValue", func(ptr unsafe.Pointer) interface{} {
 					obj := (*TestObject)(ptr)
-					return struct{
+					return struct {
 						Field3 *string
 						Field4 *string
 					}{&obj.Field1, &obj.Field2}
@@ -34,6 +34,22 @@ func Test_copy_from_virtual_field(t *testing.T) {
 	output := []byte{}
 	should.Nil(plz.Copy(&output, obj))
 	should.Equal(`{"inner":{"Field3":"hello","Field4":"world"}}`, string(output))
+}
+
+func Test_copy_from_virtual_field_simplified(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field1 string `json:"inner/Field3"`
+		Field2 string `json:"inner/Field4"`
+	}
+	tagging.Define(new(TestObject), "codec", "json")
+
+	obj := TestObject{"hello", "world"}
+	output := []byte{}
+	should.Nil(plz.Copy(&output, obj))
+	should.Contains(string(output), `"Field3":"hello"`)
+	should.Contains(string(output), `"Field4":"world"`)
 }
 
 func Test_copy_into_virtual_field(t *testing.T) {
@@ -49,7 +65,7 @@ func Test_copy_into_virtual_field(t *testing.T) {
 			tagging.F(tagging.VirtualField("inner"), "json", tagging.V(
 				"mapValue", func(ptr unsafe.Pointer) interface{} {
 					obj := (*TestObject)(ptr)
-					return struct{
+					return struct {
 						Field3 *string
 						Field4 *string
 					}{&obj.Field1, &obj.Field2}
@@ -57,6 +73,21 @@ func Test_copy_into_virtual_field(t *testing.T) {
 			)),
 		)
 	})
+
+	obj := TestObject{}
+	should.Nil(plz.Copy(&obj, []byte(`{"inner":{"Field3":"hello","Field4":"world"}}`)))
+	should.Equal("hello", obj.Field1)
+	should.Equal("world", obj.Field2)
+}
+
+func Test_copy_into_virtual_field_simplified(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field1 string `json:"inner/Field3"`
+		Field2 string `json:"inner/Field4"`
+	}
+	tagging.Define(new(TestObject), "codec", "json")
 
 	obj := TestObject{}
 	should.Nil(plz.Copy(&obj, []byte(`{"inner":{"Field3":"hello","Field4":"world"}}`)))

@@ -19,6 +19,10 @@ func (accessor *streamAccessor) Kind() lang.Kind {
 	return accessor.kind
 }
 
+func (accessor *streamAccessor) RandomAccessible() bool {
+	return false
+}
+
 func (accessor *streamAccessor) GoString() string {
 	return "jsoncp.streamAccessor"
 }

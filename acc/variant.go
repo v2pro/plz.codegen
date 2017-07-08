@@ -33,6 +33,20 @@ type ptrVariantAccessor struct {
 	variantAccessor
 }
 
+func (accessor *ptrVariantAccessor) VariantElem(ptr unsafe.Pointer) (unsafe.Pointer, lang.Accessor) {
+	obj := *((*interface{})(ptr))
+	if obj == nil {
+		return nil, nil
+	}
+	objType := reflect.TypeOf(obj)
+	theObjPtr := objPtr(obj)
+	if objType.Kind() == reflect.Ptr || objType.Kind() == reflect.Map {
+		theObjPtrAsVal := uintptr(theObjPtr)
+		theObjPtr = unsafe.Pointer(&theObjPtrAsVal)
+	}
+	return theObjPtr, lang.AccessorOf(reflect.PtrTo(objType), accessor.TagName)
+}
+
 func (accessor *ptrVariantAccessor) InitVariant(ptr unsafe.Pointer, template lang.Accessor) (elem unsafe.Pointer, elemAccessor lang.Accessor) {
 	switch template.Kind() {
 	case lang.String:

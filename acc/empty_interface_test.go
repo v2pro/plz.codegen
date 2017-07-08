@@ -11,6 +11,7 @@ func Test_empty_interface_kind(t *testing.T) {
 	should := require.New(t)
 	var v []interface{}
 	should.Equal(lang.Variant, objAcc(v).Elem().Kind())
+	should.Equal("*interface {}", objAcc(v).Elem().GoString())
 }
 
 func Test_empty_interface_gostring(t *testing.T) {
@@ -32,9 +33,8 @@ func Test_empty_interface_of_int_set_variant_elem(t *testing.T) {
 	v := []interface{}{1}
 	elem := objAcc(v).ArrayIndex(objPtr(v), 0)
 	realElem, realAcc := objAcc(v).Elem().VariantElem(elem)
-	should.Panics(func() {
-		realAcc.SetInt(realElem, 2)
-	})
+	realAcc.SetInt(realElem, 2)
+	should.Equal([]interface{}{2}, v)
 }
 
 func Test_empty_interface_of_ptr_int_get_variant_elem(t *testing.T) {
@@ -45,6 +45,8 @@ func Test_empty_interface_of_ptr_int_get_variant_elem(t *testing.T) {
 	elem := objAcc(v).ArrayIndex(objPtr(v), 0)
 	realElem, realAcc := objAcc(v).Elem().VariantElem(elem)
 	should.Equal(1, realAcc.Int(realElem))
+	realAcc.SetInt(realElem, 2)
+	should.Equal(2, v1)
 }
 
 func Test_empty_interface_of_ptr_int_set_variant_elem(t *testing.T) {
