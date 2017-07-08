@@ -24,7 +24,7 @@ func (accessor *streamAccessor) RandomAccessible() bool {
 }
 
 func (accessor *streamAccessor) GoString() string {
-	return "jsoncp.streamAccessor"
+	return "cp_json.streamAccessor"
 }
 
 func (accessor *streamAccessor) Key() lang.Accessor {

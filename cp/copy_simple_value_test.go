@@ -6,12 +6,28 @@ import (
 	"testing"
 )
 
+func Test_copy_nil_to_ptr_int(t *testing.T) {
+	should := require.New(t)
+	dst := 0
+	var src *int
+	should.Nil(util.Copy(&dst, &src))
+	should.Equal(0, dst)
+}
+
 func Test_copy_int_to_ptr_int(t *testing.T) {
 	should := require.New(t)
 	dst := 0
 	src := 1
 	should.Nil(util.Copy(&dst, src))
 	should.Equal(1, dst)
+}
+
+func Test_copy_int_to_ptr_int_nil(t *testing.T) {
+	should := require.New(t)
+	var dst *int
+	src := 1
+	should.Nil(util.Copy(&dst, src))
+	should.Equal(1, *dst)
 }
 
 func Test_copy_string_to_ptr_string(t *testing.T) {

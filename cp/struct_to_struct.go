@@ -4,6 +4,9 @@ import (
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
 	"unsafe"
+	"github.com/v2pro/plz/logging"
+	"reflect"
+	"fmt"
 )
 
 func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {
@@ -17,7 +20,7 @@ func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) 
 		field := srcAcc.Field(i)
 		dstField := dstFields[field.Name()]
 		if dstField == nil {
-			fieldCopiers[i] = &skipCopier{field.Accessor()}
+			fieldCopiers[i] = &skipCopier{field.Name(), field.Accessor()}
 		} else {
 			copier, err := util.CopierOf(dstField.Accessor(), field.Accessor())
 			if err != nil {
@@ -45,13 +48,20 @@ type structToStructCopier struct {
 }
 
 func (copier *structToStructCopier) Copy(dst, src unsafe.Pointer) (err error) {
-	if src == nil {
+	shouldDebug := logger.ShouldLog(logging.LEVEL_DEBUG)
+	if copier.srcAcc.IsNil(src) {
+		if shouldDebug {
+			logger.Debug("skip copy struct as src is nil", "src", src, "dst", dst,
+				"srcAcc", reflect.TypeOf(copier.srcAcc),
+				"dstAcc", reflect.TypeOf(copier.dstAcc))
+		}
 		copier.dstAcc.Skip(dst)
 		return nil
 	}
-	if dst == nil {
-		copier.srcAcc.Skip(src)
-		return nil
+	if shouldDebug {
+		logger.Debug(fmt.Sprintf("[%x] begin copy struct to struct", src), "src", src, "dst", dst,
+			"srcAcc", reflect.TypeOf(copier.srcAcc),
+			"dstAcc", reflect.TypeOf(copier.dstAcc))
 	}
 	copier.srcAcc.IterateArray(src, func(index int, srcElem unsafe.Pointer) bool {
 		err = copier.fieldCopiers[index].Copy(dst, srcElem)
@@ -60,6 +70,11 @@ func (copier *structToStructCopier) Copy(dst, src unsafe.Pointer) (err error) {
 		}
 		return true
 	})
+	if shouldDebug {
+		logger.Debug(fmt.Sprintf("[%x] end copy struct to struct", src), "src", src, "dst", dst,
+			"srcAcc", reflect.TypeOf(copier.srcAcc),
+			"dstAcc", reflect.TypeOf(copier.dstAcc))
+	}
 	return
 }
 
@@ -71,14 +86,31 @@ type structFieldCopier struct {
 }
 
 func (copier *structFieldCopier) Copy(dst, src unsafe.Pointer) error {
-	if dst == nil {
-		copier.srcAcc.Skip(src)
-		return nil
-	}
-	if src == nil {
+	shouldDebug := logger.ShouldLog(logging.LEVEL_DEBUG)
+	if copier.srcAcc.IsNil(src) {
+		logger.Debug("skip copy struct field as src is nil", "src", src, "dst", dst,
+			"srcAcc", reflect.TypeOf(copier.srcAcc),
+			"dstAcc", reflect.TypeOf(copier.dstAcc),
+			"fieldName", copier.dstAcc.Field(copier.dstIndex).Name())
 		copier.dstAcc.Skip(dst)
 		return nil
 	}
 	dstElem := copier.dstAcc.ArrayIndex(dst, copier.dstIndex)
-	return copier.elemCopier.Copy(dstElem, src)
+	if shouldDebug {
+		logger.Debug(fmt.Sprintf("[%x] begin copy struct field to struct field", src), "src", src, "dst", dst,
+			"srcAcc", reflect.TypeOf(copier.srcAcc),
+			"dstAcc", reflect.TypeOf(copier.dstAcc),
+			"fieldName", copier.dstAcc.Field(copier.dstIndex).Name(),
+			"dstElem", dstElem)
+	}
+	err := copier.elemCopier.Copy(dstElem, src)
+	if shouldDebug {
+		logger.Debug(fmt.Sprintf("[%x] end copy struct field to struct field", src), "src", src, "dst", dst,
+			"srcAcc", reflect.TypeOf(copier.srcAcc),
+			"dstAcc", reflect.TypeOf(copier.dstAcc),
+			"fieldName", copier.dstAcc.Field(copier.dstIndex).Name(),
+			"dstElem", dstElem,
+			"err", err)
+	}
+	return err
 }

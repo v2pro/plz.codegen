@@ -20,6 +20,32 @@ func Test_copy_struct_to_map(t *testing.T) {
 	}, a)
 }
 
+func Test_copy_struct_to_map_existing_entry(t *testing.T) {
+	should := require.New(t)
+	type TestObject struct {
+		Field1 string
+		Field2 string
+	}
+	existingValue := ""
+	a := map[string]*string{"Field1": &existingValue}
+	should.Nil(util.Copy(a, TestObject{"1", "2"}))
+	should.Equal("1", existingValue)
+}
+
+func Test_copy_nil_ptr_struct_to_ptr_struct(t *testing.T) {
+	should := require.New(t)
+	type A struct {
+		Field string
+	}
+	type B struct {
+		Field string
+	}
+	var a A
+	var b *B
+	should.Nil(util.Copy(&a, &b))
+	should.Equal("", a.Field)
+}
+
 func Test_copy_struct_to_ptr_struct_with_exact_fields(t *testing.T) {
 	should := require.New(t)
 	type A struct {
@@ -98,6 +124,8 @@ func Test_copy_struct_with_nil_ptr(t *testing.T) {
 	}
 	a := map[string]interface{}{}
 	should.Nil(util.Copy(a, B{}))
+	should.Nil(a["Field1"])
+	should.Nil(a["Field2"])
 }
 
 func Test_copy_struct_with_ptr_ptr(t *testing.T) {

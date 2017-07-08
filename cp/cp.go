@@ -4,9 +4,22 @@ import (
 	"github.com/v2pro/plz/lang"
 	"github.com/v2pro/plz/util"
 	_ "github.com/v2pro/wombat/acc"
+	"github.com/v2pro/plz"
+	"github.com/v2pro/plz/logging"
 )
 
+var logger = plz.LoggerOf("package", "wombat.cp")
+
 func init() {
+	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
+		for i := 0; i < len(loggerKv); i += 2 {
+			key := loggerKv[i].(string)
+			if key == "package" && "wombat.cp" == loggerKv[i+1] {
+				return logging.NewStderrLogger(loggerKv, logging.LEVEL_DEBUG)
+			}
+		}
+		return nil
+	})
 	util.CopierProviders = append(util.CopierProviders, provideCopier)
 }
 

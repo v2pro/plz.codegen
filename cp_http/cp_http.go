@@ -11,19 +11,9 @@ import (
 var ptrHttpRequestType = reflect.TypeOf((*http.Request)(nil))
 
 func init() {
-	lang.AccessorProviders = append([]func(typ reflect.Type, tagName string) lang.Accessor{
-		provideAccessor,
-	}, lang.AccessorProviders...)
 	util.ObjectCopierProviders = append([]func(dstType, srcType reflect.Type) (util.ObjectCopier, error){
 		provideFromRequestCopier,
 	}, util.ObjectCopierProviders...)
-}
-
-func provideAccessor(typ reflect.Type, tagName string) lang.Accessor {
-	if ptrHttpRequestType == typ {
-		return newRequestAccessor(tagName)
-	}
-	return nil
 }
 
 func provideFromRequestCopier(dstType, srcType reflect.Type) (util.ObjectCopier, error) {
@@ -31,7 +21,20 @@ func provideFromRequestCopier(dstType, srcType reflect.Type) (util.ObjectCopier,
 	if !isFromRequest {
 		return nil, nil
 	}
-	srcAcc := lang.AccessorOf(reflect.TypeOf((*http.Request)(nil)), "http")
+	srcAcc := lang.AccessorOf(reflect.TypeOf(requestWrapper{}), "http")
 	dstAcc := lang.AccessorOf(dstType, "http")
-	return util.DefaultObjectCopierOf(dstAcc, srcAcc)
+	copier, err := util.CopierOf(dstAcc, srcAcc)
+	if err != nil {
+		return nil, err
+	}
+	return &fromRequestCopier{copier}, nil
+}
+
+type fromRequestCopier struct {
+	copier util.Copier
+}
+
+func (objCopier *fromRequestCopier) Copy(dst, src interface{}) error {
+	req := src.(*http.Request)
+	return objCopier.copier.Copy(lang.AddressOf(dst), lang.AddressOf(requestWrapper{req}))
 }

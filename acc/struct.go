@@ -20,7 +20,6 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	mappedVirtualFields := map[string][]mapField{}
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
 		fieldTags := tagFields[field.Name]
 		delete(tagFields, field.Name)
 		if fieldTags == nil {
@@ -48,6 +47,7 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 		if fieldName == "" {
 			continue
 		}
+		fieldAcc := lang.AccessorOf(reflect.PtrTo(field.Type), tagName)
 		fields = append(fields, &structField{
 			index:    i,
 			name:     fieldName,
@@ -89,7 +89,7 @@ func appendMappedVirtualFields(fields []*structField, mappedVirtualFields map[st
 
 func appendTagDefinedVirtualFields(fields []*structField, tagName string, typ reflect.Type, tagFields map[string]tagging.FieldTags) []*structField {
 	index := len(fields)
-	ptr := lang.AddressOf(reflect.New(typ).Interface())
+	ptr := lang.AddressOf(recursiveNew(typ, 0).Interface())
 	for fieldName, fieldTags := range tagFields {
 		tagValue := fieldTags[tagName]
 		mapValue, _ := tagValue["mapValue"].(func(ptr unsafe.Pointer) interface{})
@@ -108,6 +108,25 @@ func appendTagDefinedVirtualFields(fields []*structField, tagName string, typ re
 		index++
 	}
 	return fields
+}
+
+func recursiveNew(typ reflect.Type, level int) reflect.Value {
+	pval := reflect.New(typ)
+	val := pval.Elem()
+	if level < 5 {
+		switch typ.Kind() {
+		case reflect.Struct:
+			for i := 0; i < val.NumField(); i++ {
+				field := val.Field(i)
+				if field.CanSet() {
+					field.Set(recursiveNew(field.Type(), level + 1).Elem())
+				}
+			}
+		case reflect.Ptr:
+			val.Set(recursiveNew(typ.Elem(), level + 1))
+		}
+	}
+	return pval
 }
 
 func getFieldName(field reflect.StructField, tagValue tagging.TagValue) string {
