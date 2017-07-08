@@ -37,6 +37,35 @@ func Test_req_header_single_value(t *testing.T) {
 	should.Equal("hello", obj.Field)
 }
 
+func Test_req_header_multiple_values(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field []string `http:"Header/Some_header[]"`
+	}
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.Header.Add("Some_header", "hello")
+	req.Header.Add("Some_header", "world")
+	obj := TestObject{}
+	should.Nil(plz.Copy(&obj, req))
+	should.Equal([]string{"hello", "world"}, obj.Field)
+}
+
+func Test_req_header_shortcut(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field string `header:"Some_header"`
+	}
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.Header.Add("Some_header", "hello")
+	obj := TestObject{}
+	should.Nil(plz.Copy(&obj, req))
+	should.Equal("hello", obj.Field)
+}
+
 func createFormRequest(kv ...string) *http.Request {
 	data := url.Values{}
 	for i := 0; i < len(kv); i += 2 {

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	_ "github.com/v2pro/wombat/cp"
 	"github.com/v2pro/plz/util"
+	"github.com/v2pro/plz/lang/tagging"
+	"fmt"
 )
 
 var ptrHttpRequestType = reflect.TypeOf((*http.Request)(nil))
@@ -14,6 +16,14 @@ func init() {
 	util.ObjectCopierProviders = append([]func(dstType, srcType reflect.Type) (util.ObjectCopier, error){
 		provideFromRequestCopier,
 	}, util.ObjectCopierProviders...)
+	tagging.TagsProviders = append(tagging.TagsProviders, func(typ reflect.Type, typeTags *tagging.TypeTags) {
+		for _, tags := range typeTags.Fields {
+			if tags["header"] != nil && tags["http"] == nil {
+				tags["http"] = tagging.TagValue{}
+				tags["http"].SetText(fmt.Sprintf("Header/%s[]", tags["header"].Text()))
+			}
+		}
+	})
 }
 
 func provideFromRequestCopier(dstType, srcType reflect.Type) (util.ObjectCopier, error) {

@@ -32,7 +32,7 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 			lastSection := path[len(path)-1]
 			if len(lastSection) > 2 && lastSection[len(lastSection)-2:] == "[]" {
 				lastSection = lastSection[:len(lastSection)-2]
-				if field.Type.Kind() != reflect.Array {
+				if field.Type.Kind() != reflect.Array && field.Type.Kind() != reflect.Slice {
 					arrType := reflect.ArrayOf(1, field.Type)
 					templateEI = castToEmptyInterface(reflect.New(arrType).Elem().Interface())
 				}
