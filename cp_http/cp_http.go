@@ -18,9 +18,15 @@ func init() {
 	}, util.ObjectCopierProviders...)
 	tagging.TagsProviders = append(tagging.TagsProviders, func(typ reflect.Type, typeTags *tagging.TypeTags) {
 		for _, tags := range typeTags.Fields {
-			if tags["header"] != nil && tags["http"] == nil {
-				tags["http"] = tagging.TagValue{}
+			if tags["http"] != nil {
+				continue
+			}
+			tags["http"] = tagging.TagValue{}
+			if tags["header"] != nil {
 				tags["http"].SetText(fmt.Sprintf("Header/%s[]", tags["header"].Text()))
+			}
+			if tags["form"] != nil {
+				tags["http"].SetText(fmt.Sprintf("Form/%s[]", tags["form"].Text()))
 			}
 		}
 	})

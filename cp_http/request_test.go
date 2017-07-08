@@ -66,6 +66,19 @@ func Test_req_header_shortcut(t *testing.T) {
 	should.Equal("hello", obj.Field)
 }
 
+func Test_req_form(t *testing.T) {
+	should := require.New(t)
+	req := createFormRequest("hello", "world")
+	should.Nil(req.ParseForm())
+
+	type TestObject struct {
+		Field string `form:"hello"`
+	}
+	obj := TestObject{}
+	should.Nil(plz.Copy(&obj, req))
+	should.Equal("world", obj.Field)
+}
+
 func createFormRequest(kv ...string) *http.Request {
 	data := url.Values{}
 	for i := 0; i < len(kv); i += 2 {

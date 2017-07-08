@@ -25,5 +25,11 @@ func (wrapper *requestWrapper) DefineTags() tagging.Tags {
 				return &obj.Req.Header
 			},
 		)),
+		tagging.F(tagging.VirtualField("Form"), "http", tagging.V(
+			"mapValue", func(ptr unsafe.Pointer) interface{} {
+				obj := (*requestWrapper)(ptr)
+				return &obj.Req.Form
+			},
+		)),
 	)
 }
