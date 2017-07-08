@@ -24,18 +24,17 @@ func Test_req_method(t *testing.T) {
 }
 
 func Test_req_header_single_value(t *testing.T) {
-	t.Skip()
 	should := require.New(t)
 
 	type TestObject struct {
-		Field string `http:"Header.some_header"`
+		Field string `http:"Header/Some_header[]"`
 	}
 
 	req, _ := http.NewRequest("GET", "/", nil)
-	req.Header.Add("some_header", "hello")
+	req.Header.Add("Some_header", "hello")
 	obj := TestObject{}
 	should.Nil(plz.Copy(&obj, req))
-	should.Equal("some_header", obj.Field)
+	should.Equal("hello", obj.Field)
 }
 
 func createFormRequest(kv ...string) *http.Request {

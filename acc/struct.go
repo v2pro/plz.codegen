@@ -29,6 +29,14 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 		if strings.Contains(fieldName, "/") {
 			path := strings.Split(fieldName, "/")
 			templateEI := castToEmptyInterface(reflect.New(field.Type).Interface())
+			lastSection := path[len(path)-1]
+			if len(lastSection) > 2 && lastSection[len(lastSection)-2:] == "[]" {
+				lastSection = lastSection[:len(lastSection)-2]
+				if field.Type.Kind() != reflect.Array {
+					arrType := reflect.ArrayOf(1, field.Type)
+					templateEI = castToEmptyInterface(reflect.New(arrType).Elem().Interface())
+				}
+			}
 			mappedVirtualFields[path[0]] = append(mappedVirtualFields[path[0]], func(ptr unsafe.Pointer, mapped map[string]interface{}) {
 				elemPtr := uintptr(ptr) + field.Offset
 				for _, elem := range path[1:len(path)-1] {
@@ -40,7 +48,7 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 					mapped = nextLevel.(map[string]interface{})
 				}
 				templateEI.word = unsafe.Pointer(elemPtr)
-				mapped[path[len(path)-1]] = castBackEmptyInterface(templateEI)
+				mapped[lastSection] = castBackEmptyInterface(templateEI)
 			})
 			continue
 		}
@@ -119,11 +127,11 @@ func recursiveNew(typ reflect.Type, level int) reflect.Value {
 			for i := 0; i < val.NumField(); i++ {
 				field := val.Field(i)
 				if field.CanSet() {
-					field.Set(recursiveNew(field.Type(), level + 1).Elem())
+					field.Set(recursiveNew(field.Type(), level+1).Elem())
 				}
 			}
 		case reflect.Ptr:
-			val.Set(recursiveNew(typ.Elem(), level + 1))
+			val.Set(recursiveNew(typ.Elem(), level+1))
 		}
 	}
 	return pval

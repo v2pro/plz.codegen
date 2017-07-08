@@ -10,6 +10,10 @@ import (
 )
 
 func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) {
+	shouldDebug := logger.ShouldLog(logging.LEVEL_DEBUG)
+	if shouldDebug {
+		logger.Debug(fmt.Sprintf("[%#v => %#v] begin setup struct to struct copier", srcAcc, dstAcc))
+	}
 	fieldCopiers := make([]util.Copier, srcAcc.NumField())
 	dstFields := map[string]lang.StructField{}
 	for i := 0; i < dstAcc.NumField(); i++ {
@@ -20,8 +24,14 @@ func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) 
 		field := srcAcc.Field(i)
 		dstField := dstFields[field.Name()]
 		if dstField == nil {
+			if shouldDebug {
+				logger.Debug("skip src field", "fieldName", field.Name())
+			}
 			fieldCopiers[i] = &skipCopier{field.Name(), field.Accessor()}
 		} else {
+			if shouldDebug {
+				logger.Debug("matched field", "fieldName", field.Name())
+			}
 			copier, err := util.CopierOf(dstField.Accessor(), field.Accessor())
 			if err != nil {
 				return nil, err
@@ -33,6 +43,21 @@ func newStructToStructCopier(dstAcc, srcAcc lang.Accessor) (util.Copier, error) 
 				srcAcc:     field.Accessor(),
 			}
 		}
+	}
+	if shouldDebug {
+		srcFields := map[string]lang.StructField{}
+		for i := 0; i < srcAcc.NumField(); i++ {
+			field := srcAcc.Field(i)
+			srcFields[field.Name()] = field
+		}
+		for i := 0; i < dstAcc.NumField(); i++ {
+			field := dstAcc.Field(i)
+			srcField := srcFields[field.Name()]
+			if srcField == nil {
+				logger.Debug("skip dst field", "fieldName", field.Name())
+			}
+		}
+		logger.Debug(fmt.Sprintf("[%#v => %#v] end setup struct to struct copier", srcAcc, dstAcc))
 	}
 	return &structToStructCopier{
 		fieldCopiers: fieldCopiers,
@@ -101,7 +126,8 @@ func (copier *structFieldCopier) Copy(dst, src unsafe.Pointer) error {
 			"srcAcc", reflect.TypeOf(copier.srcAcc),
 			"dstAcc", reflect.TypeOf(copier.dstAcc),
 			"fieldName", copier.dstAcc.Field(copier.dstIndex).Name(),
-			"dstElem", dstElem)
+			"dstElem", dstElem,
+		"elemCopier", reflect.TypeOf(copier.elemCopier))
 	}
 	err := copier.elemCopier.Copy(dstElem, src)
 	if shouldDebug {
@@ -110,6 +136,7 @@ func (copier *structFieldCopier) Copy(dst, src unsafe.Pointer) error {
 			"dstAcc", reflect.TypeOf(copier.dstAcc),
 			"fieldName", copier.dstAcc.Field(copier.dstIndex).Name(),
 			"dstElem", dstElem,
+			"elemCopier", reflect.TypeOf(copier.elemCopier),
 			"err", err)
 	}
 	return err

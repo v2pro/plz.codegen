@@ -22,8 +22,7 @@ func (wrapper *requestWrapper) DefineTags() tagging.Tags {
 		tagging.F(tagging.VirtualField("Header"), "http", tagging.V(
 			"mapValue", func(ptr unsafe.Pointer) interface{} {
 				obj := (*requestWrapper)(ptr)
-				m := map[string][]string(obj.Req.Header)
-				return &m
+				return &obj.Req.Header
 			},
 		)),
 	)

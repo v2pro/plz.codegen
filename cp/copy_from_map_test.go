@@ -6,6 +6,14 @@ import (
 	"testing"
 )
 
+func Test_copy_nil_map_to_map(t *testing.T) {
+	should := require.New(t)
+	a := map[string]string{}
+	var b *map[string]string
+	should.Nil(util.Copy(a, &b))
+	should.Equal(map[string]string{}, a)
+}
+
 func Test_copy_map_to_map(t *testing.T) {
 	should := require.New(t)
 	a := map[string]string{}
