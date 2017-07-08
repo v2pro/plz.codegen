@@ -37,19 +37,8 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 					templateEI = castToEmptyInterface(reflect.New(arrType).Elem().Interface())
 				}
 			}
-			mappedVirtualFields[path[0]] = append(mappedVirtualFields[path[0]], func(ptr unsafe.Pointer, mapped map[string]interface{}) {
-				elemPtr := uintptr(ptr) + field.Offset
-				for _, elem := range path[1:len(path)-1] {
-					nextLevel := mapped[elem]
-					if nextLevel == nil {
-						nextLevel = map[string]interface{}{}
-						mapped[elem] = nextLevel
-					}
-					mapped = nextLevel.(map[string]interface{})
-				}
-				templateEI.word = unsafe.Pointer(elemPtr)
-				mapped[lastSection] = castBackEmptyInterface(templateEI)
-			})
+			mappedVirtualFields[path[0]] = append(mappedVirtualFields[path[0]],
+				mapVirtualField(field, path, lastSection, templateEI))
 			continue
 		}
 		if fieldName == "" {
@@ -73,6 +62,22 @@ func accessorOfStruct(typ reflect.Type, tagName string) lang.Accessor {
 	}
 }
 
+func mapVirtualField(field reflect.StructField, path []string, lastSection string, templateEI emptyInterface) func(ptr unsafe.Pointer, mapped map[string]interface{}) {
+	return func(ptr unsafe.Pointer, mapped map[string]interface{}) {
+		elemPtr := uintptr(ptr) + field.Offset
+		for _, elem := range path[1:len(path)-1] {
+			nextLevel := mapped[elem]
+			if nextLevel == nil {
+				nextLevel = map[string]interface{}{}
+				mapped[elem] = nextLevel
+			}
+			mapped = nextLevel.(map[string]interface{})
+		}
+		templateEI.word = unsafe.Pointer(elemPtr)
+		mapped[lastSection] = castBackEmptyInterface(templateEI)
+	}
+}
+
 func appendMappedVirtualFields(fields []*structField, mappedVirtualFields map[string][]mapField, tagName string) []*structField {
 	index := len(fields)
 	for virtualFieldName, mapFields := range mappedVirtualFields {
@@ -82,17 +87,21 @@ func appendMappedVirtualFields(fields []*structField, mappedVirtualFields map[st
 			tags:     map[string]tagging.TagValue{},
 			accessor: lang.AccessorOf(reflect.TypeOf(map[string]interface{}{}), tagName),
 			offset:   0,
-			mapValue: func(ptr unsafe.Pointer) interface{} {
-				mapped := map[string]interface{}{}
-				for _, mapField := range mapFields {
-					mapField(ptr, mapped)
-				}
-				return mapped
-			},
+			mapValue: genMapValue(mapFields),
 		})
 		index++
 	}
 	return fields
+}
+
+func genMapValue(mapFields []mapField) func(ptr unsafe.Pointer) interface{} {
+	return func(ptr unsafe.Pointer) interface{} {
+		mapped := map[string]interface{}{}
+		for _, mapField := range mapFields {
+			mapField(ptr, mapped)
+		}
+		return mapped
+	}
 }
 
 func appendTagDefinedVirtualFields(fields []*structField, tagName string, typ reflect.Type, tagFields map[string]tagging.FieldTags) []*structField {
