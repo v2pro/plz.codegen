@@ -19,6 +19,11 @@ func max(collection ...interface{}) interface{} {
 	typ := reflect.TypeOf(collection[0])
 	f := funcMaxMap[typ]
 	if f == nil {
+		lastElem := collection[len(collection)-1]
+		f = tryMaxStruct(typ, lastElem)
+		if f != nil {
+			return f.max(collection)
+		}
 		panic(fmt.Sprintf("no max implementation for: %v", typ))
 	}
 	return f.max(collection)
