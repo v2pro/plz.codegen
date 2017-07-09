@@ -1,4 +1,4 @@
-package func_max
+package fp_max
 
 import (
 	"testing"
