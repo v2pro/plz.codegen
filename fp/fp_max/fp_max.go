@@ -6,6 +6,7 @@ import (
 	_ "github.com/v2pro/wombat/acc"
 	"unsafe"
 	"fmt"
+	"github.com/v2pro/plz/lang"
 )
 
 func init() {
@@ -16,6 +17,11 @@ var intType = reflect.TypeOf(int(0))
 var intMax funcMax = &funcMaxInt{}
 var float64Type = reflect.TypeOf(float64(0))
 var float64Max funcMax = &funcMaxFloat64{}
+var int8Type = reflect.TypeOf(int8(0))
+var int8Max funcMax = &funcMaxGeneric{comparator: lang.ObjectComparatorOf(reflect.Int8)}
+var funcMaxMap = map[reflect.Type]funcMax{
+	int8Type: int8Max,
+}
 
 func max(collection ...interface{}) interface{} {
 	if len(collection) == 0 {
@@ -28,8 +34,12 @@ func max(collection ...interface{}) interface{} {
 	if typ == float64Type {
 		return float64Max.max(collection)
 	}
+	f := funcMaxMap[typ]
+	if f != nil {
+		return f.max(collection)
+	}
 	lastElem := collection[len(collection)-1]
-	f := tryMaxStruct(typ, lastElem)
+	f = tryMaxStruct(typ, lastElem)
 	if f != nil {
 		return f.max(collection)
 	}
@@ -47,8 +57,6 @@ func objPtr(obj interface{}) unsafe.Pointer {
 
 const kindMask = (1 << 5) - 1
 
-type tflag uint8
-
 // rtype is the common implementation of most values.
 // It is embedded in other, public struct types, but always
 // with a unique tag like `reflect:"array"` or `reflect:"ptr"`
@@ -57,7 +65,7 @@ type rtype struct {
 	size       uintptr
 	ptrdata    uintptr
 	hash       uint32 // hash of type; avoids computation in hash tables
-	tflag      tflag  // extra type information flags
+	tflag      uint8  // extra type information flags
 	align      uint8  // alignment of variable with this type
 	fieldAlign uint8  // alignment of struct field with this type
 	kind       uint8  // enumeration for C

@@ -43,6 +43,11 @@ func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 				NoopAccessor:  lang.NoopAccessor{tagName,"ptrIntAccessor"},
 				valueAccessor: accessorOfNativeType(elemType, tagName),
 			}}
+		case reflect.Int8:
+			return &ptrInt8Accessor{ptrAccessor{
+				NoopAccessor:  lang.NoopAccessor{tagName,"ptrInt8Accessor"},
+				valueAccessor: accessorOfNativeType(elemType, tagName),
+			}}
 		case reflect.Float64:
 			return &ptrFloat64Accessor{ptrAccessor{
 				NoopAccessor:  lang.NoopAccessor{tagName,"ptrFloat64Accessor"},
@@ -73,6 +78,11 @@ func accessorOfNativeType(typ reflect.Type, tagName string) lang.Accessor {
 	case reflect.Int:
 		return &intAccessor{
 			NoopAccessor: lang.NoopAccessor{tagName,"intAccessor"},
+			typ:          typ,
+		}
+	case reflect.Int8:
+		return &int8Accessor{
+			NoopAccessor: lang.NoopAccessor{tagName,"int8Accessor"},
 			typ:          typ,
 		}
 	case reflect.Float64:

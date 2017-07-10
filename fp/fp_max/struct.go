@@ -4,6 +4,7 @@ import (
 	"github.com/v2pro/plz/lang"
 	"reflect"
 	"fmt"
+	"math"
 )
 
 func tryMaxStruct(firstElemType reflect.Type, lastElem interface{}) *maxStruct {
@@ -41,7 +42,7 @@ type maxStruct struct {
 
 func (f *maxStruct) max(collection []interface{}) interface{} {
 	var currentMax interface{}
-	currentMaxVal := minInt
+	currentMaxVal := int(math.MinInt64)
 	for _, elem := range collection[:len(collection)-1] {
 		fieldPtr := f.structAcc.ArrayIndex(lang.AddressOf(elem), f.fieldIndex)
 		fieldVal := f.fieldAcc.Int(fieldPtr)
