@@ -18,30 +18,31 @@ var intMax funcMax = &funcMaxInt{}
 var float64Type = reflect.TypeOf(float64(0))
 var float64Max funcMax = &funcMaxFloat64{}
 var int8Type = reflect.TypeOf(int8(0))
-var int8Max funcMax = &funcMaxGeneric{comparator: lang.ObjectComparatorOf(reflect.Int8)}
+var int8Max funcMax = &funcMaxGeneric{comparator: lang.AccessorOf(int8Type, "").(lang.Comparator)}
 var funcMaxMap = map[reflect.Type]funcMax{
+	intType: intMax,
+	float64Type: float64Max,
 	int8Type: int8Max,
 }
+var comparableMax funcMax = &funcMaxComparable{}
 
 func max(collection ...interface{}) interface{} {
 	if len(collection) == 0 {
 		return nil
 	}
 	typ := reflect.TypeOf(collection[0])
-	if typ == intType {
-		return intMax.max(collection)
-	}
-	if typ == float64Type {
-		return float64Max.max(collection)
-	}
 	f := funcMaxMap[typ]
 	if f != nil {
 		return f.max(collection)
 	}
+	_, isComparable := collection[0].(lang.ObjectComparable)
+	if isComparable {
+		return comparableMax.max(collection)
+	}
 	lastElem := collection[len(collection)-1]
 	f = tryMaxStruct(typ, lastElem)
 	if f != nil {
-		return f.max(collection)
+		return f.max(collection[:len(collection)-1])
 	}
 	panic(fmt.Sprintf("no max implementation for: %v", typ))
 	return f.max(collection)
@@ -49,6 +50,10 @@ func max(collection ...interface{}) interface{} {
 
 func objKind(obj interface{}) reflect.Kind {
 	return reflect.Kind((*((*emptyInterface)(unsafe.Pointer(&obj)))).typ.kind & kindMask)
+}
+
+func objType(obj interface{}) *rtype {
+	return (*((*emptyInterface)(unsafe.Pointer(&obj)))).typ
 }
 
 func objPtr(obj interface{}) unsafe.Pointer {

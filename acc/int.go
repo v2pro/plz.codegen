@@ -22,6 +22,17 @@ func (accessor *intAccessor) GoString() string {
 func (accessor *intAccessor) Int(ptr unsafe.Pointer) int {
 	return *((*int)(ptr))
 }
+func (accessor *intAccessor) Compare(ptr1 unsafe.Pointer, ptr2 unsafe.Pointer) int {
+	val1 := *(*int)(ptr1)
+	val2 := *(*int)(ptr2)
+	if val1 < val2 {
+		return -1
+	} else if val1 == val2 {
+		return 0
+	} else {
+		return 1
+	}
+}
 
 type ptrIntAccessor struct {
 	ptrAccessor

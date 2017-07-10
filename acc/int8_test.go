@@ -31,3 +31,14 @@ func Test_int8_set_int8(t *testing.T) {
 		objAcc(v).SetInt8(objPtr(v), 2)
 	})
 }
+
+func Test_int8_compare(t *testing.T) {
+	should := require.New(t)
+	v := int8(1)
+	should.Equal(-1, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int8(1)), objPtr(2)))
+	should.Equal(0, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int8(1)), objPtr(1)))
+	should.Equal(1, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int8(2)), objPtr(1)))
+}

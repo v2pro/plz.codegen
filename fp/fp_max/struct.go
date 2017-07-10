@@ -4,52 +4,47 @@ import (
 	"github.com/v2pro/plz/lang"
 	"reflect"
 	"fmt"
-	"math"
+	"unsafe"
 )
 
-func tryMaxStruct(firstElemType reflect.Type, lastElem interface{}) *maxStruct {
+var cache funcMax
+
+func tryMaxStruct(firstElemType reflect.Type, lastElem interface{}) funcMax {
 	isStruct := firstElemType.Kind() == reflect.Struct && reflect.TypeOf(lastElem).Kind() == reflect.String
 	if !isStruct {
 		return nil
 	}
+	if cache != nil {
+		return cache
+	}
 	sortField := lastElem.(string)
-	structAcc := lang.AccessorOf(firstElemType, "max")
-	fieldIndex := -1
-	var fieldAcc lang.Accessor
-	for i := 0; i < structAcc.NumField(); i++ {
-		field := structAcc.Field(i)
-		if field.Name() == sortField {
-			fieldIndex = i
-			fieldAcc = field.Accessor()
+	var targetField *reflect.StructField
+	for i := 0; i < firstElemType.NumField(); i++ {
+		field := firstElemType.Field(i)
+		if field.Name == sortField {
+			targetField = &field
 			break
 		}
 	}
-	if fieldIndex == -1 {
+	if targetField == nil {
 		panic(fmt.Sprintf("sorting field %s can not found int %v", sortField, firstElemType))
 	}
-	return &maxStruct{
-		structAcc:  structAcc,
-		fieldIndex: fieldIndex,
-		fieldAcc:   fieldAcc,
+	cache = &funcMaxGeneric{
+		&structComparator{
+			offset:          targetField.Offset,
+			fieldComparator: lang.AccessorOf(intType, "").(lang.Comparator),
+		},
 	}
+	return cache
 }
 
-type maxStruct struct {
-	structAcc  lang.Accessor
-	fieldIndex int
-	fieldAcc   lang.Accessor
+type structComparator struct {
+	offset          uintptr
+	fieldComparator lang.Comparator
 }
 
-func (f *maxStruct) max(collection []interface{}) interface{} {
-	var currentMax interface{}
-	currentMaxVal := int(math.MinInt64)
-	for _, elem := range collection[:len(collection)-1] {
-		fieldPtr := f.structAcc.ArrayIndex(lang.AddressOf(elem), f.fieldIndex)
-		fieldVal := f.fieldAcc.Int(fieldPtr)
-		if fieldVal > currentMaxVal {
-			currentMax = elem
-			currentMaxVal = fieldVal
-		}
-	}
-	return currentMax
+func (f *structComparator) Compare(ptr1 unsafe.Pointer, ptr2 unsafe.Pointer) int {
+	field1 := unsafe.Pointer(uintptr(ptr1) + f.offset)
+	field2 := unsafe.Pointer(uintptr(ptr2) + f.offset)
+	return f.fieldComparator.Compare(field1, field2)
 }

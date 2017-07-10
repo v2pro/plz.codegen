@@ -5,13 +5,16 @@ import (
 )
 
 type funcMaxGeneric struct {
-	comparator lang.ObjectComparator
+	comparator lang.Comparator
 }
 
 func (f *funcMaxGeneric) max(collection []interface{}) interface{} {
 	currentMax := collection[0]
 	for _, elemObj := range collection[1:] {
-		if f.comparator.Compare(elemObj, currentMax) > 0 {
+		if objType(elemObj) != objType(currentMax) {
+			panic("type mismatch")
+		}
+		if f.comparator.Compare(objPtr(elemObj), objPtr(currentMax)) > 0 {
 			currentMax = elemObj
 		}
 	}

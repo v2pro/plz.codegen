@@ -31,3 +31,14 @@ func Test_int_set_int(t *testing.T) {
 		objAcc(v).SetInt(objPtr(v), 2)
 	})
 }
+
+func Test_int_compare(t *testing.T) {
+	should := require.New(t)
+	v := int(1)
+	should.Equal(-1, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int(1)), objPtr(2)))
+	should.Equal(0, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int(1)), objPtr(1)))
+	should.Equal(1, objAcc(v).(lang.Comparator).Compare(
+		objPtr(int(2)), objPtr(1)))
+}
