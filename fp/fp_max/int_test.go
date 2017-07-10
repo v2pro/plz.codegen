@@ -15,6 +15,9 @@ func Test_int(t *testing.T) {
 	should.Nil(plz.Max())
 }
 
+const maxUint = ^uint(0)
+const minInt = -int(maxUint >> 1)
+
 func max_int_typed(collection ...int) int {
 	currentMax := minInt
 	for _, elem := range collection {

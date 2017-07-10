@@ -14,6 +14,8 @@ func init() {
 
 var intType = reflect.TypeOf(int(0))
 var intMax funcMax = &funcMaxInt{}
+var float64Type = reflect.TypeOf(float64(0))
+var float64Max funcMax = &funcMaxFloat64{}
 
 func max(collection ...interface{}) interface{} {
 	if len(collection) == 0 {
@@ -22,6 +24,9 @@ func max(collection ...interface{}) interface{} {
 	typ := reflect.TypeOf(collection[0])
 	if typ == intType {
 		return intMax.max(collection)
+	}
+	if typ == float64Type {
+		return float64Max.max(collection)
 	}
 	lastElem := collection[len(collection)-1]
 	f := tryMaxStruct(typ, lastElem)
