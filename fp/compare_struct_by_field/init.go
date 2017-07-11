@@ -15,6 +15,7 @@ var F = &gen.FuncTemplate{
 		"F": "the field name of S",
 		"T": "the type of field F",
 	},
+	FuncName: `Compare_{{ .S|name }}_by_{{ .F }}`,
 	Source: `
 func {{ .funcName }}(
 	obj1 interface{},
@@ -28,7 +29,6 @@ func typed_{{ .funcName }}(
 	// end of signature
 	return {{ .compareFuncName }}(obj1.{{ .F }}, obj2.{{ .F }})
 }`,
-	FuncName: `Compare_{{ .S|name }}_by_{{ .F }}`,
 }
 
 type structAndField struct {
