@@ -24,15 +24,18 @@ func {{ .funcName }}(
 	dst interface{},
 	src interface{}) error {
 	// end of signature
+	if dst == nil {
+		return nil
+	}
 	return typed_{{ .funcName }}(
 		dst.({{ .DT|name }}),
 		src.({{ .ST|name }}))
 }
 func typed_{{ .funcName }}(
-	src {{ .DT|name }},
-	dst {{ .ST|name }}) error {
+	dst {{ .DT|name }},
+	src {{ .ST|name }}) error {
 	// end of signature
-	*src = dst
+	*dst = src
 	return nil
 }
 `,

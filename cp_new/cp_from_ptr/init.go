@@ -25,6 +25,9 @@ func {{ .funcName }}(
 	dst interface{},
 	src interface{}) error {
 	// end of signature
+	if dst == nil {
+		return nil
+	}
 	if src == nil {
 		return nil
 	}
