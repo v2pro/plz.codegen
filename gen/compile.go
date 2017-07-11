@@ -34,11 +34,12 @@ type FuncTemplate struct {
 	Source       string
 	FuncName     string
 	Dependencies map[string]*FuncTemplate
+	FuncMap      map[string]interface{}
 }
 
 type generator struct {
 	generatedTypes map[reflect.Type]bool
-	objPtrTypes map[reflect.Type]string
+	objPtrTypes    map[reflect.Type]string
 }
 
 func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, string) {
@@ -58,7 +59,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		delete(variables, varName)
 		data[varName] = args[i+1]
 		typ, _ := args[i+1].(reflect.Type)
-		if typ != nil && typ.Kind() == reflect.Struct {
+		if typ != nil && (typ.Kind() == reflect.Struct || typ.Kind() == reflect.Ptr) {
 			if !g.generatedTypes[typ] {
 				g.generatedTypes[typ] = true
 				generatedSource += generateStruct(typ)
@@ -71,7 +72,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	}
 	funcName := genFuncName(fTmpl.FuncName, data)
 	data["funcName"] = funcName
-	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
+	funcMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
 			funcName, source := g.gen(fTmpl.Dependencies[depName], newKv...)
 			return struct {
@@ -93,13 +94,12 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 				return "((" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			}
 		},
-		"is_one_ptr_struct_or_array": func_is_one_ptr_struct_or_array,
-		"field_of": func_field_of,
-		"elem":     func_elem,
-		"is_ptr":   func_is_ptr,
-		"name":     func_name,
-		"symbol":   func_symbol,
-	}).Parse(fTmpl.Source)
+	}
+	fillDefaultFuncMap(funcMap)
+	for k, v := range fTmpl.FuncMap {
+		funcMap[k] = v
+	}
+	tmpl, err := template.New(NewID().String()).Funcs(funcMap).Parse(fTmpl.Source)
 	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, data)
@@ -107,10 +107,19 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	return funcName, generatedSource + out.String()
 }
 
+func fillDefaultFuncMap(funcMap map[string]interface{}) {
+	funcMap["is_one_ptr_struct_or_array"] = func_is_one_ptr_struct_or_array
+	funcMap["field_of"] = func_field_of
+	funcMap["elem"] = func_elem
+	funcMap["is_ptr"] = func_is_ptr
+	funcMap["name"] = func_name
+	funcMap["symbol"] = func_symbol
+}
+
 func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	return (&generator{
 		generatedTypes: map[reflect.Type]bool{},
-		objPtrTypes: map[reflect.Type]string{},
+		objPtrTypes:    map[reflect.Type]string{},
 	}).gen(fTmpl, kv...)
 }
 

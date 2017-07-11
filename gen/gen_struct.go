@@ -7,6 +7,12 @@ import (
 )
 
 func generateStruct(typ reflect.Type) string {
+	if typ.Kind() == reflect.Ptr {
+		return generateStruct(typ.Elem())
+	}
+	if typ.Kind() != reflect.Struct {
+		return ""
+	}
 	tmpl, err := template.New(typ.String()).Funcs(map[string]interface{}{
 		"name":   func_name,
 		"fields": func_fields,
