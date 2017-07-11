@@ -1,14 +1,15 @@
-package fp_compare
+package compare
 
 import (
 	"testing"
 	"github.com/stretchr/testify/require"
 	"reflect"
+	"github.com/v2pro/wombat/gen"
 )
 
 func Test_src_int(t *testing.T) {
 	should := require.New(t)
-	src := genSource(compareSymbols.template, "T", reflect.TypeOf(int(0)))
+	_, src := gen.Gen(F, "T", reflect.TypeOf(int(0)))
 	should.Equal(`
 func Compare_int(
 	obj1 interface{},
@@ -34,18 +35,18 @@ func typed_Compare_int(
 
 func Test_int(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, Compare(1, 1))
-	should.Equal(1, Compare(1, 0))
-	should.Equal(-1, Compare(0, 1))
+	should.Equal(0, DoCompare(1, 1))
+	should.Equal(1, DoCompare(1, 0))
+	should.Equal(-1, DoCompare(0, 1))
 }
 
 func Test_int8(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, Compare(1, 1))
-	should.Equal(0, Compare(int8(1), int8(1)))
+	should.Equal(0, DoCompare(1, 1))
+	should.Equal(0, DoCompare(int8(1), int8(1)))
 }
 
 func Test_int16(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, Compare(int16(1), int16(1)))
+	should.Equal(0, DoCompare(int16(1), int16(1)))
 }

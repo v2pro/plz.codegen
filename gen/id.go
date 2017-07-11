@@ -39,7 +39,7 @@
 //   - http://www.slideshare.net/davegardnerisme/unique-id-generation-in-distributed-systems
 //   - https://en.wikipedia.org/wiki/Universally_unique_identifier
 //   - https://blog.twitter.com/2010/announcing-snowflake
-package fp_compare
+package gen
 
 import (
 	"crypto/md5"

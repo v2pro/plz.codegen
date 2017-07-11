@@ -1,4 +1,4 @@
-package fp_compare
+package gen
 
 import (
 	"plugin"
@@ -10,28 +10,42 @@ import (
 	"github.com/v2pro/plz"
 	"text/template"
 	"reflect"
+	"github.com/v2pro/plz/logging"
 )
 
-var logger = plz.LoggerOf("package", "fp_compare")
+var logger = plz.LoggerOf("package", "gen")
 
-type funcTemplate struct {
-	variables    map[string]string
-	source       string
-	funcName     string
-	dependencies []*funcTemplate
+func init() {
+	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
+		for i := 0; i < len(loggerKv); i += 2 {
+			key := loggerKv[i].(string)
+			if key == "package" && "gen" == loggerKv[i+1] {
+				return logging.NewStderrLogger(loggerKv, logging.LEVEL_DEBUG)
+			}
+		}
+		return nil
+	})
+}
+
+type FuncTemplate struct {
+	Variables    map[string]string
+	Source       string
+	FuncName     string
+	Dependencies map[string]*FuncTemplate
 }
 
 type generator struct {
 	generatedTypes map[reflect.Type]bool
 }
 
-func (g *generator) gen(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	generatedSource := ""
-	for _, dep := range fTmpl.dependencies {
-		_, depSource := g.gen(dep, kv...)
-		generatedSource += depSource
-	}
 	data := map[string]interface{}{}
+	for funcNameAsVar, dep := range fTmpl.Dependencies {
+		funcName, depSource := g.gen(dep, kv...)
+		generatedSource += depSource
+		data[funcNameAsVar] = funcName
+	}
 	for i := 0; i < len(kv); i += 2 {
 		data[kv[i].(string)] = kv[i+1]
 		typ, _ := kv[i+1].(reflect.Type)
@@ -42,12 +56,12 @@ func (g *generator) gen(fTmpl *funcTemplate, kv ...interface{}) (string, string)
 			}
 		}
 	}
-	funcName := genFuncName(fTmpl.funcName, data)
+	funcName := genFuncName(fTmpl.FuncName, data)
 	data["funcName"] = funcName
 	tmpl, err := template.New("source").Funcs(map[string]interface{}{
 		"name": func_name,
 		"cast": func_cast,
-	}).Parse(fTmpl.source)
+	}).Parse(fTmpl.Source)
 	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, data)
@@ -55,7 +69,7 @@ func (g *generator) gen(fTmpl *funcTemplate, kv ...interface{}) (string, string)
 	return funcName, generatedSource + out.String()
 }
 
-func gen(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	return (&generator{
 		generatedTypes: map[reflect.Type]bool{},
 	}).gen(fTmpl, kv...)
@@ -72,16 +86,12 @@ func genFuncName(funcNameTmpl string, data interface{}) string {
 	return out.String()
 }
 
-func genSource(template *funcTemplate, kv ...interface{}) string {
-	_, src := gen(template, kv...)
-	return src
-}
-
 var compilerMutex = &sync.Mutex{}
 
-func compile(source string, funcName string) plugin.Symbol {
+func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	compilerMutex.Lock()
 	defer compilerMutex.Unlock()
+	funcName, source := Gen(template, kv...)
 	source = `
 package main
 import "unsafe"

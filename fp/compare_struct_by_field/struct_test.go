@@ -1,4 +1,4 @@
-package fp_compare
+package compare_struct_by_field
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ func Test_struct(t *testing.T) {
 	type TestObject struct {
 		Field int
 	}
-	should.Equal(-1, CompareStructByField(
+	should.Equal(-1, DoCompareStructByField(
 		TestObject{1}, TestObject{2},
 		"Field"))
 }
@@ -32,13 +32,13 @@ func Benchmark_struct(b *testing.B) {
 	type TestObject struct {
 		Field int
 	}
-	CompareStructByField(
+	DoCompareStructByField(
 		TestObject{1}, TestObject{2},
 		"Field")
 	b.Run("plz", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.ReportAllocs()
-			CompareStructByField(
+			DoCompareStructByField(
 				TestObject{1}, TestObject{2},
 				"Field")
 		}

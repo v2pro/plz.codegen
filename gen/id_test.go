@@ -1,4 +1,4 @@
-package fp_compare
+package gen
 
 import (
 	"encoding/json"
