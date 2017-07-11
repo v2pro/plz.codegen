@@ -1,72 +1,49 @@
 package fp_compare
 
 import (
+	"plugin"
+	"os"
 	"io/ioutil"
 	"os/exec"
-	"bytes"
-	"plugin"
 	"strings"
-	"reflect"
-	"os"
-	"github.com/v2pro/plz"
+	"bytes"
 	"sync"
+	"github.com/v2pro/plz"
 )
 
 var logger = plz.LoggerOf("package", "fp_compare")
-var compilerMutex = &sync.Mutex{}
 
 type funcTemplate struct {
 	variables map[string]string
 	source    string
 	funcName  string
+	dependencies []*funcTemplate
 }
 
-var compareSymbols = struct {
-	template funcTemplate
-	cache map[reflect.Type]func(interface{}, interface{}) int
-}{
-	cache: map[reflect.Type]func(interface{}, interface{}) int{},
-	template: funcTemplate{
-		variables: map[string]string{
-			"T": "the type to compare",
-		},
-		source: `
-func Compare_{{T}}(obj1 interface{}, obj2 interface{}) int {
-	return typed_Compare_{{T}}(obj1.({{T}}), obj2.({{T}}))
-}
-func typed_Compare_{{T}}(obj1 {{T}}, obj2 {{T}}) int {
-	if (obj1 < obj2) {
-		return -1
-	} else if (obj1 == obj2) {
-		return 0
-	} else {
-		return 1
+func render(template *funcTemplate, kv ...string) (funcName string, src string) {
+	funcName = template.funcName
+	src = template.source
+	// TODO: check all variables defined
+	for i := 0; i < len(kv); i += 2 {
+		k := kv[i]
+		v := kv[i+1]
+		kNoDot := k + "|nodot"
+		vNoDot := strings.Replace(v, ".", "__", -1)
+		src = strings.Replace(src, "{{"+k+"}}", v, -1)
+		funcName = strings.Replace(funcName, "{{"+k+"}}", v, -1)
+		src = strings.Replace(src, "{{"+kNoDot+"}}", vNoDot, -1)
+		funcName = strings.Replace(funcName, "{{"+kNoDot+"}}", vNoDot, -1)
 	}
-}`,
-		funcName: `Compare_{{T}}`,
-	},
+	src = strings.Replace(src, "{{funcName}}", funcName, -1)
+	return
 }
 
-func render(template string, kv ...string) string {
-	for i := 0; i < len(kv); i+=2 {
-		template = strings.Replace(template, "{{" + kv[i] + "}}", kv[i+1], -1)
-	}
-	return template
+func renderSource(template *funcTemplate, kv ...string) string {
+	_, src := render(template, kv...)
+	return src
 }
 
-func Compare(obj1 interface{}, obj2 interface{}) int {
-	typ := reflect.TypeOf(obj1)
-	compare := compareSymbols.cache[typ]
-	if compare == nil {
-		typeName := typ.String()
-		source := render(compareSymbols.template.source, `T`, typeName)
-		funcName := render(compareSymbols.template.funcName, `T`, typeName)
-		compareObj := compile(source, funcName)
-		compare = compareObj.(func(interface{}, interface{}) int)
-		compareSymbols.cache[typ] = compare
-	}
-	return compare(obj1, obj2)
-}
+var compilerMutex = &sync.Mutex{}
 
 func compile(source string, funcName string) plugin.Symbol {
 	compilerMutex.Lock()
@@ -85,6 +62,7 @@ func compile(source string, funcName string) plugin.Symbol {
 	cmd.Stdout = &outBuf
 	err = cmd.Run()
 	if err != nil {
+		logger.Error("compile failed", "source", source)
 		panic("failed to compile generated plugin: " + err.Error() + ", " + errBuf.String())
 	}
 	generatedPlugin, err := plugin.Open(soFileName)
