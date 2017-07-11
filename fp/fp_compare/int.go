@@ -14,10 +14,18 @@ var compareSymbols = struct {
 			"T": "the type to compare",
 		},
 		source: `
-func Compare_{{T}}(obj1 interface{}, obj2 interface{}) int {
-	return typed_Compare_{{T}}(obj1.({{T}}), obj2.({{T}}))
+func {{ .funcName }}(
+	obj1 interface{},
+	obj2 interface{}) int {
+	// end of signature
+	return typed_{{ .funcName }}(
+		obj1.({{ .T|name }}),
+		obj2.({{ .T|name }}))
 }
-func typed_Compare_{{T}}(obj1 {{T}}, obj2 {{T}}) int {
+func typed_{{ .funcName }}(
+	obj1 {{ .T|name }},
+	obj2 {{ .T|name }}) int {
+	// end of signature
 	if (obj1 < obj2) {
 		return -1
 	} else if (obj1 == obj2) {
@@ -26,7 +34,7 @@ func typed_Compare_{{T}}(obj1 {{T}}, obj2 {{T}}) int {
 		return 1
 	}
 }`,
-		funcName: `Compare_{{T}}`,
+		funcName: `Compare_{{ .T|name }}`,
 	},
 }
 
@@ -34,8 +42,7 @@ func Compare(obj1 interface{}, obj2 interface{}) int {
 	typ := reflect.TypeOf(obj1)
 	compare := compareSymbols.cache[typ]
 	if compare == nil {
-		typeName := typ.String()
-		funcName, source := render(compareSymbols.template, `T`, typeName)
+		funcName, source := render(compareSymbols.template, `T`, typ)
 		compareObj := compile(source, funcName)
 		compare = compareObj.(func(interface{}, interface{}) int)
 		compareSymbols.cache[typ] = compare

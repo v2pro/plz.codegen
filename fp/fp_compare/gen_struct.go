@@ -2,8 +2,9 @@ package fp_compare
 
 import (
 	"reflect"
-	"html/template"
+	"text/template"
 	"bytes"
+	"strings"
 )
 
 func generateStruct(typ reflect.Type) string {
@@ -16,23 +17,25 @@ type {{ .T|name }} struct {
 	{{ .|name }} {{ .Type|name }}
 	{{- end }}
 }`)
-	if err != nil {
-		panic(err.Error())
-	}
+	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, map[string]interface{}{
 		"T": typ,
 	})
+	panicOnError(err)
+	return out.String()
+}
+
+func panicOnError(err error) {
 	if err != nil {
 		panic(err.Error())
 	}
-	return out.String()
 }
 
 func func_name(obj interface{}) string {
 	switch typed := obj.(type) {
 	case reflect.Type:
-		return typed.Name()
+		return strings.Replace(typed.Name(), ".", "__", -1)
 	case reflect.StructField:
 		return typed.Name
 	}

@@ -41,7 +41,7 @@ func CompareStructByField(obj1 interface{}, obj2 interface{}, fieldName string) 
 		if !found {
 			panic("field " + fieldName + " not found in " + typ.String())
 		}
-		args := []string{`S`, typeName, `F`, fieldName, `T`, field.Type.String()}
+		args := []interface{}{`S`, typeName, `F`, fieldName, `T`, field.Type.String()}
 		funcName, source := render(compareStructByFieldSymbols.template, args...)
 		compareObj := compile(source, funcName)
 		compare = compareObj.(func(interface{}, interface{}) int)

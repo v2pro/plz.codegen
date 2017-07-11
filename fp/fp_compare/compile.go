@@ -5,40 +5,50 @@ import (
 	"os"
 	"io/ioutil"
 	"os/exec"
-	"strings"
 	"bytes"
 	"sync"
 	"github.com/v2pro/plz"
+	"text/template"
 )
 
 var logger = plz.LoggerOf("package", "fp_compare")
 
 type funcTemplate struct {
-	variables map[string]string
-	source    string
-	funcName  string
+	variables    map[string]string
+	source       string
+	funcName     string
 	dependencies []*funcTemplate
 }
 
-func render(template *funcTemplate, kv ...string) (funcName string, src string) {
-	funcName = template.funcName
-	src = template.source
-	// TODO: check all variables defined
+func render(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+	data := map[string]interface{}{}
 	for i := 0; i < len(kv); i += 2 {
-		k := kv[i]
-		v := kv[i+1]
-		kNoDot := k + "|nodot"
-		vNoDot := strings.Replace(v, ".", "__", -1)
-		src = strings.Replace(src, "{{"+k+"}}", v, -1)
-		funcName = strings.Replace(funcName, "{{"+k+"}}", v, -1)
-		src = strings.Replace(src, "{{"+kNoDot+"}}", vNoDot, -1)
-		funcName = strings.Replace(funcName, "{{"+kNoDot+"}}", vNoDot, -1)
+		data[kv[i].(string)] = kv[i+1]
 	}
-	src = strings.Replace(src, "{{funcName}}", funcName, -1)
-	return
+	funcName := renderFuncName(fTmpl.funcName, data)
+	data["funcName"] = funcName
+	tmpl, err := template.New("source").Funcs(map[string]interface{}{
+		"name": func_name,
+	}).Parse(fTmpl.source)
+	panicOnError(err)
+	var out bytes.Buffer
+	err = tmpl.Execute(&out, data)
+	panicOnError(err)
+	return funcName, out.String()
 }
 
-func renderSource(template *funcTemplate, kv ...string) string {
+func renderFuncName(funcNameTmpl string, data interface{}) string {
+	tmpl, err := template.New("funcName").Funcs(map[string]interface{}{
+		"name": func_name,
+	}).Parse(funcNameTmpl)
+	panicOnError(err)
+	var out bytes.Buffer
+	err = tmpl.Execute(&out, data)
+	panicOnError(err)
+	return out.String()
+}
+
+func renderSource(template *funcTemplate, kv ...interface{}) string {
 	_, src := render(template, kv...)
 	return src
 }
