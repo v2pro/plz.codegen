@@ -4,27 +4,18 @@ import (
 	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/google/gofuzz"
-	"github.com/v2pro/wombat/gen"
 	"reflect"
-	"fmt"
 )
-
-func Test_src_struct(t *testing.T) {
-	type TestObject struct {
-		Field int
-	}
-	_, src := gen.Gen(F, "S", reflect.TypeOf(TestObject{}), "F", "Field", "T", reflect.TypeOf(int(0)))
-	fmt.Println(src)
-}
 
 func Test_struct(t *testing.T) {
 	should := require.New(t)
 	type TestObject struct {
 		Field int
 	}
-	should.Equal(TestObject{2}, Call(
-		[]interface{}{TestObject{1}, TestObject{2}},
-		"Field"))
+	f := Gen(reflect.TypeOf(TestObject{}), "Field")
+	should.Equal(TestObject{2}, f([]interface{}{
+		TestObject{1}, TestObject{2},
+	}))
 }
 
 func by_reflect(objs []interface{}, fieldName string) interface{} {
@@ -53,11 +44,11 @@ func Benchmark_struct(b *testing.B) {
 		}
 		datasets[i] = dataset
 	}
-	Call(datasets[0], "Field")
+	f := Gen(reflect.TypeOf(TestObject{}), "Field")
 	b.Run("plz", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.ReportAllocs()
-			Call(datasets[i%32], "Field")
+			f(datasets[i%32])
 		}
 	})
 	b.Run("reflect", func(b *testing.B) {

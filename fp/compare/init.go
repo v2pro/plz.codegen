@@ -33,15 +33,7 @@ func typed_{{ .funcName }}(
 	FuncName: `Compare_{{ .T|name }}`,
 }
 
-var symbols = map[reflect.Type]func(interface{}, interface{}) int{}
-
-func Call(obj1 interface{}, obj2 interface{}) int {
-	typ := reflect.TypeOf(obj1)
-	f := symbols[typ]
-	if f == nil {
-		funcObj := gen.Compile(F, `T`, typ)
-		f = funcObj.(func(interface{}, interface{}) int)
-		symbols[typ] = f
-	}
-	return f(obj1, obj2)
+func Gen(typ reflect.Type) func(interface{}, interface{}) int {
+	funcObj := gen.Compile(F, `T`, typ)
+	return funcObj.(func(interface{}, interface{}) int)
 }

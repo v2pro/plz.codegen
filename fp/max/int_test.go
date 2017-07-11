@@ -4,11 +4,13 @@ import (
 	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/google/gofuzz"
+	"reflect"
 )
 
 func Test_int(t *testing.T) {
 	should := require.New(t)
-	should.Equal(3, Call([]interface{}{1, 3, 2}))
+	f := Gen(reflect.TypeOf(int(0)))
+	should.Equal(3, f([]interface{}{1, 3, 2}))
 }
 
 func max_int_typed(collection []int) int {
@@ -37,11 +39,11 @@ func Benchmark_int(b *testing.B) {
 		datasets[i] = dataset
 		typedDatasets[i] = typedDataset
 	}
-	Call(datasets[0])
+	f := Gen(reflect.TypeOf(int(0)))
 	b.Run("plz", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			Call(datasets[i%32])
+			f(datasets[i%32])
 		}
 	})
 	b.Run("typed", func(b *testing.B) {

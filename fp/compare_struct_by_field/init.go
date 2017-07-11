@@ -31,26 +31,12 @@ func typed_{{ .funcName }}(
 }`,
 }
 
-type structAndField struct {
-	S reflect.Type
-	F string
-}
-
-var symbols = map[structAndField]func(interface{}, interface{}) int{}
-
-func Call(obj1 interface{}, obj2 interface{}, fieldName string) int {
-	typ := reflect.TypeOf(obj1)
-	cacheKey := structAndField{typ, fieldName}
-	f := symbols[cacheKey]
-	if f == nil {
-		field, found := typ.FieldByName(fieldName)
-		if !found {
-			panic("field " + fieldName + " not found in " + typ.String())
-		}
-		funcObj := gen.Compile(F,
-			`S`, typ, `F`, fieldName, `T`, field.Type)
-		f = funcObj.(func(interface{}, interface{}) int)
-		symbols[cacheKey] = f
+func Gen(typ reflect.Type, fieldName string) func(interface{}, interface{}) int {
+	field, found := typ.FieldByName(fieldName)
+	if !found {
+		panic("field " + fieldName + " not found in " + typ.String())
 	}
-	return f(obj1, obj2)
+	funcObj := gen.Compile(F,
+		`S`, typ, `F`, fieldName, `T`, field.Type)
+	return funcObj.(func(interface{}, interface{}) int)
 }

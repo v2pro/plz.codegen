@@ -22,9 +22,9 @@ func Test_struct(t *testing.T) {
 	type TestObject struct {
 		Field int
 	}
-	should.Equal(-1, Call(
-		TestObject{1}, TestObject{2},
-		"Field"))
+	f := Gen(reflect.TypeOf(TestObject{}), "Field")
+	should.Equal(-1, f(
+		TestObject{1}, TestObject{2}))
 }
 
 func by_reflect(obj1 interface{}, obj2 interface{}, fieldName string) int {
@@ -43,15 +43,11 @@ func Benchmark_struct(b *testing.B) {
 	type TestObject struct {
 		Field int
 	}
-	Call(
-		TestObject{1}, TestObject{2},
-		"Field")
+	f := Gen(reflect.TypeOf(TestObject{}), "Field")
 	b.Run("plz", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.ReportAllocs()
-			Call(
-				TestObject{1}, TestObject{2},
-				"Field")
+			f(TestObject{1}, TestObject{2})
 		}
 	})
 	b.Run("reflect", func(b *testing.B) {

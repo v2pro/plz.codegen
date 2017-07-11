@@ -4,7 +4,12 @@ import (
 	"github.com/v2pro/wombat/gen"
 	"reflect"
 	"github.com/v2pro/wombat/fp/compare_struct_by_field"
+	"github.com/v2pro/plz/util"
 )
+
+func init() {
+	util.GenMaxStructByField = Gen
+}
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
@@ -39,26 +44,12 @@ func typed_{{ .funcName }}(objs []{{ .S|name }}) {{ .S|name }} {
 }`,
 }
 
-type structAndField struct {
-	S reflect.Type
-	F string
-}
-
-var symbols = map[structAndField]func([]interface{}) interface{}{}
-
-func Call(objs []interface{}, fieldName string) interface{} {
-	typ := reflect.TypeOf(objs[0])
-	cacheKey := structAndField{typ, fieldName}
-	f := symbols[cacheKey]
-	if f == nil {
-		field, found := typ.FieldByName(fieldName)
-		if !found {
-			panic("field " + fieldName + " not found in " + typ.String())
-		}
-		funcObj := gen.Compile(F,
-			`S`, typ, `F`, fieldName, `T`, field.Type)
-		f = funcObj.(func([]interface{}) interface{})
-		symbols[cacheKey] = f
+func Gen(typ reflect.Type, fieldName string) func([]interface{}) interface{} {
+	field, found := typ.FieldByName(fieldName)
+	if !found {
+		panic("field " + fieldName + " not found in " + typ.String())
 	}
-	return f(objs)
+	funcObj := gen.Compile(F,
+		`S`, typ, `F`, fieldName, `T`, field.Type)
+	return funcObj.(func([]interface{}) interface{})
 }

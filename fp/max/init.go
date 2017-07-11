@@ -4,7 +4,12 @@ import (
 	"github.com/v2pro/wombat/gen"
 	"github.com/v2pro/wombat/fp/compare"
 	"reflect"
+	"github.com/v2pro/plz/util"
 )
+
+func init() {
+	util.GenMaxSimpleValue = Gen
+}
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
@@ -36,15 +41,11 @@ func typed_{{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 }`,
 }
 
-var symbols = map[reflect.Type]func([]interface{}) interface{}{}
-
-func Call(objs []interface{}) interface{} {
-	typ := reflect.TypeOf(objs[0])
-	f := symbols[typ]
-	if f == nil {
+func Gen(typ reflect.Type) func([]interface{}) interface{} {
+	switch typ.Kind() {
+	case reflect.Int, reflect.Int8:
 		funcObj := gen.Compile(F, `T`, typ)
-		f = funcObj.(func([]interface{}) interface{})
-		symbols[typ] = f
+		return funcObj.(func([]interface{}) interface{})
 	}
-	return f(objs)
+	return nil
 }
