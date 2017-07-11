@@ -23,7 +23,7 @@ func func_symbol(typ reflect.Type) string {
 	return typeName
 }
 
-func func_is_ptr(typ reflect.Type) bool {
+func func_isPtr(typ reflect.Type) bool {
 	return typ.Kind() == reflect.Ptr
 }
 
@@ -31,7 +31,7 @@ func func_elem(typ reflect.Type) reflect.Type {
 	return typ.Elem()
 }
 
-func func_field_of(typ reflect.Type, fieldName string) reflect.StructField {
+func func_fieldOf(typ reflect.Type, fieldName string) reflect.StructField {
 	field, found := typ.FieldByName(fieldName)
 	if !found {
 		panic(fieldName + " not found in " + typ.String())
@@ -47,7 +47,7 @@ func func_fields(typ reflect.Type) []reflect.StructField {
 	return fields
 }
 
-func func_is_one_ptr_struct_or_array(typ reflect.Type) bool {
+func func_isOnePtrStructOrArray(typ reflect.Type) bool {
 	switch reflect.Kind(typ.Kind()) {
 	case reflect.Array:
 		if typ.Len() == 1 && (typ.Elem().Kind() == reflect.Ptr || typ.Elem().Kind() == reflect.Map) {

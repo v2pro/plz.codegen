@@ -21,7 +21,7 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Compare_{{ .T|symbol }}_by_{{ .F }}`,
 	Source: `
-{{ if .T|is_ptr }}
+{{ if .T|isPtr }}
 	{{ $compareElem := gen "compare_struct_by_field" "T" (.T|elem) "F" .F }}
 	{{ $compareElem.Source }}
 	func {{ .funcName }}(
@@ -34,14 +34,14 @@ var F = &gen.FuncTemplate{
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature
-		{{ if .T|elem|is_ptr }}
+		{{ if .T|elem|isPtr }}
 			return typed_{{ $compareElem.FuncName }}(*obj1, *obj2)
 		{{ else }}
 			return typed_{{ $compareElem.FuncName }}(obj1, obj2)
 		{{ end }}
 	}
 {{ else }}
-	{{ $field := field_of .T .F }}
+	{{ $field := fieldOf .T .F }}
 	{{ $compareField := gen "compare" "T" $field.Type }}
 	{{ $compareField.Source }}
 	func {{ .funcName }}(

@@ -1,18 +1,17 @@
-package cp_simple_value
+package cp_from_ptr
 
 import (
-	"reflect"
 	"github.com/v2pro/wombat/gen"
 	"github.com/v2pro/wombat/cp_new/cp_statically"
 )
 
 func init() {
-	cp_statically.F.Dependencies["cp_simple_value"] = F
+	cp_statically.F.Dependencies["cp_from_ptr"] = F
 }
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
-		//"cp_simple_value": F,
+		"cp_statically": cp_statically.F,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -20,25 +19,27 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
+{{ $cp := gen "cp_statically" "DT" .DT "ST" (.ST|elem) }}
+{{ $cp.Source }}
 func {{ .funcName }}(
 	dst interface{},
 	src interface{}) error {
 	// end of signature
+	if src == nil {
+		return nil
+	}
 	return typed_{{ .funcName }}(
 		dst.({{ .DT|name }}),
 		src.({{ .ST|name }}))
 }
 func typed_{{ .funcName }}(
-	src {{ .DT|name }},
-	dst {{ .ST|name }}) error {
+	dst {{ .DT|name }},
+	src {{ .ST|name }}) error {
 	// end of signature
-	*src = dst
-	return nil
+	if src == nil {
+		return nil
+	}
+	return typed_{{ $cp.FuncName }}(dst, *src)
 }
 `,
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

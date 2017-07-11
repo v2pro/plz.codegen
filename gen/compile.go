@@ -13,6 +13,7 @@ import (
 	"github.com/v2pro/plz/logging"
 	"strings"
 	"strconv"
+	"fmt"
 )
 
 var logger = plz.LoggerOf("package", "gen")
@@ -74,7 +75,11 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	data["funcName"] = funcName
 	funcMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
-			funcName, source := g.gen(fTmpl.Dependencies[depName], newKv...)
+			dep := fTmpl.Dependencies[depName]
+			if dep == nil {
+				panic("referenced unfound dependency " + depName)
+			}
+			funcName, source := g.gen(dep, newKv...)
 			return struct {
 				FuncName string
 				Source   string
@@ -99,19 +104,31 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	for k, v := range fTmpl.FuncMap {
 		funcMap[k] = v
 	}
-	tmpl, err := template.New(NewID().String()).Funcs(funcMap).Parse(fTmpl.Source)
+	out := executeTemplate(fTmpl.Source, funcMap, data)
+	return funcName, generatedSource + out
+}
+
+func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map[string]interface{}) string {
+	defer func() {
+		recovered := recover()
+		if recovered != nil {
+			logger.Error("generate source failed", "tmplSource", annotateLines(tmplSource))
+			panic(recovered)
+		}
+	}()
+	tmpl, err := template.New(NewID().String()).Funcs(funcMap).Parse(tmplSource)
 	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, data)
 	panicOnError(err)
-	return funcName, generatedSource + out.String()
+	return out.String()
 }
 
 func fillDefaultFuncMap(funcMap map[string]interface{}) {
-	funcMap["is_one_ptr_struct_or_array"] = func_is_one_ptr_struct_or_array
-	funcMap["field_of"] = func_field_of
+	funcMap["isOnePtrStructOrArray"] = func_isOnePtrStructOrArray
+	funcMap["fieldOf"] = func_fieldOf
 	funcMap["elem"] = func_elem
-	funcMap["is_ptr"] = func_is_ptr
+	funcMap["isPtr"] = func_isPtr
 	funcMap["name"] = func_name
 	funcMap["symbol"] = func_symbol
 }
@@ -141,7 +158,7 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	compilerMutex.Lock()
 	defer compilerMutex.Unlock()
 	funcName, source := Gen(template, kv...)
-	//fmt.Println(source)
+	fmt.Println(source)
 	source = `
 package main
 import "unsafe"

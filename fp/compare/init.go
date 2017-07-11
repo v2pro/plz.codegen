@@ -19,7 +19,7 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Compare_{{ .T|symbol }}`,
 	Source: `
-{{ if .T|is_ptr }}
+{{ if .T|isPtr }}
 	{{ $compareElem := gen "compare" "T" (.T|elem) }}
 	{{ $compareElem.Source }}
 	func {{ .funcName }}(

@@ -13,7 +13,7 @@ var objPtrF = &FuncTemplate{
 	Source: `
 func {{ .funcName }}(obj interface{}) unsafe.Pointer {
 	ptr := (*((*emptyInterface)(unsafe.Pointer(&obj)))).word
-	{{ if .T|is_one_ptr_struct_or_array }}
+	{{ if .T|isOnePtrStructOrArray }}
 		ptrAsVal := uintptr(ptr)
 		ptr = unsafe.Pointer(&ptrAsVal)
 	{{ end }}
