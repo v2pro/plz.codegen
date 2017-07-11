@@ -6,9 +6,13 @@ import (
 	"bytes"
 )
 
-func generateStruct(typ reflect.Type) string {
+func (g *generator) genStruct(typ reflect.Type) string {
+	if g.generatedTypes[typ] {
+		return ""
+	}
+	g.generatedTypes[typ] = true
 	if typ.Kind() == reflect.Ptr {
-		return generateStruct(typ.Elem())
+		return g.genStruct(typ.Elem())
 	}
 	if typ.Kind() != reflect.Struct {
 		return ""

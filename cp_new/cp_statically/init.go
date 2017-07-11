@@ -9,8 +9,7 @@ var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 	},
 	FuncMap: map[string]interface{}{
-		"mustBeWritable": func_mustBeWritable,
-		"isDirectPtr": func_isDirectPtr,
+		"dispatch": func_dispatch,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -18,37 +17,51 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
-{{ .DT|mustBeWritable }}
-{{ if .ST|isPtr }}
-	{{ $cp := gen "cp_from_ptr" "DT" .DT "ST" .ST }}
-	{{ $cp.Source }}
-{{ else }}
-	{{ if .DT|isPtr }}
-		{{ if .DT|isDirectPtr }}
-			{{ $cp := gen "cp_simple_value" "DT" .DT "ST" .ST }}
-			{{ $cp.Source }}
-		{{ else }}
-			{{ $cp := gen "cp_into_ptr" "DT" .DT "ST" .ST }}
-			{{ $cp.Source }}
-		{{ end }}
-	{{ end }} {{/* .DT|isPtr */}}
-{{ end }} {{/* .ST|isPtr */}}
+{{ $tmpl := dispatch .DT .ST }}
+{{ $cp := gen $tmpl "DT" .DT "ST" .ST }}
+{{ $cp.Source }}
 `,
 }
 
-func func_mustBeWritable(typ reflect.Type) string {
-	switch typ.Kind() {
-	case reflect.Ptr, reflect.Map:
-		return ""
+func func_dispatch(dstType, srcType reflect.Type) string {
+	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map {
+		panic("destination type is not writable: " + dstType.String())
 	}
-	panic("destination type is not writable: " + typ.String())
+	if srcType.Kind() == reflect.Ptr {
+		return "cp_from_ptr"
+	} else {
+		if dstType.Kind() == reflect.Ptr {
+			if isDirectPtr(dstType) {
+				if isSimpleValue(dstType.Elem()) {
+					return "cp_simple_value"
+				} else if dstType.Elem().Kind() == reflect.Struct && srcType.Kind() == reflect.Struct {
+					return "cp_struct_to_struct"
+				} else {
+					panic("not implemented")
+				}
+			} else {
+				return "cp_into_ptr"
+			}
+		} else {
+			panic("not implemented")
+		}
+	}
 }
 
-func func_isDirectPtr(typ reflect.Type) bool {
+func isDirectPtr(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Ptr {
 		return false
 	}
 	return typ.Elem().Kind() != reflect.Ptr
+}
+
+func isSimpleValue(typ reflect.Type) bool {
+	switch typ.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return true
+	}
+	return false
 }
 
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {

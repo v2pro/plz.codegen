@@ -61,10 +61,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		data[varName] = args[i+1]
 		typ, _ := args[i+1].(reflect.Type)
 		if typ != nil && (typ.Kind() == reflect.Struct || typ.Kind() == reflect.Ptr) {
-			if !g.generatedTypes[typ] {
-				g.generatedTypes[typ] = true
-				generatedSource += generateStruct(typ)
-			}
+			generatedSource += g.genStruct(typ)
 		}
 	}
 	for k, v := range variables {

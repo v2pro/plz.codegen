@@ -3,12 +3,16 @@ package cp_struct_to_struct
 import (
 	"reflect"
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cp_new/cp_simple_value"
+	"github.com/v2pro/wombat/cp_new/cp_statically"
 )
+
+func init() {
+	cp_statically.F.Dependencies["cp_struct_to_struct"] = F
+}
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
-		"cp_simple_value": cp_simple_value.F,
+		"cp_statically": cp_statically.F,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -18,7 +22,7 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $bindings := calcBindings (.DT|elem) .ST }}
 {{ range $_, $binding := $bindings}}
-	{{ $cp := gen "cp_simple_value" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
+	{{ $cp := gen "cp_statically" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
 	{{ $cp.Source }}
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}

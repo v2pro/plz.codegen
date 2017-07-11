@@ -1,9 +1,10 @@
-package cp_struct_to_struct
+package cp_new
 
 import (
 	"testing"
 	"reflect"
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/wombat/cp_new/cp_statically"
 )
 
 func Test_copy_same_type(t *testing.T) {
@@ -14,7 +15,7 @@ func Test_copy_same_type(t *testing.T) {
 	}
 	dst := TestObject{}
 	src := TestObject{100}
-	f := Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	f := cp_statically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
 	should.Nil(f(&dst, src))
 	should.Equal(100, dst.Field)
 }
@@ -30,7 +31,7 @@ func Test_copy_different_type(t *testing.T) {
 	}
 	dst := TestObject1{}
 	src := TestObject2{100}
-	f := Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	f := cp_statically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
 	should.Nil(f(&dst, src))
 	should.Equal(100, dst.Field)
 }
