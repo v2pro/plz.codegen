@@ -13,18 +13,20 @@ func init() {
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
-		"compareFuncName": compare.F,
+		"compare": compare.F,
 	},
 	Variables: map[string]string{
 		"T": "the type to max",
 	},
-	FuncName: `Max_{{ .T|name }}`,
+	FuncName: `Max_{{ .T|symbol }}`,
 	Source: `
+{{ $compare := gen "compare" "T" .T }}
+{{ $compare.Source }}
 func {{ .funcName }}(objs []interface{}) interface{} {
 	currentMax := objs[0].({{ .T|name }})
 	for i := 1; i < len(objs); i++ {
 		typedObj := objs[i].({{ .T|name }})
-		if {{ .compareFuncName }}(typedObj, currentMax) > 0 {
+		if typed_{{ $compare.FuncName }}(typedObj, currentMax) > 0 {
 			currentMax = typedObj
 		}
 	}
@@ -33,7 +35,7 @@ func {{ .funcName }}(objs []interface{}) interface{} {
 func typed_{{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 	currentMax := objs[0]
 	for i := 1; i < len(objs); i++ {
-		if {{ .compareFuncName }}(objs[i], currentMax) > 0 {
+		if typed_{{ $compare.FuncName }}(objs[i], currentMax) > 0 {
 			currentMax = objs[i]
 		}
 	}

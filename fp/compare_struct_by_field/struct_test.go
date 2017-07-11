@@ -4,18 +4,7 @@ import (
 	"testing"
 	"github.com/stretchr/testify/require"
 	"reflect"
-	"github.com/v2pro/wombat/gen"
-	"fmt"
 )
-
-func Test_src_struct(t *testing.T) {
-	t.Skip()
-	type TestObject struct {
-		Field int
-	}
-	_, src := gen.Gen(F, "S", reflect.TypeOf(TestObject{}), "F", "Field", "T", reflect.TypeOf(int(0)))
-	fmt.Println(src)
-}
 
 func Test_struct(t *testing.T) {
 	should := require.New(t)

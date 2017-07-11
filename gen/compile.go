@@ -43,11 +43,11 @@ type generator struct {
 func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	generatedSource := ""
 	data := map[string]interface{}{}
-	for funcNameAsVar, dep := range fTmpl.Dependencies {
-		funcName, depSource := g.gen(dep, kv...)
-		generatedSource += depSource
-		data[funcNameAsVar] = funcName
-	}
+	//for funcNameAsVar, dep := range fTmpl.Dependencies {
+	//	funcName, depSource := g.gen(dep, kv...)
+	//	generatedSource += depSource
+	//	data[funcNameAsVar] = funcName
+	//}
 	for i := 0; i < len(kv); i += 2 {
 		data[kv[i].(string)] = kv[i+1]
 		typ, _ := kv[i+1].(reflect.Type)
@@ -61,8 +61,19 @@ func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string)
 	funcName := genFuncName(fTmpl.FuncName, data)
 	data["funcName"] = funcName
 	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
-		"name": func_name,
-		"cast": func_cast,
+		"gen": func(depName string, newKv ...interface{}) interface{} {
+			funcName, source := g.gen(fTmpl.Dependencies[depName], newKv...)
+			return struct {
+				FuncName string
+				Source   string
+			}{FuncName: funcName, Source: source}
+		},
+		"field_of":   func_field_of,
+		"elem":   func_elem,
+		"is_ptr": func_is_ptr,
+		"name":   func_name,
+		"symbol": func_symbol,
+		"cast":   func_cast,
 	}).Parse(fTmpl.Source)
 	panicOnError(err)
 	var out bytes.Buffer
@@ -79,7 +90,8 @@ func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 
 func genFuncName(funcNameTmpl string, data interface{}) string {
 	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
-		"name": func_name,
+		"symbol": func_symbol,
+		"name":   func_name,
 	}).Parse(funcNameTmpl)
 	panicOnError(err)
 	var out bytes.Buffer
@@ -94,6 +106,7 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	compilerMutex.Lock()
 	defer compilerMutex.Unlock()
 	funcName, source := Gen(template, kv...)
+	//fmt.Println(source)
 	source = `
 package main
 import "unsafe"
@@ -137,7 +150,7 @@ func annotateLines(source string) string {
 	var buf bytes.Buffer
 	lines := strings.Split(source, "\n")
 	for i, line := range lines {
-		lineNo := strconv.FormatInt(int64(i + 1), 10)
+		lineNo := strconv.FormatInt(int64(i+1), 10)
 		buf.WriteString(lineNo)
 		buf.WriteString(": ")
 		buf.WriteString(line)
