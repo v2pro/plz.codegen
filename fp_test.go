@@ -10,7 +10,7 @@ import (
 func Test_max_min(t *testing.T) {
 	should := require.New(t)
 	should.Equal(3, plz.Max(1, 3, 2))
-	should.Equal(1, plz.Min(1, 3, 2))
+	//should.Equal(1, plz.Min(1, 3, 2))
 
 	type User struct {
 		Score int
