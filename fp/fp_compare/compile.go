@@ -9,6 +9,7 @@ import (
 	"sync"
 	"github.com/v2pro/plz"
 	"text/template"
+	"reflect"
 )
 
 var logger = plz.LoggerOf("package", "fp_compare")
@@ -20,24 +21,47 @@ type funcTemplate struct {
 	dependencies []*funcTemplate
 }
 
-func render(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+type generator struct {
+	generatedTypes map[reflect.Type]bool
+}
+
+func (g *generator) gen(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+	generatedSource := ""
+	for _, dep := range fTmpl.dependencies {
+		_, depSource := g.gen(dep, kv...)
+		generatedSource += depSource
+	}
 	data := map[string]interface{}{}
 	for i := 0; i < len(kv); i += 2 {
 		data[kv[i].(string)] = kv[i+1]
+		typ, _ := kv[i+1].(reflect.Type)
+		if typ != nil && typ.Kind() == reflect.Struct {
+			if !g.generatedTypes[typ] {
+				g.generatedTypes[typ] = true
+				generatedSource += generateStruct(typ)
+			}
+		}
 	}
-	funcName := renderFuncName(fTmpl.funcName, data)
+	funcName := genFuncName(fTmpl.funcName, data)
 	data["funcName"] = funcName
 	tmpl, err := template.New("source").Funcs(map[string]interface{}{
 		"name": func_name,
+		"cast": func_cast,
 	}).Parse(fTmpl.source)
 	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, data)
 	panicOnError(err)
-	return funcName, out.String()
+	return funcName, generatedSource + out.String()
 }
 
-func renderFuncName(funcNameTmpl string, data interface{}) string {
+func gen(fTmpl *funcTemplate, kv ...interface{}) (string, string) {
+	return (&generator{
+		generatedTypes: map[reflect.Type]bool{},
+	}).gen(fTmpl, kv...)
+}
+
+func genFuncName(funcNameTmpl string, data interface{}) string {
 	tmpl, err := template.New("funcName").Funcs(map[string]interface{}{
 		"name": func_name,
 	}).Parse(funcNameTmpl)
@@ -48,8 +72,8 @@ func renderFuncName(funcNameTmpl string, data interface{}) string {
 	return out.String()
 }
 
-func renderSource(template *funcTemplate, kv ...interface{}) string {
-	_, src := render(template, kv...)
+func genSource(template *funcTemplate, kv ...interface{}) string {
+	_, src := gen(template, kv...)
 	return src
 }
 
@@ -58,7 +82,11 @@ var compilerMutex = &sync.Mutex{}
 func compile(source string, funcName string) plugin.Symbol {
 	compilerMutex.Lock()
 	defer compilerMutex.Unlock()
-	source = "package main\n" + source
+	source = `
+package main
+import "unsafe"
+import "reflect"
+	` + source + genObjPtr
 	srcFileName := "/tmp/" + NewID().String() + ".go"
 	soFileName := "/tmp/" + NewID().String() + ".so"
 	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)

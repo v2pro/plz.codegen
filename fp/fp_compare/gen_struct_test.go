@@ -12,7 +12,7 @@ func Test_gen_simple_struct(t *testing.T) {
 		Field int
 	}
 	should.Equal(`
-type TestObject struct {
+type fp_compare__TestObject struct {
 	Field int
 }`, generateStruct(reflect.TypeOf(TestObject{})))
 }

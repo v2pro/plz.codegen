@@ -42,7 +42,7 @@ func Compare(obj1 interface{}, obj2 interface{}) int {
 	typ := reflect.TypeOf(obj1)
 	compare := compareSymbols.cache[typ]
 	if compare == nil {
-		funcName, source := render(compareSymbols.template, `T`, typ)
+		funcName, source := gen(compareSymbols.template, `T`, typ)
 		compareObj := compile(source, funcName)
 		compare = compareObj.(func(interface{}, interface{}) int)
 		compareSymbols.cache[typ] = compare

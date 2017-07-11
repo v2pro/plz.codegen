@@ -8,7 +8,7 @@ import (
 
 func Test_src_int(t *testing.T) {
 	should := require.New(t)
-	src := renderSource(compareSymbols.template, "T", reflect.TypeOf(int(0)))
+	src := genSource(compareSymbols.template, "T", reflect.TypeOf(int(0)))
 	should.Equal(`
 func Compare_int(
 	obj1 interface{},
