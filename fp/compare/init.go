@@ -35,7 +35,7 @@ func typed_{{ .funcName }}(
 
 var symbols = map[reflect.Type]func(interface{}, interface{}) int{}
 
-func DoCompare(obj1 interface{}, obj2 interface{}) int {
+func Call(obj1 interface{}, obj2 interface{}) int {
 	typ := reflect.TypeOf(obj1)
 	f := symbols[typ]
 	if f == nil {

@@ -11,6 +11,8 @@ import (
 	"text/template"
 	"reflect"
 	"github.com/v2pro/plz/logging"
+	"strings"
+	"strconv"
 )
 
 var logger = plz.LoggerOf("package", "gen")
@@ -58,7 +60,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string)
 	}
 	funcName := genFuncName(fTmpl.FuncName, data)
 	data["funcName"] = funcName
-	tmpl, err := template.New("source").Funcs(map[string]interface{}{
+	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
 		"name": func_name,
 		"cast": func_cast,
 	}).Parse(fTmpl.Source)
@@ -76,7 +78,7 @@ func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 }
 
 func genFuncName(funcNameTmpl string, data interface{}) string {
-	tmpl, err := template.New("funcName").Funcs(map[string]interface{}{
+	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
 		"name": func_name,
 	}).Parse(funcNameTmpl)
 	panicOnError(err)
@@ -95,7 +97,6 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	source = `
 package main
 import "unsafe"
-import "reflect"
 	` + source + genObjPtr
 	srcFileName := "/tmp/" + NewID().String() + ".go"
 	soFileName := "/tmp/" + NewID().String() + ".so"
@@ -110,7 +111,7 @@ import "reflect"
 	cmd.Stdout = &outBuf
 	err = cmd.Run()
 	if err != nil {
-		logger.Error("compile failed", "source", source)
+		logger.Error("compile failed", "source", annotateLines(source))
 		panic("failed to compile generated plugin: " + err.Error() + ", " + errBuf.String())
 	}
 	generatedPlugin, err := plugin.Open(soFileName)
@@ -130,4 +131,17 @@ import "reflect"
 		logger.Error("failed to remove generated plugin", "soFileName", soFileName)
 	}
 	return compareObj
+}
+
+func annotateLines(source string) string {
+	var buf bytes.Buffer
+	lines := strings.Split(source, "\n")
+	for i, line := range lines {
+		lineNo := strconv.FormatInt(int64(i + 1), 10)
+		buf.WriteString(lineNo)
+		buf.WriteString(": ")
+		buf.WriteString(line)
+		buf.WriteString("\n")
+	}
+	return buf.String()
 }

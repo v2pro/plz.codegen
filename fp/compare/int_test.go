@@ -35,18 +35,18 @@ func typed_Compare_int(
 
 func Test_int(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, DoCompare(1, 1))
-	should.Equal(1, DoCompare(1, 0))
-	should.Equal(-1, DoCompare(0, 1))
+	should.Equal(0, Call(1, 1))
+	should.Equal(1, Call(1, 0))
+	should.Equal(-1, Call(0, 1))
 }
 
 func Test_int8(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, DoCompare(1, 1))
-	should.Equal(0, DoCompare(int8(1), int8(1)))
+	should.Equal(0, Call(1, 1))
+	should.Equal(0, Call(int8(1), int8(1)))
 }
 
 func Test_int16(t *testing.T) {
 	should := require.New(t)
-	should.Equal(0, DoCompare(int16(1), int16(1)))
+	should.Equal(0, Call(int16(1), int16(1)))
 }

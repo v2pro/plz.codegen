@@ -24,10 +24,10 @@ func {{ .funcName }}(
 	return typed_{{ .funcName }}({{ cast "obj1" .S }}, {{ cast "obj2" .S }})
 }
 func typed_{{ .funcName }}(
-	obj1 {{ .S|name }},
-	obj2 {{ .S|name }}) int {
+	obj1 *{{ .S|name }},
+	obj2 *{{ .S|name }}) int {
 	// end of signature
-	return {{ .compareFuncName }}(obj1.{{ .F }}, obj2.{{ .F }})
+	return typed_{{ .compareFuncName }}(obj1.{{ .F }}, obj2.{{ .F }})
 }`,
 }
 
@@ -38,7 +38,7 @@ type structAndField struct {
 
 var symbols = map[structAndField]func(interface{}, interface{}) int{}
 
-func DoCompareStructByField(obj1 interface{}, obj2 interface{}, fieldName string) int {
+func Call(obj1 interface{}, obj2 interface{}, fieldName string) int {
 	typ := reflect.TypeOf(obj1)
 	cacheKey := structAndField{typ, fieldName}
 	f := symbols[cacheKey]

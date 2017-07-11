@@ -38,7 +38,7 @@ func typed_{{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 
 var symbols = map[reflect.Type]func([]interface{}) interface{}{}
 
-func DoMax(objs []interface{}) interface{} {
+func Call(objs []interface{}) interface{} {
 	typ := reflect.TypeOf(objs[0])
 	f := symbols[typ]
 	if f == nil {

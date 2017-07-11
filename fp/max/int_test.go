@@ -8,7 +8,7 @@ import (
 
 func Test_int(t *testing.T) {
 	should := require.New(t)
-	should.Equal(3, DoMax([]interface{}{1, 3, 2}))
+	should.Equal(3, Call([]interface{}{1, 3, 2}))
 }
 
 func max_int_typed(collection []int) int {
@@ -37,11 +37,11 @@ func Benchmark_int(b *testing.B) {
 		datasets[i] = dataset
 		typedDatasets[i] = typedDataset
 	}
-	DoMax(datasets[0])
+	Call(datasets[0])
 	b.Run("plz", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			DoMax(datasets[i%32])
+			Call(datasets[i%32])
 		}
 	})
 	b.Run("typed", func(b *testing.B) {
