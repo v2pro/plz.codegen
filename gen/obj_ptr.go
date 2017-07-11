@@ -1,12 +1,11 @@
-package obj_ptr
+package gen
 
 import (
-	"github.com/v2pro/wombat/gen"
 	"reflect"
 	"unsafe"
 )
 
-var F = &gen.FuncTemplate{
+var objPtrF = &FuncTemplate{
 	Variables: map[string]string{
 		"T": "the type to compare",
 	},
@@ -23,7 +22,7 @@ func {{ .funcName }}(obj interface{}) unsafe.Pointer {
 `,
 }
 
-func Gen(typ reflect.Type) func(interface{}) unsafe.Pointer {
-	funcObj := gen.Compile(F, `T`, typ)
+func objPtrGen(typ reflect.Type) func(interface{}) unsafe.Pointer {
+	funcObj := Compile(objPtrF, `T`, typ)
 	return funcObj.(func(interface{}) unsafe.Pointer)
 }

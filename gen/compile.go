@@ -38,6 +38,7 @@ type FuncTemplate struct {
 
 type generator struct {
 	generatedTypes map[reflect.Type]bool
+	objPtrTypes map[reflect.Type]string
 }
 
 func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, string) {
@@ -78,13 +79,26 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 				Source   string
 			}{FuncName: funcName, Source: source}
 		},
+		"cast": func(identifier string, typ reflect.Type) string {
+			objPtrFuncName := g.objPtrTypes[typ]
+			if objPtrFuncName == "" {
+				var objPtrSource string
+				objPtrFuncName, objPtrSource = g.gen(objPtrF, "T", typ)
+				generatedSource += objPtrSource
+				g.objPtrTypes[typ] = objPtrFuncName
+			}
+			if typ.Kind() == reflect.Struct {
+				return "((*" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+			} else {
+				return "((" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+			}
+		},
 		"is_one_ptr_struct_or_array": func_is_one_ptr_struct_or_array,
 		"field_of": func_field_of,
 		"elem":     func_elem,
 		"is_ptr":   func_is_ptr,
 		"name":     func_name,
 		"symbol":   func_symbol,
-		"cast":     func_cast,
 	}).Parse(fTmpl.Source)
 	panicOnError(err)
 	var out bytes.Buffer
@@ -96,6 +110,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	return (&generator{
 		generatedTypes: map[reflect.Type]bool{},
+		objPtrTypes: map[reflect.Type]string{},
 	}).gen(fTmpl, kv...)
 }
 
