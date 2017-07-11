@@ -63,10 +63,7 @@ var F = &gen.FuncTemplate{
 
 func Gen(typ reflect.Type) func(interface{}, interface{}) int {
 	switch typ.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16:
-		funcObj := gen.Compile(F, `T`, typ)
-		return funcObj.(func(interface{}, interface{}) int)
-	case reflect.Ptr:
+	case reflect.Ptr, reflect.Int, reflect.Int8, reflect.Int16:
 		funcObj := gen.Compile(F, `T`, typ)
 		return funcObj.(func(interface{}, interface{}) int)
 	}

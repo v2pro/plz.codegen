@@ -46,3 +46,17 @@ func func_fields(typ reflect.Type) []reflect.StructField {
 	}
 	return fields
 }
+
+func func_is_one_ptr_struct_or_array(typ reflect.Type) bool {
+	switch reflect.Kind(typ.Kind()) {
+	case reflect.Array:
+		if typ.Len() == 1 && (typ.Elem().Kind() == reflect.Ptr || typ.Elem().Kind() == reflect.Map) {
+			return true
+		}
+	case reflect.Struct:
+		if typ.NumField() == 1 && (typ.Field(0).Type.Kind() == reflect.Ptr || typ.Field(0).Type.Kind() == reflect.Map) {
+			return true
+		}
+	}
+	return false
+}

@@ -40,23 +40,33 @@ type generator struct {
 	generatedTypes map[reflect.Type]bool
 }
 
-func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
+func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, string) {
 	generatedSource := ""
 	data := map[string]interface{}{}
-	//for funcNameAsVar, dep := range fTmpl.Dependencies {
-	//	funcName, depSource := g.gen(dep, kv...)
-	//	generatedSource += depSource
-	//	data[funcNameAsVar] = funcName
-	//}
-	for i := 0; i < len(kv); i += 2 {
-		data[kv[i].(string)] = kv[i+1]
-		typ, _ := kv[i+1].(reflect.Type)
+	variables := map[string]string{}
+	for k, v := range fTmpl.Variables {
+		variables[k] = v
+	}
+	for i := 0; i < len(args); i += 2 {
+		varName := args[i].(string)
+		_, isDeclared := variables[varName]
+		if !isDeclared {
+			logger.Error("variable not declared", "varName", varName, "args", args)
+			panic("variable " + varName + " is not declared")
+		}
+		delete(variables, varName)
+		data[varName] = args[i+1]
+		typ, _ := args[i+1].(reflect.Type)
 		if typ != nil && typ.Kind() == reflect.Struct {
 			if !g.generatedTypes[typ] {
 				g.generatedTypes[typ] = true
 				generatedSource += generateStruct(typ)
 			}
 		}
+	}
+	for k, v := range variables {
+		logger.Error("missing variable", "varName", k, "varDescription", v, "args", args)
+		panic("missing variable " + k + ": " + v)
 	}
 	funcName := genFuncName(fTmpl.FuncName, data)
 	data["funcName"] = funcName
@@ -68,12 +78,13 @@ func (g *generator) gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string)
 				Source   string
 			}{FuncName: funcName, Source: source}
 		},
-		"field_of":   func_field_of,
-		"elem":   func_elem,
-		"is_ptr": func_is_ptr,
-		"name":   func_name,
-		"symbol": func_symbol,
-		"cast":   func_cast,
+		"is_one_ptr_struct_or_array": func_is_one_ptr_struct_or_array,
+		"field_of": func_field_of,
+		"elem":     func_elem,
+		"is_ptr":   func_is_ptr,
+		"name":     func_name,
+		"symbol":   func_symbol,
+		"cast":     func_cast,
 	}).Parse(fTmpl.Source)
 	panicOnError(err)
 	var out bytes.Buffer
@@ -110,7 +121,12 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	source = `
 package main
 import "unsafe"
-	` + source + genObjPtr
+
+type emptyInterface struct {
+	typ  unsafe.Pointer
+	word unsafe.Pointer
+}
+	` + source
 	srcFileName := "/tmp/" + NewID().String() + ".go"
 	soFileName := "/tmp/" + NewID().String() + ".so"
 	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
