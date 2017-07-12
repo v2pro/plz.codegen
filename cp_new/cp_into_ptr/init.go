@@ -29,8 +29,8 @@ func {{ .funcName }}(
 		return nil
 	}
 	return typed_{{ .funcName }}(
-		dst.({{ .DT|name }}),
-		src.({{ .ST|name }}))
+		{{ cast "dst" .DT }},
+		{{ cast "src" .ST }})
 }
 func typed_{{ .funcName }}(
 	dst {{ .DT|name }},

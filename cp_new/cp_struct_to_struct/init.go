@@ -36,7 +36,7 @@ func {{ .funcName }}(
 }
 func typed_{{ .funcName }}(
 	obj1 {{ .DT|name }},
-	obj2 *{{ .ST|name }}) error {
+	obj2 {{ .ST|name }}) error {
 	// end of signature
 	{{ range $_, $binding := $bindings }}
 		typed_{{ $binding.cp }}(&obj1.{{ $binding.dstFieldName }}, obj2.{{ $binding.srcFieldName }})

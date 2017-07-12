@@ -2,7 +2,6 @@ package gen
 
 import (
 	"plugin"
-	"os"
 	"io/ioutil"
 	"os/exec"
 	"bytes"
@@ -14,6 +13,7 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
+	"os"
 )
 
 var logger = plz.LoggerOf("package", "gen")
@@ -90,10 +90,10 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 				generatedSource += objPtrSource
 				g.objPtrTypes[typ] = objPtrFuncName
 			}
-			if typ.Kind() == reflect.Struct {
-				return "((*" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
-			} else {
+			if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Map {
 				return "((" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+			} else {
+				return "(*(*" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			}
 		},
 	}

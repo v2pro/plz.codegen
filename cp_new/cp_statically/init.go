@@ -49,21 +49,15 @@ func _func_dispatch(dstType, srcType reflect.Type) string {
 	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map {
 		panic("destination type is not writable: " + dstType.String())
 	}
-	if srcType.Kind() == reflect.Ptr && srcType.Elem().Kind() != reflect.Struct {
+	if srcType.Kind() == reflect.Ptr {
 		return "cp_from_ptr"
 	} else {
 		if dstType.Kind() == reflect.Ptr {
 			if isDirectPtr(dstType) {
 				if isSimpleValue(dstType.Elem()) {
 					return "cp_simple_value"
-				} else if dstType.Elem().Kind() == reflect.Struct {
-					if srcType.Kind() == reflect.Struct {
-						return "cp_struct_to_struct"
-					} else if srcType.Kind() == reflect.Ptr && srcType.Elem().Kind() == reflect.Struct {
-						return "cp_ptr_struct_to_struct"
-					} else {
-						panic("not implemented")
-					}
+				} else if dstType.Elem().Kind() == reflect.Struct && srcType.Kind() == reflect.Struct {
+					return "cp_struct_to_struct"
 				} else {
 					panic("not implemented")
 				}
