@@ -1,19 +1,19 @@
 package gen
 
 import (
-	"plugin"
-	"io/ioutil"
-	"os/exec"
 	"bytes"
-	"sync"
-	"github.com/v2pro/plz"
-	"text/template"
-	"reflect"
-	"github.com/v2pro/plz/logging"
-	"strings"
-	"strconv"
 	"fmt"
+	"github.com/v2pro/plz"
+	"github.com/v2pro/plz/logging"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"plugin"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
+	"text/template"
 )
 
 var logger = plz.LoggerOf("package", "gen")

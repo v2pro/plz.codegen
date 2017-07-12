@@ -1,9 +1,9 @@
 package gen
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"reflect"
+	"testing"
 )
 
 func Test_int(t *testing.T) {

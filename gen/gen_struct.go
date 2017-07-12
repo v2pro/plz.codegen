@@ -1,9 +1,9 @@
 package gen
 
 import (
+	"bytes"
 	"reflect"
 	"text/template"
-	"bytes"
 )
 
 func (g *generator) genStruct(typ reflect.Type) string {

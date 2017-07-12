@@ -1,10 +1,10 @@
 package wombat
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz"
 	_ "github.com/v2pro/wombat/fp"
+	"testing"
 )
 
 func Test_max_min(t *testing.T) {
