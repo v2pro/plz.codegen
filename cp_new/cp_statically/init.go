@@ -3,7 +3,23 @@ package cp_statically
 import (
 	"reflect"
 	"github.com/v2pro/wombat/gen"
+	"github.com/v2pro/plz"
+	"github.com/v2pro/plz/logging"
 )
+
+var logger = plz.LoggerOf("package", "cp_statically")
+
+func init() {
+	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
+		for i := 0; i < len(loggerKv); i += 2 {
+			key := loggerKv[i].(string)
+			if key == "package" && "cp_statically" == loggerKv[i+1] {
+				return logging.NewStderrLogger(loggerKv, logging.LEVEL_DEBUG)
+			}
+		}
+		return nil
+	})
+}
 
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
@@ -24,18 +40,30 @@ var F = &gen.FuncTemplate{
 }
 
 func func_dispatch(dstType, srcType reflect.Type) string {
+	template := _func_dispatch(dstType, srcType)
+	logger.Info("dispatch result", "dstType", dstType, "srcType", srcType, "template", template)
+	return template
+}
+
+func _func_dispatch(dstType, srcType reflect.Type) string {
 	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map {
 		panic("destination type is not writable: " + dstType.String())
 	}
-	if srcType.Kind() == reflect.Ptr {
+	if srcType.Kind() == reflect.Ptr && srcType.Elem().Kind() != reflect.Struct {
 		return "cp_from_ptr"
 	} else {
 		if dstType.Kind() == reflect.Ptr {
 			if isDirectPtr(dstType) {
 				if isSimpleValue(dstType.Elem()) {
 					return "cp_simple_value"
-				} else if dstType.Elem().Kind() == reflect.Struct && srcType.Kind() == reflect.Struct {
-					return "cp_struct_to_struct"
+				} else if dstType.Elem().Kind() == reflect.Struct {
+					if srcType.Kind() == reflect.Struct {
+						return "cp_struct_to_struct"
+					} else if srcType.Kind() == reflect.Ptr && srcType.Elem().Kind() == reflect.Struct {
+						return "cp_ptr_struct_to_struct"
+					} else {
+						panic("not implemented")
+					}
 				} else {
 					panic("not implemented")
 				}

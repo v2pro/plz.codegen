@@ -141,6 +141,7 @@ func genFuncName(funcNameTmpl string, data interface{}) string {
 	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
 		"symbol": func_symbol,
 		"name":   func_name,
+		"elem":   func_elem,
 	}).Parse(funcNameTmpl)
 	panicOnError(err)
 	var out bytes.Buffer

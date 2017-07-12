@@ -35,3 +35,20 @@ func Test_copy_different_type(t *testing.T) {
 	should.Nil(f(&dst, src))
 	should.Equal(100, dst.Field)
 }
+
+func Test_copy_struct_of_ptr(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject1 struct {
+		Field int
+	}
+	type TestObject2 struct {
+		Field *int
+	}
+	dst := TestObject1{}
+	hundred := 100
+	src := TestObject2{&hundred}
+	f := cp_statically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f(&dst, src))
+	should.Equal(100, dst.Field)
+}
