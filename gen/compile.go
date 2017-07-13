@@ -2,7 +2,6 @@ package gen
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/v2pro/plz"
 	"github.com/v2pro/plz/logging"
 	"io/ioutil"
@@ -40,7 +39,7 @@ type FuncTemplate struct {
 
 type generator struct {
 	generatedTypes map[reflect.Type]bool
-	objPtrTypes    map[reflect.Type]string
+	generatedFuncs map[string]bool
 }
 
 func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, string) {
@@ -69,6 +68,10 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		panic("missing variable " + k + ": " + v)
 	}
 	funcName := genFuncName(fTmpl.FuncName, data)
+	if g.generatedFuncs[funcName] {
+		return funcName, ""
+	}
+	g.generatedFuncs[funcName] = true
 	data["funcName"] = funcName
 	funcMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
@@ -83,13 +86,8 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			}{FuncName: funcName, Source: source}
 		},
 		"cast": func(identifier string, typ reflect.Type) string {
-			objPtrFuncName := g.objPtrTypes[typ]
-			if objPtrFuncName == "" {
-				var objPtrSource string
-				objPtrFuncName, objPtrSource = g.gen(objPtrF, "T", typ)
-				generatedSource += objPtrSource
-				g.objPtrTypes[typ] = objPtrFuncName
-			}
+			objPtrFuncName, objPtrSource := g.gen(objPtrF, "T", typ)
+			generatedSource += objPtrSource
 			if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Map {
 				return "((" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			} else {
@@ -130,10 +128,10 @@ func fillDefaultFuncMap(funcMap map[string]interface{}) {
 	funcMap["symbol"] = func_symbol
 }
 
-func Gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
+func gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 	return (&generator{
 		generatedTypes: map[reflect.Type]bool{},
-		objPtrTypes:    map[reflect.Type]string{},
+		generatedFuncs: map[string]bool{},
 	}).gen(fTmpl, kv...)
 }
 
@@ -150,14 +148,26 @@ func genFuncName(funcNameTmpl string, data interface{}) string {
 	return out.String()
 }
 
-var compilerMutex = &sync.Mutex{}
+
+type compileOp struct {
+	template *FuncTemplate
+	kv       []interface{}
+}
 
 func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
-	compilerMutex.Lock()
-	defer compilerMutex.Unlock()
-	funcName, source := Gen(template, kv...)
-	fmt.Println(source)
-	source = `
+	if isInBatchCompileMode {
+		panic(&compileOp{template: template, kv: kv})
+	}
+	funcName, source := gen(template, kv...)
+	logger.Debug("generated source", "source", source)
+	symbol := lookupFunc(funcName)
+	if symbol != nil {
+		return symbol
+	}
+	return dynamicCompile(funcName, source)
+}
+
+const prelog = `
 package main
 import "unsafe"
 
@@ -165,7 +175,17 @@ type emptyInterface struct {
 	typ  unsafe.Pointer
 	word unsafe.Pointer
 }
-	` + source
+`
+
+var dynamicCompileMutex = &sync.Mutex{}
+func dynamicCompile(funcName, source string) plugin.Symbol {
+	if dynamicCompilationDisabled {
+		logger.Error("dynamic compilation disabled", "funcName", funcName, "source", source)
+		panic("dynamic compilation disabled")
+	}
+	dynamicCompileMutex.Lock()
+	defer dynamicCompileMutex.Unlock()
+	source = prelog + source
 	srcFileName := "/tmp/" + NewID().String() + ".go"
 	soFileName := "/tmp/" + NewID().String() + ".so"
 	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
@@ -186,7 +206,7 @@ type emptyInterface struct {
 	if err != nil {
 		panic("failed to load generated plugin: " + err.Error())
 	}
-	compareObj, err := generatedPlugin.Lookup(funcName)
+	symbol, err := generatedPlugin.Lookup(funcName)
 	if err != nil {
 		panic("failed to lookup symbol from generated plugin: " + err.Error())
 	}
@@ -198,7 +218,7 @@ type emptyInterface struct {
 	if err != nil {
 		logger.Error("failed to remove generated plugin", "soFileName", soFileName)
 	}
-	return compareObj
+	return symbol
 }
 
 func annotateLines(source string) string {
@@ -212,4 +232,10 @@ func annotateLines(source string) string {
 		buf.WriteString("\n")
 	}
 	return buf.String()
+}
+
+var dynamicCompilationDisabled = false
+
+func DisableDynamicCompilation() {
+	dynamicCompilationDisabled = true
 }
