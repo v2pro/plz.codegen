@@ -35,8 +35,17 @@ func typed_{{ .funcName }}(
 	src {{ .ST|name }}) error {
 	// end of signature
 	defDst := *dst
-	for i := 0; i < len(src); i++ {
-		defDst = append(defDst, src[i])
+	dstLen := len(defDst)
+	if len(src) < dstLen {
+		dstLen = len(src)
+	}
+	for i := 0; i < dstLen; i++ {
+		typed_{{ $cp.FuncName }}(&defDst[i], src[i])
+	}
+	for i := dstLen; i < len(src); i++ {
+		newElem := new({{ .DT|sliceElem|elem|name }})
+		typed_{{ $cp.FuncName }}(newElem, src[i])
+		defDst = append(defDst, *newElem)
 	}
 	*dst = defDst
 	return nil
