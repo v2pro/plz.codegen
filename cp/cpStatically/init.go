@@ -65,6 +65,8 @@ func doDispatch(dstType, srcType reflect.Type) string {
 			} else {
 				return "cpIntoPtr"
 			}
+		} else if dstType.Kind() == reflect.Map && srcType.Kind() == reflect.Map {
+			return "cpMapToMap"
 		} else {
 			panic("not implemented")
 		}

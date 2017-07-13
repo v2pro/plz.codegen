@@ -18,10 +18,16 @@ func funcGetName(typ reflect.Type) string {
 }
 
 func funcSymbol(typ reflect.Type) string {
-	typeName := funcGetName(typ)
-	typeName = strings.Replace(typeName, "*", "ptr_", -1)
-	typeName = strings.Replace(typeName, "[]", "slice_", -1)
-	return typeName
+	switch typ.Kind() {
+	case reflect.Map:
+		return "map_" + funcSymbol(typ.Key()) + "_to_" + funcSymbol(typ.Elem())
+	case reflect.Slice:
+		return "slice_" + funcSymbol(typ.Elem())
+	default:
+		typeName := funcGetName(typ)
+		typeName = strings.Replace(typeName, "*", "ptr_", -1)
+		return typeName
+	}
 }
 
 func funcIsPtr(typ reflect.Type) bool {
@@ -46,18 +52,4 @@ func funcFields(typ reflect.Type) []reflect.StructField {
 		fields[i] = typ.Field(i)
 	}
 	return fields
-}
-
-func funcIsOnePtrStructOrArray(typ reflect.Type) bool {
-	switch reflect.Kind(typ.Kind()) {
-	case reflect.Array:
-		if typ.Len() == 1 && (typ.Elem().Kind() == reflect.Ptr || typ.Elem().Kind() == reflect.Map) {
-			return true
-		}
-	case reflect.Struct:
-		if typ.NumField() == 1 && (typ.Field(0).Type.Kind() == reflect.Ptr || typ.Field(0).Type.Kind() == reflect.Map) {
-			return true
-		}
-	}
-	return false
 }

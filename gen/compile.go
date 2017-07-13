@@ -87,7 +87,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		"cast": func(identifier string, typ reflect.Type) string {
 			objPtrFuncName, objPtrSource := g.gen(objPtrF, "T", typ)
 			generatedSource += objPtrSource
-			if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Map {
+			if typ.Kind() == reflect.Ptr {
 				return "((" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			} else {
 				return "(*(*" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
@@ -120,7 +120,6 @@ func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map
 }
 
 func fillDefaultFuncMap(funcMap map[string]interface{}) {
-	funcMap["isOnePtrStructOrArray"] = funcIsOnePtrStructOrArray
 	funcMap["fieldOf"] = funcFieldOf
 	funcMap["elem"] = funcElem
 	funcMap["isPtr"] = funcIsPtr

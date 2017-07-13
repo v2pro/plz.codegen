@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	cpStatically.F.Dependencies["cpSliceToSlice"] = F
+	cpStatically.F.Dependencies["cpMapToMap"] = F
 }
 
 var F = &gen.FuncTemplate{
@@ -20,8 +20,10 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
-{{ $cp := gen "cpStatically" "DT" (.DT|ptrSliceElem) "ST" (.ST|elem) }}
-{{ $cp.Source }}
+{{ $cpElem := gen "cpStatically" "DT" (.DT|ptrMapElem) "ST" (.ST|elem) }}
+{{ $cpElem.Source }}
+{{ $cpKey := gen "cpStatically" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
+{{ $cpKey.Source }}
 func {{ .funcName }}(
 	dst interface{},
 	src interface{}) error {
@@ -34,36 +36,41 @@ func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
-	defDst := *dst
-	dstLen := len(defDst)
-	if len(src) < dstLen {
-		dstLen = len(src)
+	for key, elem := range src {
+		newKey := new({{ .ST|mapKey|name }})
+		typed_{{ $cpKey.FuncName }}(newKey, key)
+		newElem := new({{ .ST|elem|name }})
+		typed_{{ $cpElem.FuncName }}(newElem, elem)
+		dst[*newKey] = *newElem
 	}
-	for i := 0; i < dstLen; i++ {
-		typed_{{ $cp.FuncName }}(&defDst[i], src[i])
-	}
-	for i := dstLen; i < len(src); i++ {
-		newElem := new({{ .DT|sliceElem|elem|name }})
-		typed_{{ $cp.FuncName }}(newElem, src[i])
-		defDst = append(defDst, *newElem)
-	}
-	*dst = defDst
 	return nil
 }`,
 	FuncMap: map[string]interface{}{
-		"ptrSliceElem": funcPtrSliceElem,
+		"ptrMapElem": funcPtrMapElem,
+		"ptrMapKey": funcPtrMapKey,
+		"mapKey": funcMapKey,
 	},
 }
 
-func funcPtrSliceElem(typ reflect.Type) reflect.Type {
-	if typ.Kind() != reflect.Ptr {
-		panic("unexpected")
-	}
-	typ = typ.Elem()
-	if typ.Kind() != reflect.Slice {
+func funcPtrMapElem(typ reflect.Type) reflect.Type {
+	if typ.Kind() != reflect.Map {
 		panic("unexpected")
 	}
 	return reflect.PtrTo(typ.Elem())
+}
+
+func funcPtrMapKey(typ reflect.Type) reflect.Type {
+	if typ.Kind() != reflect.Map {
+		panic("unexpected")
+	}
+	return reflect.PtrTo(typ.Key())
+}
+
+func funcMapKey(typ reflect.Type) reflect.Type {
+	if typ.Kind() != reflect.Map {
+		panic("unexpected")
+	}
+	return typ.Key()
 }
 
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
