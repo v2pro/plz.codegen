@@ -1,4 +1,4 @@
-package cpSliceToSlice
+package cpMapToMap
 
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"

@@ -59,6 +59,8 @@ func doDispatch(dstType, srcType reflect.Type) string {
 					return "cpStructToStruct"
 				} else if dstType.Elem().Kind() == reflect.Slice && srcType.Kind() == reflect.Slice {
 					return "cpSliceToSlice"
+				} else if dstType.Elem().Kind() == reflect.Array && srcType.Kind() == reflect.Array {
+					return "cpArrayToArray"
 				} else {
 					panic("not implemented")
 				}

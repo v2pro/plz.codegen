@@ -3,6 +3,7 @@ package gen
 import (
 	"reflect"
 	"strings"
+	"fmt"
 )
 
 func panicOnError(err error) {
@@ -23,10 +24,12 @@ func funcSymbol(typ reflect.Type) string {
 		return "map_" + funcSymbol(typ.Key()) + "_to_" + funcSymbol(typ.Elem())
 	case reflect.Slice:
 		return "slice_" + funcSymbol(typ.Elem())
+	case reflect.Array:
+		return fmt.Sprintf("array_%d_%s", typ.Len(), funcSymbol(typ.Elem()))
+	case reflect.Ptr:
+		return "ptr_" + funcSymbol(typ.Elem())
 	default:
-		typeName := funcGetName(typ)
-		typeName = strings.Replace(typeName, "*", "ptr_", -1)
-		return typeName
+		return funcGetName(typ)
 	}
 }
 
