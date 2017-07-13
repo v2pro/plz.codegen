@@ -71,7 +71,6 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	if g.generatedFuncs[funcName] {
 		return funcName, ""
 	}
-	g.generatedFuncs[funcName] = true
 	data["funcName"] = funcName
 	funcMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
@@ -100,6 +99,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		funcMap[k] = v
 	}
 	out := executeTemplate(fTmpl.Source, funcMap, data)
+	g.generatedFuncs[funcName] = true
 	return funcName, generatedSource + out
 }
 
