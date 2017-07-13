@@ -24,7 +24,7 @@ func init() {
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{},
 	FuncMap: map[string]interface{}{
-		"dispatch": func_dispatch,
+		"dispatch": dispatch,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -38,13 +38,13 @@ var F = &gen.FuncTemplate{
 `,
 }
 
-func func_dispatch(dstType, srcType reflect.Type) string {
-	template := _func_dispatch(dstType, srcType)
+func dispatch(dstType, srcType reflect.Type) string {
+	template := doDispatch(dstType, srcType)
 	logger.Info("dispatch result", "dstType", dstType, "srcType", srcType, "template", template)
 	return template
 }
 
-func _func_dispatch(dstType, srcType reflect.Type) string {
+func doDispatch(dstType, srcType reflect.Type) string {
 	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map {
 		panic("destination type is not writable: " + dstType.String())
 	}
@@ -57,6 +57,8 @@ func _func_dispatch(dstType, srcType reflect.Type) string {
 					return "cpSimpleValue"
 				} else if dstType.Elem().Kind() == reflect.Struct && srcType.Kind() == reflect.Struct {
 					return "cpStructToStruct"
+				} else if dstType.Elem().Kind() == reflect.Slice && srcType.Kind() == reflect.Slice {
+					return "cpSliceToSlice"
 				} else {
 					panic("not implemented")
 				}

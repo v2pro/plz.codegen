@@ -27,19 +27,19 @@ var F = &gen.FuncTemplate{
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
 func {{ .funcName }}(
-	obj1 interface{},
-	obj2 interface{}) error {
+	dst interface{},
+	src interface{}) error {
 	// end of signature
 	return typed_{{ .funcName }}(
-		{{ cast "obj1" .DT }},
-		{{ cast "obj2" .ST }})
+		{{ cast "dst" .DT }},
+		{{ cast "src" .ST }})
 }
 func typed_{{ .funcName }}(
-	obj1 {{ .DT|name }},
-	obj2 {{ .ST|name }}) error {
+	dst {{ .DT|name }},
+	src {{ .ST|name }}) error {
 	// end of signature
 	{{ range $_, $binding := $bindings }}
-		typed_{{ $binding.cp }}(&obj1.{{ $binding.dstFieldName }}, obj2.{{ $binding.srcFieldName }})
+		typed_{{ $binding.cp }}(&dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
 	{{ end }}
 	return nil
 }`,

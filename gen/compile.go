@@ -88,9 +88,9 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			objPtrFuncName, objPtrSource := g.gen(objPtrF, "T", typ)
 			generatedSource += objPtrSource
 			if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Map {
-				return "((" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+				return "((" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			} else {
-				return "(*(*" + func_name(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+				return "(*(*" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			}
 		},
 	}
@@ -120,12 +120,12 @@ func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map
 }
 
 func fillDefaultFuncMap(funcMap map[string]interface{}) {
-	funcMap["isOnePtrStructOrArray"] = func_isOnePtrStructOrArray
-	funcMap["fieldOf"] = func_fieldOf
-	funcMap["elem"] = func_elem
-	funcMap["isPtr"] = func_isPtr
-	funcMap["name"] = func_name
-	funcMap["symbol"] = func_symbol
+	funcMap["isOnePtrStructOrArray"] = funcIsOnePtrStructOrArray
+	funcMap["fieldOf"] = funcFieldOf
+	funcMap["elem"] = funcElem
+	funcMap["isPtr"] = funcIsPtr
+	funcMap["name"] = funcGetName
+	funcMap["symbol"] = funcSymbol
 }
 
 func gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
@@ -137,9 +137,9 @@ func gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 
 func genFuncName(funcNameTmpl string, data interface{}) string {
 	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
-		"symbol": func_symbol,
-		"name":   func_name,
-		"elem":   func_elem,
+		"symbol": funcSymbol,
+		"name":   funcGetName,
+		"elem":   funcElem,
 	}).Parse(funcNameTmpl)
 	panicOnError(err)
 	var out bytes.Buffer

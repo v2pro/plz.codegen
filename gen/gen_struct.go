@@ -18,8 +18,8 @@ func (g *generator) genStruct(typ reflect.Type) string {
 		return ""
 	}
 	tmpl, err := template.New(typ.String()).Funcs(map[string]interface{}{
-		"name":   func_name,
-		"fields": func_fields,
+		"name":   funcGetName,
+		"fields": funcFields,
 	}).Parse(`
 type {{ .T|name }} struct {
 	{{- range .T|fields }}
