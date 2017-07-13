@@ -37,11 +37,17 @@ func typed_{{ .funcName }}(
 	src {{ .ST|name }}) error {
 	// end of signature
 	for key, elem := range src {
-		newKey := new({{ .ST|mapKey|name }})
-		typed_{{ $cpKey.FuncName }}(newKey, key)
-		newElem := new({{ .ST|elem|name }})
-		typed_{{ $cpElem.FuncName }}(newElem, elem)
-		dst[*newKey] = *newElem
+		existingElem, found := dst[key]
+		if found {
+			typed_{{ $cpElem.FuncName }}(&existingElem, elem)
+			dst[key] = existingElem
+		} else {
+			newKey := new({{ .DT|mapKey|name }})
+			typed_{{ $cpKey.FuncName }}(newKey, key)
+			newElem := new({{ .DT|elem|name }})
+			typed_{{ $cpElem.FuncName }}(newElem, elem)
+			dst[*newKey] = *newElem
+		}
 	}
 	return nil
 }`,
