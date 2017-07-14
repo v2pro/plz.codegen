@@ -6,6 +6,7 @@ import (
 	_ "github.com/v2pro/wombat/cp/cpFromPtr"
 	_ "github.com/v2pro/wombat/cp/cpSimpleValue"
 	_ "github.com/v2pro/wombat/cp/cpStructToStruct"
+	_ "github.com/v2pro/wombat/cp/cpStructToMap"
 	_ "github.com/v2pro/wombat/cp/cpSliceToSlice"
 	_ "github.com/v2pro/wombat/cp/cpMapToMap"
 	_ "github.com/v2pro/wombat/cp/cpArrayToArray"

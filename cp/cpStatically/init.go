@@ -59,33 +59,45 @@ func doDispatch(dstType, srcType reflect.Type) string {
 	}
 	if srcType.Kind() == reflect.Ptr {
 		return "cpFromPtr"
-	} else {
-		if dstType.Kind() == reflect.Ptr {
-			if isDirectPtr(dstType) {
-				if isSimpleValue(dstType.Elem()) {
-					return "cpSimpleValue"
-				} else if dstType.Elem().Kind() == reflect.Struct && srcType.Kind() == reflect.Struct {
-					return "cpStructToStruct"
-				} else if dstType.Elem().Kind() == reflect.Slice && srcType.Kind() == reflect.Slice {
-					return "cpSliceToSlice"
-				} else if dstType.Elem().Kind() == reflect.Array && srcType.Kind() == reflect.Array {
-					return "cpArrayToArray"
-				} else if dstType.Elem().Kind() == reflect.Slice && srcType.Kind() == reflect.Array {
-					return "cpSliceToSlice"
-				} else if dstType.Elem().Kind() == reflect.Array && srcType.Kind() == reflect.Slice {
-					return "cpSliceToSlice"
-				} else {
-					panic("not implemented")
-				}
-			} else {
-				return "cpIntoPtr"
-			}
-		} else if dstType.Kind() == reflect.Map && srcType.Kind() == reflect.Map {
-			return "cpMapToMap"
-		} else {
-			panic("not implemented")
-		}
 	}
+	if dstType.Kind() == reflect.Map &&
+		srcType.Kind() == reflect.Map {
+		return "cpMapToMap"
+	}
+	if dstType.Kind() == reflect.Map &&
+		srcType.Kind() == reflect.Struct {
+		return "cpStructToMap"
+	}
+	if dstType.Kind() != reflect.Ptr {
+		panic("not implemented")
+	}
+	if !isDirectPtr(dstType) {
+		return "cpIntoPtr"
+	}
+	if isSimpleValue(dstType.Elem()) {
+		return "cpSimpleValue"
+	}
+	if dstType.Elem().Kind() == reflect.Struct &&
+		srcType.Kind() == reflect.Struct {
+		return "cpStructToStruct"
+	}
+	if dstType.Elem().Kind() == reflect.Slice &&
+		srcType.Kind() == reflect.Slice {
+		return "cpSliceToSlice"
+	}
+	if dstType.Elem().Kind() == reflect.Array &&
+		srcType.Kind() == reflect.Array {
+		return "cpArrayToArray"
+	}
+	if dstType.Elem().Kind() == reflect.Slice &&
+		srcType.Kind() == reflect.Array {
+		return "cpSliceToSlice"
+	}
+	if dstType.Elem().Kind() == reflect.Array &&
+		srcType.Kind() == reflect.Slice {
+		return "cpSliceToSlice"
+	}
+	panic("not implemented")
 }
 
 func isDirectPtr(typ reflect.Type) bool {
