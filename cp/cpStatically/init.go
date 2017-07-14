@@ -81,6 +81,10 @@ func doDispatch(dstType, srcType reflect.Type) string {
 		srcType.Kind() == reflect.Struct {
 		return "cpStructToStruct"
 	}
+	if dstType.Elem().Kind() == reflect.Struct &&
+		srcType.Kind() == reflect.Map {
+		return "cpMapToStruct"
+	}
 	if dstType.Elem().Kind() == reflect.Slice &&
 		srcType.Kind() == reflect.Slice {
 		return "cpSliceToSlice"
