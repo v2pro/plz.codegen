@@ -85,11 +85,3 @@ func funcFieldOf(typ reflect.Type, fieldName string) reflect.StructField {
 	}
 	return field
 }
-
-func funcFields(typ reflect.Type) []reflect.StructField {
-	fields := make([]reflect.StructField, typ.NumField())
-	for i := 0; i < len(fields); i++ {
-		fields[i] = typ.Field(i)
-	}
-	return fields
-}

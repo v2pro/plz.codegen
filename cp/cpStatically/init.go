@@ -9,6 +9,7 @@ import (
 	"reflect"
 )
 
+var Dispatchers = []func(dstType, srcType reflect.Type) string{}
 var logger = plz.LoggerOf("package", "cpStatically")
 
 func init() {
@@ -63,7 +64,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 }
 
 func doDispatch(dstType, srcType reflect.Type) string {
-	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map {
+	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map && dstType.Kind() != reflect.Interface {
 		panic("destination type is not writable: " + dstType.String())
 	}
 	if srcType.Kind() == reflect.Ptr {
@@ -80,50 +81,54 @@ func doDispatch(dstType, srcType reflect.Type) string {
 		srcType.Kind() == reflect.Struct {
 		return "cpStructToMap"
 	}
-	if dstType.Kind() != reflect.Ptr {
-		panic("not implemented")
-	}
-	if !isDirectPtr(dstType) {
+	if isPtrPtr(dstType) {
 		return "cpIntoPtr"
 	}
-	if isSimpleValue(dstType.Elem()) {
-		return "cpSimpleValue"
+	for _, dispatcher := range Dispatchers {
+		tmpl := dispatcher(dstType, srcType)
+		if tmpl != "" {
+			return tmpl
+		}
 	}
-	if dstType.Elem().Kind() == reflect.Interface {
-		return "cpIntoInterface"
-	}
-	if dstType.Elem().Kind() == reflect.Struct &&
-		srcType.Kind() == reflect.Struct {
-		return "cpStructToStruct"
-	}
-	if dstType.Elem().Kind() == reflect.Struct &&
-		srcType.Kind() == reflect.Map {
-		return "cpMapToStruct"
-	}
-	if dstType.Elem().Kind() == reflect.Slice &&
-		srcType.Kind() == reflect.Slice {
-		return "cpSliceToSlice"
-	}
-	if dstType.Elem().Kind() == reflect.Array &&
-		srcType.Kind() == reflect.Array {
-		return "cpArrayToArray"
-	}
-	if dstType.Elem().Kind() == reflect.Slice &&
-		srcType.Kind() == reflect.Array {
-		return "cpSliceToSlice"
-	}
-	if dstType.Elem().Kind() == reflect.Array &&
-		srcType.Kind() == reflect.Slice {
-		return "cpSliceToSlice"
+	if dstType.Kind() == reflect.Ptr {
+		if isSimpleValue(dstType.Elem()) {
+			return "cpSimpleValue"
+		}
+		if dstType.Elem().Kind() == reflect.Interface {
+			return "cpIntoInterface"
+		}
+		if dstType.Elem().Kind() == reflect.Struct &&
+			srcType.Kind() == reflect.Struct {
+			return "cpStructToStruct"
+		}
+		if dstType.Elem().Kind() == reflect.Struct &&
+			srcType.Kind() == reflect.Map {
+			return "cpMapToStruct"
+		}
+		if dstType.Elem().Kind() == reflect.Slice &&
+			srcType.Kind() == reflect.Slice {
+			return "cpSliceToSlice"
+		}
+		if dstType.Elem().Kind() == reflect.Array &&
+			srcType.Kind() == reflect.Array {
+			return "cpArrayToArray"
+		}
+		if dstType.Elem().Kind() == reflect.Slice &&
+			srcType.Kind() == reflect.Array {
+			return "cpSliceToSlice"
+		}
+		if dstType.Elem().Kind() == reflect.Array &&
+			srcType.Kind() == reflect.Slice {
+			return "cpSliceToSlice"
+		}
 	}
 	panic(fmt.Sprintf("not implemented copy: from %v to %v", srcType, dstType))
 }
 
-func isDirectPtr(typ reflect.Type) bool {
-	if typ.Kind() != reflect.Ptr {
-		return false
-	}
-	return typ.Elem().Kind() != reflect.Ptr && typ.Elem().Kind() != reflect.Map
+func isPtrPtr(typ reflect.Type) bool {
+	return typ.Kind() == reflect.Ptr && (
+		typ.Elem().Kind() == reflect.Ptr ||
+			typ.Elem().Kind() == reflect.Map)
 }
 
 func isSimpleValue(typ reflect.Type) bool {

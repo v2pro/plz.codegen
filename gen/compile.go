@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"fmt"
 )
 
 var logger = plz.LoggerOf("package", "gen")
@@ -61,11 +62,15 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			panic("variable " + varName + " is not declared")
 		}
 		delete(variables, varName)
-		data[varName] = args[i+1]
 		typ, _ := args[i+1].(reflect.Type)
-		if typ != nil && (typ.Kind() == reflect.Struct || typ.Kind() == reflect.Ptr) {
-			generatedSource += g.genStruct(typ)
+		if typ != nil {
+			for _, translator := range TypeTranslator {
+				typ = translator(typ)
+			}
+			args[i+1] = typ
+			generatedSource += g.genTypeDef(typ)
 		}
+		data[varName] = args[i+1]
 	}
 	for k, v := range variables {
 		logger.Error("missing variable", "varName", k, "varDescription", v, "args", args)
@@ -89,8 +94,11 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			}{FuncName: funcName, Source: source}
 		},
 		"cast": func(identifier string, typ reflect.Type) string {
-			if typ.Kind() == reflect.Interface && typ.NumMethod() == 0 {
-				return identifier
+			if typ.Kind() == reflect.Interface {
+				if typ.NumMethod() == 0 {
+					return identifier
+				}
+				return fmt.Sprintf("%s.(%s)", identifier, funcGetName(typ))
 			}
 			objPtrFuncName, objPtrSource := g.gen(objPtrF, "T", typ)
 			generatedSource += objPtrSource
