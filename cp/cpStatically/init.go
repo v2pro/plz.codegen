@@ -117,7 +117,8 @@ func isDirectPtr(typ reflect.Type) bool {
 func isSimpleValue(typ reflect.Type) bool {
 	switch typ.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32:
 		return true
 	}
 	return false
