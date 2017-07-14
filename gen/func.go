@@ -30,6 +30,8 @@ func funcGetName(typ reflect.Type) string {
 		return "uint8"
 	case reflect.Uint16:
 		return "uint16"
+	case reflect.Uint32:
+		return "uint32"
 	case reflect.Ptr:
 		return "*" + funcGetName(typ.Elem())
 	}
