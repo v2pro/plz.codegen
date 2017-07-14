@@ -70,7 +70,7 @@ func doDispatch(dstType, srcType reflect.Type) string {
 	if srcType.Kind() == reflect.Ptr {
 		return "cpFromPtr"
 	}
-	if srcType.Kind() == reflect.Interface {
+	if srcType.Kind() == reflect.Interface && srcType.NumMethod() == 0 {
 		return "cpFromInterface"
 	}
 	if dstType.Kind() == reflect.Map &&
@@ -91,7 +91,7 @@ func doDispatch(dstType, srcType reflect.Type) string {
 		}
 	}
 	if dstType.Kind() == reflect.Ptr {
-		if isSimpleValue(dstType.Elem()) {
+		if isSimpleValue(dstType.Elem()) && dstType.Elem().Kind() == srcType.Kind() {
 			return "cpSimpleValue"
 		}
 		if dstType.Elem().Kind() == reflect.Interface {

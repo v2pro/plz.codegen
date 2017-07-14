@@ -1,39 +1,41 @@
-package cpSimpleValueToJson
+package cpJsonToSimpleValue
 
 import (
-	"github.com/v2pro/wombat/cp/cpStatically"
-	"github.com/v2pro/wombat/gen"
 	"reflect"
 	"github.com/json-iterator/go"
+	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/gen"
+	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 )
 
-type jsoniterStream interface {
-	WriteInt(val int)
-	WriteInt8(val int8)
+type jsoniterIterator interface {
+	ReadInt() int
+	ReadInt8() int8
 }
 
-var jsoniterStreamType = reflect.TypeOf((*jsoniter.Stream)(nil))
-var streamInterfaceType = reflect.TypeOf((*jsoniterStream)(nil)).Elem()
+var jsoniterIteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
+var iteratorInterfaceType = reflect.TypeOf((*jsoniterIterator)(nil)).Elem()
 
 func init() {
-	cpStatically.F.Dependencies["cpSimpleValueToJson"] = F
+	cpStatically.F.Dependencies["cpJsonToSimpleValue"] = F
 	cpStatically.Dispatchers = append(cpStatically.Dispatchers, dispatch)
 	gen.TypeTranslator = append(gen.TypeTranslator, translateType)
 }
 
 func translateType(typ reflect.Type) reflect.Type {
-	if typ == jsoniterStreamType {
-		return streamInterfaceType
+	if typ == jsoniterIteratorType {
+		return iteratorInterfaceType
 	}
 	return typ
 }
 
 func dispatch(dstType, srcType reflect.Type) string {
-	if dstType == streamInterfaceType {
-		return "cpSimpleValueToJson"
+	if srcType == iteratorInterfaceType {
+		return "cpJsonToSimpleValue"
 	}
 	return ""
 }
+
 
 // F the function definition
 var F = &gen.FuncTemplate{
@@ -51,20 +53,10 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
-	dst.Write{{ .ST|opFuncName }}(src)
+	*dst = src.Read{{ .DT|elem|opFuncName }}()
 }
 `,
 	FuncMap: map[string]interface{}{
-		"opFuncName": GenOpFuncName,
+		"opFuncName": cpSimpleValueToJson.GenOpFuncName,
 	},
-}
-
-func GenOpFuncName(typ reflect.Type) string {
-	switch typ.Kind() {
-	case reflect.Int:
-		return "Int"
-	case reflect.Int8:
-		return "Int8"
-	}
-	panic("not implemented")
 }
