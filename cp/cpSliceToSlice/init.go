@@ -26,24 +26,27 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
-	defDst := *dst
-	dstLen := len(defDst)
+	dstLen := len(*dst)
 	if len(src) < dstLen {
 		dstLen = len(src)
 	}
 	for i := 0; i < dstLen; i++ {
-		{{ $cp.FuncName }}(&defDst[i], src[i])
+		{{ $cp.FuncName }}(&(*dst)[i], src[i])
 	}
+	{{ if .DT|isSlice }}
+	defDst := *dst
 	for i := dstLen; i < len(src); i++ {
 		newElem := new({{ .DT|ptrSliceElem|elem|name }})
 		{{ $cp.FuncName }}(newElem, src[i])
 		defDst = append(defDst, *newElem)
 	}
 	*dst = defDst
+	{{ end }}
 	return nil
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrSliceElem": funcPtrSliceElem,
+		"isSlice": funcIsSlice,
 	},
 }
 
@@ -52,10 +55,17 @@ func funcPtrSliceElem(typ reflect.Type) reflect.Type {
 		panic("unexpected")
 	}
 	typ = typ.Elem()
-	if typ.Kind() != reflect.Slice {
+	if typ.Kind() != reflect.Slice && typ.Kind() != reflect.Array {
 		panic("unexpected")
 	}
 	return reflect.PtrTo(typ.Elem())
+}
+
+func funcIsSlice(typ reflect.Type) bool {
+	if typ.Kind() != reflect.Ptr {
+		panic("unexpected")
+	}
+	return typ.Kind() == reflect.Slice
 }
 
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
