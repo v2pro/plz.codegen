@@ -5,6 +5,7 @@ import (
 	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
+	"github.com/v2pro/wombat/diff"
 )
 
 func Test_copy_val_to_val(t *testing.T) {
@@ -78,4 +79,31 @@ func Test_copy_val_to_ptr_val(t *testing.T) {
 	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
 	should.Nil(f(&dst, src))
 	should.Equal(typeForTest(1), dst)
+}
+
+func Test_copy_val_to_ptr_empty_interface(t *testing.T) {
+	should := require.New(t)
+	var dst interface{}
+	src := typeForTest(1)
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f(&dst, src))
+	should.Empty(diff.Diff(typeForTest(1), dst))
+}
+
+func Test_copy_val_to_nil_ptr_empty_interface(t *testing.T) {
+	should := require.New(t)
+	var dst interface{}
+	src := typeForTest(1)
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f(nil, src))
+}
+
+func Test_copy_val_to_ptr_empty_interface_of_existing_value(t *testing.T) {
+	should := require.New(t)
+	var existing typeForTest
+	var dst interface{} = &existing
+	src := typeForTest(1)
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f(&dst, src))
+	should.Empty(diff.Diff(typeForTest(1), existing))
 }

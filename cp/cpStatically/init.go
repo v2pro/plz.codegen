@@ -5,11 +5,13 @@ import (
 	"github.com/v2pro/plz/logging"
 	"github.com/v2pro/wombat/gen"
 	"reflect"
+	"github.com/v2pro/plz/util"
 )
 
 var logger = plz.LoggerOf("package", "cpStatically")
 
 func init() {
+	util.GenCopy = Gen
 	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
 		for i := 0; i < len(loggerKv); i += 2 {
 			key := loggerKv[i].(string)
@@ -79,6 +81,9 @@ func doDispatch(dstType, srcType reflect.Type) string {
 	}
 	if isSimpleValue(dstType.Elem()) {
 		return "cpSimpleValue"
+	}
+	if dstType.Elem().Kind() == reflect.Interface {
+		return "cpIntoInterface"
 	}
 	if dstType.Elem().Kind() == reflect.Struct &&
 		srcType.Kind() == reflect.Struct {

@@ -13,6 +13,7 @@ import (
 	_ "github.com/v2pro/wombat/cp/cpStatically"
 	_ "github.com/v2pro/wombat/cp/cpStructToMap"
 	_ "github.com/v2pro/wombat/cp/cpStructToStruct"
+	_ "github.com/v2pro/wombat/cp/cpIntoInterface"
 	"reflect"
 )
 

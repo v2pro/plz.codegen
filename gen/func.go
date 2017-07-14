@@ -45,9 +45,6 @@ func funcGetName(typ reflect.Type) string {
 	}
 	typeName := typ.String()
 	typeName = strings.Replace(typeName, ".", "__", -1)
-	if strings.Contains(typeName, "{") {
-		typeName = hash(typeName)
-	}
 	return typeName
 }
 
@@ -62,7 +59,11 @@ func funcSymbol(typ reflect.Type) string {
 	case reflect.Ptr:
 		return "ptr_" + funcSymbol(typ.Elem())
 	default:
-		return funcGetName(typ)
+		typeName := funcGetName(typ)
+		if strings.Contains(typeName, "{") {
+			typeName = hash(typeName)
+		}
+		return typeName
 	}
 }
 
