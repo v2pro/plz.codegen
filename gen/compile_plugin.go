@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"encoding/base64"
 	"sync"
 	"fmt"
 	"os/exec"
@@ -8,6 +9,9 @@ import (
 	"reflect"
 	"bytes"
 	"os"
+	"plugin"
+	"crypto/sha1"
+	"runtime"
 )
 
 var compilePluginMutex = &sync.Mutex{}
@@ -38,26 +42,7 @@ func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 		source += oneSource
 	}
 	logger.Debug("generated source", "source", source)
-	source = prelog + source
-	srcFileName := "/tmp/" + NewID().String() + ".go"
-	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
-	if err != nil {
-		panic("failed to generate source code: " + err.Error())
-	}
-	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", soFileName, srcFileName)
-	var errBuf bytes.Buffer
-	cmd.Stderr = &errBuf
-	var outBuf bytes.Buffer
-	cmd.Stdout = &outBuf
-	err = cmd.Run()
-	if err != nil {
-		logger.Error("compile failed", "source", annotateLines(source))
-		panic("failed to compile generated plugin: " + err.Error() + ", " + errBuf.String())
-	}
-	err = os.Remove(srcFileName)
-	if err != nil {
-		logger.Error("failed to remove generated source", "srcFileName", srcFileName)
-	}
+	compileAndOpenPlugin(source)
 }
 
 func collectCompileOp(compileOpTrigger func()) (op *compileOp) {
@@ -67,4 +52,59 @@ func collectCompileOp(compileOpTrigger func()) (op *compileOp) {
 	}()
 	compileOpTrigger()
 	return nil
+}
+
+const prelog = `
+package main
+import "unsafe"
+import "fmt"
+
+var debugLog = fmt.Println
+
+type emptyInterface struct {
+	typ  unsafe.Pointer
+	word unsafe.Pointer
+}
+`
+
+func compileAndOpenPlugin(source string) *plugin.Plugin {
+	source = prelog + source
+	fileName := hash(source)
+	homeDir := os.Getenv("HOME")
+	cacheDir := homeDir + "/.wombat/"
+	if _, err := os.Stat(cacheDir); err != nil {
+		os.Mkdir(cacheDir, 0777)
+	}
+	srcFileName := cacheDir + fileName + ".go"
+	soFileName := cacheDir + fileName + ".so"
+	if _, err := os.Stat(soFileName); err != nil {
+		err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
+		if err != nil {
+			panic("failed to generate source code: " + err.Error())
+		}
+		logger.Debug("build plugin", "soFileName", soFileName, "srcFileName", srcFileName)
+		cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", soFileName, srcFileName)
+		var errBuf bytes.Buffer
+		cmd.Stderr = &errBuf
+		var outBuf bytes.Buffer
+		cmd.Stdout = &outBuf
+		err = cmd.Run()
+		if err != nil {
+			logger.Error("compile failed", "srcFileName", srcFileName, "source", annotateLines(source))
+			panic("failed to compile generated plugin: " + err.Error() + ", " + errBuf.String())
+		}
+	}
+	logger.Debug("open plugin", "soFileName", soFileName)
+	thePlugin, err := plugin.Open(soFileName)
+	if err != nil {
+		panic("failed to load generated plugin: " + err.Error())
+	}
+	return thePlugin
+}
+
+func hash(source string) string {
+	h := sha1.New()
+	h.Write([]byte(source))
+	h.Write([]byte(runtime.Version()))
+	return base64.URLEncoding.EncodeToString(h.Sum(nil))
 }

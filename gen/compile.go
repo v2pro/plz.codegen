@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"github.com/v2pro/plz"
 	"github.com/v2pro/plz/logging"
-	"io/ioutil"
-	"os/exec"
 	"plugin"
 	"reflect"
 	"strconv"
@@ -165,20 +163,6 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	return dynamicCompile("Exported_" + funcName, source)
 }
 
-const prelog = `
-//go:noinline
-package main
-import "unsafe"
-import "fmt"
-
-var debugLog = fmt.Println
-
-type emptyInterface struct {
-	typ  unsafe.Pointer
-	word unsafe.Pointer
-}
-`
-
 var dynamicCompileMutex = &sync.Mutex{}
 func dynamicCompile(funcName, source string) plugin.Symbol {
 	if dynamicCompilationDisabled {
@@ -187,41 +171,11 @@ func dynamicCompile(funcName, source string) plugin.Symbol {
 	}
 	dynamicCompileMutex.Lock()
 	defer dynamicCompileMutex.Unlock()
-	source = prelog + source
-	srcFileName := "/tmp/" + NewID().String() + ".go"
-	soFileName := "/tmp/" + NewID().String() + ".so"
-	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
-	if err != nil {
-		panic("failed to generate source code: " + err.Error())
-	}
-	logger.Debug("build plugin", "soFileName", soFileName, "srcFileName", srcFileName)
-	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", soFileName, srcFileName)
-	var errBuf bytes.Buffer
-	cmd.Stderr = &errBuf
-	var outBuf bytes.Buffer
-	cmd.Stdout = &outBuf
-	err = cmd.Run()
-	if err != nil {
-		logger.Error("compile failed", "source", annotateLines(source))
-		panic("failed to compile generated plugin: " + err.Error() + ", " + errBuf.String())
-	}
-	logger.Debug("open plugin", "soFileName", soFileName)
-	generatedPlugin, err := plugin.Open(soFileName)
-	if err != nil {
-		panic("failed to load generated plugin: " + err.Error())
-	}
-	symbol, err := generatedPlugin.Lookup(funcName)
+	thePlugin := compileAndOpenPlugin(source)
+	symbol, err := thePlugin.Lookup(funcName)
 	if err != nil {
 		panic("failed to lookup symbol from generated plugin: " + err.Error())
 	}
-	//err = os.Remove(srcFileName)
-	//if err != nil {
-	//	logger.Error("failed to remove generated source", "srcFileName", srcFileName)
-	//}
-	//err = os.Remove(soFileName)
-	//if err != nil {
-	//	logger.Error("failed to remove generated plugin", "soFileName", soFileName)
-	//}
 	return symbol
 }
 
