@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+var ImportPackages = map[string]bool {
+}
+
 func panicOnError(err error) {
 	if err != nil {
 		panic(err.Error())
@@ -13,6 +16,9 @@ func panicOnError(err error) {
 }
 
 func funcGetName(typ reflect.Type) string {
+	if ImportPackages[typ.PkgPath()] {
+		return typ.String()
+	}
 	switch typ.Kind() {
 	case reflect.Int:
 		return "int"
@@ -42,6 +48,8 @@ func funcGetName(typ reflect.Type) string {
 		return "string"
 	case reflect.Ptr:
 		return "*" + funcGetName(typ.Elem())
+	case reflect.Slice:
+		return "[]" + funcGetName(typ.Elem())
 	}
 	typeName := typ.String()
 	typeName = strings.Replace(typeName, ".", "__", -1)
@@ -63,6 +71,7 @@ func funcSymbol(typ reflect.Type) string {
 		return "ptr_" + funcSymbol(typ.Elem())
 	default:
 		typeName := funcGetName(typ)
+		typeName = strings.Replace(typeName, ".", "__", -1)
 		if strings.Contains(typeName, "{") {
 			typeName = hash(typeName)
 		}

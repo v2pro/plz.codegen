@@ -64,6 +64,12 @@ func dispatch(dstType, srcType reflect.Type) string {
 }
 
 func doDispatch(dstType, srcType reflect.Type) string {
+	for _, dispatcher := range Dispatchers {
+		tmpl := dispatcher(dstType, srcType)
+		if tmpl != "" {
+			return tmpl
+		}
+	}
 	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map && dstType.Kind() != reflect.Interface {
 		panic("destination type is not writable: " + dstType.String())
 	}
@@ -83,12 +89,6 @@ func doDispatch(dstType, srcType reflect.Type) string {
 	}
 	if isPtrPtr(dstType) {
 		return "cpIntoPtr"
-	}
-	for _, dispatcher := range Dispatchers {
-		tmpl := dispatcher(dstType, srcType)
-		if tmpl != "" {
-			return tmpl
-		}
 	}
 	if dstType.Kind() == reflect.Ptr {
 		if isSimpleValue(dstType.Elem()) && dstType.Elem().Kind() == srcType.Kind() {

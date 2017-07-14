@@ -7,9 +7,10 @@ import (
 	"strings"
 )
 
-var TypeTranslator = []func(reflect.Type) reflect.Type{}
-
 func (g *generator) genTypeDef(typ reflect.Type) string {
+	if ImportPackages[typ.PkgPath()] {
+		return ""
+	}
 	if g.generatedTypes[typ] {
 		return ""
 	}

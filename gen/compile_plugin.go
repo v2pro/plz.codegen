@@ -59,20 +59,23 @@ func collectCompileOp(compileOpTrigger func()) (op *compileOp) {
 	return nil
 }
 
-const prelog = `
+func compileAndOpenPlugin(soFileName string, source string) *plugin.Plugin {
+	prelog := `
 package main
 import "unsafe"
 import "fmt"
-
+`
+	for pkg := range ImportPackages {
+		prelog += "import \"" + pkg + "\"\n"
+	}
+	prelog += `
 var debugLog = fmt.Println
 
 type emptyInterface struct {
 	typ  unsafe.Pointer
 	word unsafe.Pointer
 }
-`
-
-func compileAndOpenPlugin(soFileName string, source string) *plugin.Plugin {
+	`
 	source = prelog + source
 	fileName := hash(source)
 	homeDir := os.Getenv("HOME")

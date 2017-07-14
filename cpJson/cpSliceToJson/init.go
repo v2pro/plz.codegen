@@ -1,13 +1,13 @@
-package cpJsonToSimpleValue
+package cpSliceToJson
 
 import (
-	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/gen"
 	"github.com/v2pro/wombat/cpJson/cpJsonDispatcher"
+	"github.com/v2pro/wombat/cp/cpStatically"
 )
 
 func init() {
-	cpStatically.F.Dependencies["cpJsonToSimpleValue"] = F
+	cpStatically.F.Dependencies["cpSliceToJson"] = F
 }
 
 // F the function definition
@@ -26,7 +26,14 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
-	*dst = src.Read{{ .DT|elem|opFuncName }}()
+	dst.WriteArrayStart()
+	for i, elem := range src {
+		if i != 0 {
+			dst.WriteMore()
+		}
+		dst.Write{{ .ST|elem|opFuncName }}(elem)
+	}
+	dst.WriteArrayEnd()
 }
 `,
 	FuncMap: map[string]interface{}{

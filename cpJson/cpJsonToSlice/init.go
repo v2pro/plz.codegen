@@ -1,4 +1,4 @@
-package cpJsonToSimpleValue
+package cpJsonToSlice
 
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"
@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	cpStatically.F.Dependencies["cpJsonToSimpleValue"] = F
+	cpStatically.F.Dependencies["cpJsonToSlice"] = F
 }
 
 // F the function definition
@@ -26,7 +26,10 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
-	*dst = src.Read{{ .DT|elem|opFuncName }}()
+	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
+		*dst = append(*dst, iter.Read{{ .DT|elem|elem|opFuncName }}())
+		return true
+	})
 }
 `,
 	FuncMap: map[string]interface{}{

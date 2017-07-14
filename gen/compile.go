@@ -64,9 +64,6 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		delete(variables, varName)
 		typ, _ := args[i+1].(reflect.Type)
 		if typ != nil {
-			for _, translator := range TypeTranslator {
-				typ = translator(typ)
-			}
 			args[i+1] = typ
 			generatedSource += g.genTypeDef(typ)
 		}
@@ -85,6 +82,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		"gen": func(depName string, newKv ...interface{}) interface{} {
 			dep := fTmpl.Dependencies[depName]
 			if dep == nil {
+				logger.Error("referenced unfound dependency", "depName", depName, "kv", newKv)
 				panic("referenced unfound dependency " + depName)
 			}
 			funcName, source := g.gen(dep, newKv...)
