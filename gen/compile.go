@@ -37,8 +37,8 @@ type FuncTemplate struct {
 }
 
 type generator struct {
-	generatedTypes map[reflect.Type]bool
-	generatedFuncs map[string]bool
+	generatedTypes        map[reflect.Type]bool
+	generatedFuncs        map[string]bool
 	generatedDeclarations map[string]bool
 }
 
@@ -180,7 +180,7 @@ func dynamicCompile(funcName, source string) plugin.Symbol {
 	}
 	dynamicCompileMutex.Lock()
 	defer dynamicCompileMutex.Unlock()
-	thePlugin := compileAndOpenPlugin(source)
+	thePlugin := compileAndOpenPlugin("", source)
 	symbol, err := thePlugin.Lookup(funcName)
 	if err != nil {
 		panic("failed to lookup symbol from generated plugin: " + err.Error())

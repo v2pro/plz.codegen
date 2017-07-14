@@ -3,7 +3,9 @@ package cp
 import (
 	// register functions into cpStatically
 	_ "github.com/v2pro/wombat/cp/cpArrayToArray"
+	_ "github.com/v2pro/wombat/cp/cpFromInterface"
 	_ "github.com/v2pro/wombat/cp/cpFromPtr"
+	_ "github.com/v2pro/wombat/cp/cpIntoInterface"
 	_ "github.com/v2pro/wombat/cp/cpIntoPtr"
 	_ "github.com/v2pro/wombat/cp/cpMapToMap"
 	_ "github.com/v2pro/wombat/cp/cpMapToStruct"
@@ -13,8 +15,6 @@ import (
 	_ "github.com/v2pro/wombat/cp/cpStatically"
 	_ "github.com/v2pro/wombat/cp/cpStructToMap"
 	_ "github.com/v2pro/wombat/cp/cpStructToStruct"
-	_ "github.com/v2pro/wombat/cp/cpIntoInterface"
-	_ "github.com/v2pro/wombat/cp/cpFromInterface"
 	"reflect"
 )
 

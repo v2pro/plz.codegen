@@ -1,12 +1,12 @@
 package cpStatically
 
 import (
+	"fmt"
 	"github.com/v2pro/plz"
 	"github.com/v2pro/plz/logging"
+	"github.com/v2pro/plz/util"
 	"github.com/v2pro/wombat/gen"
 	"reflect"
-	"github.com/v2pro/plz/util"
-	"fmt"
 )
 
 var logger = plz.LoggerOf("package", "cpStatically")
@@ -34,7 +34,7 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName:     `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Declarations: "var cpDynamically func(interface{}, interface{}) error",
 	Source: `
 {{ $tmpl := dispatch .DT .ST }}

@@ -1,11 +1,11 @@
 package cpVal
 
 import (
-	"testing"
 	"github.com/google/gofuzz"
+	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
 	"reflect"
-	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 func Test_round_trip(t *testing.T) {

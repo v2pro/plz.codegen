@@ -1,9 +1,9 @@
 package diff
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
-	"fmt"
 )
 
 func Diff(obj1 interface{}, obj2 interface{}) []string {
@@ -29,7 +29,7 @@ func doDiff(path []string, obj1 interface{}, obj2 interface{}) (logs []string) {
 			logs = append(logs, fmt.Sprintf("%s: %v <=> %v", strings.Join(path, "."), obj1, obj2))
 		}
 	default:
-		panic(strings.Join(path, ".") +": do not know how to diff " + reflect.TypeOf(obj1).String())
+		panic(strings.Join(path, ".") + ": do not know how to diff " + reflect.TypeOf(obj1).String())
 	}
 	return
 }

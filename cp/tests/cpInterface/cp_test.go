@@ -1,10 +1,10 @@
 package cpInterface
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
 	"reflect"
+	"testing"
 )
 
 func Test_empty_interface_to_ptr_int(t *testing.T) {

@@ -3,9 +3,9 @@ package cpVal
 import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
+	"github.com/v2pro/wombat/diff"
 	"reflect"
 	"testing"
-	"github.com/v2pro/wombat/diff"
 )
 
 func Test_copy_val_to_val(t *testing.T) {

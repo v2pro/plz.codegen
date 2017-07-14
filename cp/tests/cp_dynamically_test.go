@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz"
 	_ "github.com/v2pro/wombat/cp"
+	"testing"
 )
 
 func Test_int_to_ptr_int(t *testing.T) {

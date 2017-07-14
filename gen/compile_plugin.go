@@ -40,12 +40,12 @@ func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 		source += oneSource
 	}
 	logger.Debug("generated source", "source", source)
-	compileAndOpenPlugin(source)
+	compileAndOpenPlugin(soFileName, source)
 }
 func newGenerator() *generator {
 	return &generator{
-		generatedTypes: map[reflect.Type]bool{},
-		generatedFuncs: map[string]bool{},
+		generatedTypes:        map[reflect.Type]bool{},
+		generatedFuncs:        map[string]bool{},
 		generatedDeclarations: map[string]bool{},
 	}
 }
@@ -72,7 +72,7 @@ type emptyInterface struct {
 }
 `
 
-func compileAndOpenPlugin(source string) *plugin.Plugin {
+func compileAndOpenPlugin(soFileName string, source string) *plugin.Plugin {
 	source = prelog + source
 	fileName := hash(source)
 	homeDir := os.Getenv("HOME")
@@ -82,7 +82,9 @@ func compileAndOpenPlugin(source string) *plugin.Plugin {
 		os.Mkdir(cacheDir, 0777)
 	}
 	srcFileName := cacheDir + fileName + ".go"
-	soFileName := cacheDir + fileName + ".so"
+	if soFileName == "" {
+		soFileName = cacheDir + fileName + ".so"
+	}
 	if _, err := os.Stat(soFileName); err != nil {
 		err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
 		if err != nil {
