@@ -108,7 +108,7 @@ func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map
 			panic(recovered)
 		}
 	}()
-	tmpl, err := template.New(NewID().String()).Funcs(funcMap).Parse(tmplSource)
+	tmpl, err := template.New(hash(tmplSource)).Funcs(funcMap).Parse(tmplSource)
 	panicOnError(err)
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, data)
@@ -132,7 +132,7 @@ func gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
 }
 
 func genFuncName(funcNameTmpl string, data interface{}) string {
-	tmpl, err := template.New(NewID().String()).Funcs(map[string]interface{}{
+	tmpl, err := template.New(hash(funcNameTmpl)).Funcs(map[string]interface{}{
 		"symbol": funcSymbol,
 		"name":   funcGetName,
 		"elem":   funcElem,
