@@ -65,7 +65,7 @@ func funcIsSlice(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Ptr {
 		panic("unexpected")
 	}
-	return typ.Kind() == reflect.Slice
+	return typ.Elem().Kind() == reflect.Slice
 }
 
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
