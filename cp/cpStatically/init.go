@@ -68,6 +68,9 @@ func doDispatch(dstType, srcType reflect.Type) string {
 	if srcType.Kind() == reflect.Ptr {
 		return "cpFromPtr"
 	}
+	if srcType.Kind() == reflect.Interface {
+		return "cpFromInterface"
+	}
 	if dstType.Kind() == reflect.Map &&
 		srcType.Kind() == reflect.Map {
 		return "cpMapToMap"

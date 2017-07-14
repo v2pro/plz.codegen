@@ -14,6 +14,7 @@ import (
 	_ "github.com/v2pro/wombat/cp/cpStructToMap"
 	_ "github.com/v2pro/wombat/cp/cpStructToStruct"
 	_ "github.com/v2pro/wombat/cp/cpIntoInterface"
+	_ "github.com/v2pro/wombat/cp/cpFromInterface"
 	"reflect"
 )
 

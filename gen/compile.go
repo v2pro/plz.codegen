@@ -89,6 +89,9 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			}{FuncName: funcName, Source: source}
 		},
 		"cast": func(identifier string, typ reflect.Type) string {
+			if typ.Kind() == reflect.Interface && typ.NumMethod() == 0 {
+				return identifier
+			}
 			objPtrFuncName, objPtrSource := g.gen(objPtrF, "T", typ)
 			generatedSource += objPtrSource
 			if typ.Kind() == reflect.Ptr {
