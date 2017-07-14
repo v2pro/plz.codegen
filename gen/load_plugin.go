@@ -1,8 +1,8 @@
 package gen
 
 import (
-	"sync"
 	"plugin"
+	"sync"
 )
 
 var loadPluginMutex = &sync.Mutex{}

@@ -45,8 +45,8 @@ func {{ .funcName }}(
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrMapElem": funcPtrMapElem,
-		"ptrMapKey": funcPtrMapKey,
-		"mapKey": funcMapKey,
+		"ptrMapKey":  funcPtrMapKey,
+		"mapKey":     funcMapKey,
 	},
 }
 

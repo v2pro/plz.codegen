@@ -1,9 +1,9 @@
 package gen
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
-	"fmt"
 )
 
 func panicOnError(err error) {

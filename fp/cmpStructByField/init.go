@@ -3,8 +3,8 @@ package cmpStructByField
 import (
 	"github.com/v2pro/wombat/fp/cmpSimpleValue"
 	"github.com/v2pro/wombat/gen"
-	"reflect"
 	"plugin"
+	"reflect"
 )
 
 func init() {

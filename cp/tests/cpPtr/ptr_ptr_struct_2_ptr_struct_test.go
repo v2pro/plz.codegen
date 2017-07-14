@@ -1,10 +1,10 @@
-package cp
+package cpPtr
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/v2pro/wombat/cp/cpStatically"
 	"reflect"
 	"testing"
+	"github.com/v2pro/wombat/cp"
 )
 
 func Test_copy_ptr_ptr_struct_2_ptr_struct(t *testing.T) {
@@ -16,7 +16,7 @@ func Test_copy_ptr_ptr_struct_2_ptr_struct(t *testing.T) {
 	dst := TestObject{}
 	src := TestObject{100}
 	pSrc := &src
-	f := cpStatically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(&pSrc))
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(&pSrc))
 	should.Nil(f(&dst, &pSrc))
 	should.Equal(100, dst.Field)
 }
@@ -30,7 +30,7 @@ func Test_copy_ptr_nil_ptr_struct_2_ptr_struct(t *testing.T) {
 	dst := TestObject{}
 	src := TestObject{100}
 	pSrc := &src
-	f := cpStatically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(&pSrc))
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(&pSrc))
 	pSrc = nil
 	should.Nil(f(&dst, &pSrc))
 	should.Equal(0, dst.Field)

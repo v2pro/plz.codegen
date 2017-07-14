@@ -144,7 +144,6 @@ func genFuncName(funcNameTmpl string, data interface{}) string {
 	return out.String()
 }
 
-
 type compileOp struct {
 	template *FuncTemplate
 	kv       []interface{}
@@ -160,10 +159,11 @@ func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	if symbol != nil {
 		return symbol
 	}
-	return dynamicCompile("Exported_" + funcName, source)
+	return dynamicCompile("Exported_"+funcName, source)
 }
 
 var dynamicCompileMutex = &sync.Mutex{}
+
 func dynamicCompile(funcName, source string) plugin.Symbol {
 	if dynamicCompilationDisabled {
 		logger.Error("dynamic compilation disabled", "funcName", funcName, "source", source)

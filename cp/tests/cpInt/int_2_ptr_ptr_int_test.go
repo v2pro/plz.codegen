@@ -1,8 +1,8 @@
-package cp
+package cpInt
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
 )
@@ -12,7 +12,7 @@ func Test_copy_int_to_ptr_ptr_int(t *testing.T) {
 	dst := 0
 	src := 1
 	ptr_dst := &dst
-	f := cpStatically.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
+	f := cp.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
 	should.Nil(f(&ptr_dst, src))
 	should.Equal(1, dst)
 }
@@ -22,7 +22,7 @@ func Test_copy_int_to_nil_ptr_ptr_int(t *testing.T) {
 	dst := 0
 	src := 1
 	ptr_dst := &dst
-	f := cpStatically.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
+	f := cp.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
 	// ignore nil dst
 	should.Nil(f(nil, src))
 }
@@ -32,7 +32,7 @@ func Test_copy_into_ptr_nil_ptr_int(t *testing.T) {
 	dst := 0
 	src := 1
 	ptr_dst := &dst
-	f := cpStatically.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
+	f := cp.Gen(reflect.TypeOf(&ptr_dst), reflect.TypeOf(src))
 	ptr_dst = nil
 	should.Nil(f(&ptr_dst, src))
 	should.Equal(1, *ptr_dst)

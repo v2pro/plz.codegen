@@ -1,10 +1,10 @@
 package example
 
 import (
-	"github.com/v2pro/plz"
-	"testing"
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/plz"
 	_ "github.com/v2pro/wombat/fp"
+	"testing"
 )
 
 type User struct {

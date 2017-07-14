@@ -1,10 +1,10 @@
-package cp
+package cpArray
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
-	"github.com/v2pro/wombat/cp/cpStatically"
 	"reflect"
+	"testing"
+	"github.com/v2pro/wombat/cp"
 )
 
 func Test_array_more_element(t *testing.T) {
@@ -15,7 +15,7 @@ func Test_array_more_element(t *testing.T) {
 	}
 	dst := [2]int{}
 	src := [3]int{1, 2, 3}
-	f := cpStatically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
 	should.Nil(f(&dst, src))
 	should.Equal([2]int{1, 2}, dst)
 }
@@ -28,7 +28,7 @@ func Test_array_less_element(t *testing.T) {
 	}
 	dst := [4]int{}
 	src := [3]int{1, 2, 3}
-	f := cpStatically.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
 	should.Nil(f(&dst, src))
 	should.Equal([4]int{1, 2, 3}, dst)
 }

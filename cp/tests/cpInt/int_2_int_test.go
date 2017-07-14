@@ -1,8 +1,8 @@
-package cp
+package cpInt
 
 import (
 	"github.com/stretchr/testify/require"
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
 )
@@ -13,6 +13,6 @@ func Test_copy_int_to_int(t *testing.T) {
 	src := 1
 	should.Panics(func() {
 		// int is not writable
-		cpStatically.Gen(reflect.TypeOf(dst), reflect.TypeOf(src))
+		cp.Gen(reflect.TypeOf(dst), reflect.TypeOf(src))
 	})
 }

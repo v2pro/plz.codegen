@@ -1,17 +1,17 @@
 package gen
 
 import (
-	"encoding/base64"
-	"sync"
-	"fmt"
-	"os/exec"
-	"io/ioutil"
-	"reflect"
 	"bytes"
-	"os"
-	"plugin"
 	"crypto/sha1"
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"plugin"
+	"reflect"
 	"runtime"
+	"sync"
 )
 
 var compilePluginMutex = &sync.Mutex{}
