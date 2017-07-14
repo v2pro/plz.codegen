@@ -19,33 +19,25 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `Compare_{{ .T|symbol }}`,
 	Source: `
+func Exported_{{ .funcName }}(
+	obj1 interface{},
+	obj2 interface{}) int {
+	// end of signature
+	return {{ .funcName }}(
+		{{ cast "obj1" .T }},
+		{{ cast "obj2" .T }})
+}
 {{ if .T|isPtr }}
 	{{ $compareElem := gen "cmpSimpleValue" "T" (.T|elem) }}
 	{{ $compareElem.Source }}
 	func {{ .funcName }}(
-		obj1 interface{},
-		obj2 interface{}) int {
-		// end of signature
-		return typed_{{ .funcName }}(
-			obj1.({{ .T|name }}),
-			obj2.({{ .T|name }}))
-	}
-	func typed_{{ .funcName }}(
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature
-		return typed_{{ $compareElem.FuncName }}(*obj1, *obj2)
+		return {{ $compareElem.FuncName }}(*obj1, *obj2)
 	}
 {{ else }}
 	func {{ .funcName }}(
-		obj1 interface{},
-		obj2 interface{}) int {
-		// end of signature
-		return typed_{{ .funcName }}(
-			obj1.({{ .T|name }}),
-			obj2.({{ .T|name }}))
-	}
-	func typed_{{ .funcName }}(
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature

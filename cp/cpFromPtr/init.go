@@ -17,32 +17,18 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cp := gen "cpStatically" "DT" .DT "ST" (.ST|elem) }}
 {{ $cp.Source }}
 func {{ .funcName }}(
-	dst interface{},
-	src interface{}) error {
-	// end of signature
-	if dst == nil {
-		return nil
-	}
-	if src == nil {
-		return nil
-	}
-	return typed_{{ .funcName }}(
-		{{ cast "dst" .DT }},
-		{{ cast "src" .ST }})
-}
-func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
 	if src == nil {
 		return nil
 	}
-	return typed_{{ $cp.FuncName }}(dst, *src)
+	return {{ $cp.FuncName }}(dst, *src)
 }
 `,
 }

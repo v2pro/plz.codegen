@@ -18,20 +18,9 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 func {{ .funcName }}(
-	dst interface{},
-	src interface{}) error {
-	// end of signature
-	if dst == nil {
-		return nil
-	}
-	return typed_{{ .funcName }}(
-		dst.({{ .DT|name }}),
-		src.({{ .ST|name }}))
-}
-func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature

@@ -18,34 +18,26 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpStatically" "DT" (.DT|ptrMapElem) "ST" (.ST|elem) }}
 {{ $cpElem.Source }}
 {{ $cpKey := gen "cpStatically" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
 {{ $cpKey.Source }}
 func {{ .funcName }}(
-	dst interface{},
-	src interface{}) error {
-	// end of signature
-	return typed_{{ .funcName }}(
-		{{ cast "dst" .DT }},
-		{{ cast "src" .ST }})
-}
-func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
 	for key, elem := range src {
 		existingElem, found := dst[key]
 		if found {
-			typed_{{ $cpElem.FuncName }}(&existingElem, elem)
+			{{ $cpElem.FuncName }}(&existingElem, elem)
 			dst[key] = existingElem
 		} else {
 			newKey := new({{ .DT|mapKey|name }})
-			typed_{{ $cpKey.FuncName }}(newKey, key)
+			{{ $cpKey.FuncName }}(newKey, key)
 			newElem := new({{ .DT|elem|name }})
-			typed_{{ $cpElem.FuncName }}(newElem, elem)
+			{{ $cpElem.FuncName }}(newElem, elem)
 			dst[*newKey] = *newElem
 		}
 	}

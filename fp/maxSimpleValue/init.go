@@ -22,20 +22,20 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $compare := gen "cmpSimpleValue" "T" .T }}
 {{ $compare.Source }}
-func {{ .funcName }}(objs []interface{}) interface{} {
+func Exported_{{ .funcName }}(objs []interface{}) interface{} {
 	currentMax := objs[0].({{ .T|name }})
 	for i := 1; i < len(objs); i++ {
 		typedObj := objs[i].({{ .T|name }})
-		if typed_{{ $compare.FuncName }}(typedObj, currentMax) > 0 {
+		if {{ $compare.FuncName }}(typedObj, currentMax) > 0 {
 			currentMax = typedObj
 		}
 	}
 	return currentMax
 }
-func typed_{{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
+func {{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 	currentMax := objs[0]
 	for i := 1; i < len(objs); i++ {
-		if typed_{{ $compare.FuncName }}(objs[i], currentMax) > 0 {
+		if {{ $compare.FuncName }}(objs[i], currentMax) > 0 {
 			currentMax = objs[i]
 		}
 	}

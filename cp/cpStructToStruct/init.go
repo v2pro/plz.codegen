@@ -18,7 +18,7 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $bindings := calcBindings (.DT|elem) .ST }}
 {{ range $_, $binding := $bindings}}
@@ -27,19 +27,11 @@ var F = &gen.FuncTemplate{
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
 func {{ .funcName }}(
-	dst interface{},
-	src interface{}) error {
-	// end of signature
-	return typed_{{ .funcName }}(
-		{{ cast "dst" .DT }},
-		{{ cast "src" .ST }})
-}
-func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
 	{{ range $_, $binding := $bindings }}
-		typed_{{ $binding.cp }}(&dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
+		{{ $binding.cp }}(&dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
 	{{ end }}
 	return nil
 }`,

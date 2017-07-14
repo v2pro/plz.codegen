@@ -23,12 +23,12 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $compare := gen "cmpStructByField" "T" .T "F" .F }}
 {{ $compare.Source }}
-func {{ .funcName }}(objs []interface{}) interface{} {
+func Exported_{{ .funcName }}(objs []interface{}) interface{} {
 	currentMaxObj := objs[0]
 	for i := 1; i < len(objs); i++ {
 		currentMax := {{ cast "currentMaxObj" .T }}
 		elem := {{ cast "objs[i]" .T }}
-		if typed_{{ $compare.FuncName }}(elem, currentMax) > 0 {
+		if {{ $compare.FuncName }}(elem, currentMax) > 0 {
 			currentMaxObj = objs[i]
 		}
 	}

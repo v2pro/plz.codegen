@@ -18,19 +18,11 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cp := gen "cpStatically" "DT" (.DT|ptrSliceElem) "ST" (.ST|elem) }}
 {{ $cp.Source }}
 func {{ .funcName }}(
-	dst interface{},
-	src interface{}) error {
-	// end of signature
-	return typed_{{ .funcName }}(
-		{{ cast "dst" .DT }},
-		{{ cast "src" .ST }})
-}
-func typed_{{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
@@ -40,11 +32,11 @@ func typed_{{ .funcName }}(
 		dstLen = len(src)
 	}
 	for i := 0; i < dstLen; i++ {
-		typed_{{ $cp.FuncName }}(&defDst[i], src[i])
+		{{ $cp.FuncName }}(&defDst[i], src[i])
 	}
 	for i := dstLen; i < len(src); i++ {
-		newElem := new({{ .DT|sliceElem|elem|name }})
-		typed_{{ $cp.FuncName }}(newElem, src[i])
+		newElem := new({{ .DT|ptrSliceElem|elem|name }})
+		{{ $cp.FuncName }}(newElem, src[i])
 		defDst = append(defDst, *newElem)
 	}
 	*dst = defDst

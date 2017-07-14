@@ -38,15 +38,7 @@ func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 		source += oneSource
 	}
 	logger.Debug("generated source", "source", source)
-	source = `
-package main
-import "unsafe"
-
-type emptyInterface struct {
-	typ  unsafe.Pointer
-	word unsafe.Pointer
-}
-	` + source
+	source = prelog + source
 	srcFileName := "/tmp/" + NewID().String() + ".go"
 	err := ioutil.WriteFile(srcFileName, []byte(source), 0666)
 	if err != nil {

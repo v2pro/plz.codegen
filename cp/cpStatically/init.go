@@ -30,11 +30,20 @@ var F = &gen.FuncTemplate{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
-	FuncName: `Copy_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $tmpl := dispatch .DT .ST }}
 {{ $cp := gen $tmpl "DT" .DT "ST" .ST }}
 {{ $cp.Source }}
+
+func Exported_{{ .funcName }}(
+	dst interface{},
+	src interface{}) error {
+	// end of signature
+	return {{ .funcName }}(
+		{{ cast "dst" .DT }},
+		{{ cast "src" .ST }})
+}
 `,
 }
 

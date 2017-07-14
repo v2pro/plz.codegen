@@ -9,8 +9,11 @@ var objPtrF = &FuncTemplate{
 	Variables: map[string]string{
 		"T": "the type to compare",
 	},
-	FuncName: `Obj_ptr_{{ .T|symbol }}`,
+	FuncName: `obj_ptr_{{ .T|symbol }}`,
 	Source: `
+func Exported_{{ .funcName }}(obj interface{}) unsafe.Pointer {
+	return {{ .funcName }}(obj)
+}
 func {{ .funcName }}(obj interface{}) unsafe.Pointer {
 	ptr := (*((*emptyInterface)(unsafe.Pointer(&obj)))).word
 	{{ if .T|isOnePtrStructOrArray }}
