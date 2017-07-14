@@ -33,10 +33,7 @@ func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 		}
 		compileOps = append(compileOps, compileOp)
 	}
-	generator := &generator{
-		generatedTypes: map[reflect.Type]bool{},
-		generatedFuncs: map[string]bool{},
-	}
+	generator := newGenerator()
 	source := ""
 	for _, compileOp := range compileOps {
 		_, oneSource := generator.gen(compileOp.template, compileOp.kv...)
@@ -44,6 +41,13 @@ func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 	}
 	logger.Debug("generated source", "source", source)
 	compileAndOpenPlugin(source)
+}
+func newGenerator() *generator {
+	return &generator{
+		generatedTypes: map[reflect.Type]bool{},
+		generatedFuncs: map[string]bool{},
+		generatedDeclarations: map[string]bool{},
+	}
 }
 
 func collectCompileOp(compileOpTrigger func()) (op *compileOp) {

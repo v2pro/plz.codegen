@@ -34,15 +34,18 @@ var F = &gen.FuncTemplate{
 		"ST": "the src type to copy from",
 	},
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
+	Declarations: "var cpDynamically func(interface{}, interface{}) error",
 	Source: `
 {{ $tmpl := dispatch .DT .ST }}
 {{ $cp := gen $tmpl "DT" .DT "ST" .ST }}
 {{ $cp.Source }}
 
 func Exported_{{ .funcName }}(
+	cp func(interface{}, interface{}) error,
 	dst interface{},
 	src interface{}) (err error) {
 	// end of signature
+	cpDynamically = cp
 	{{ .funcName }}(
 		&err,
 		{{ cast "dst" .DT }},
@@ -132,5 +135,8 @@ func isSimpleValue(typ reflect.Type) bool {
 // Gen generates a instance of F
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
 	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
+	f := funcObj.(func(func(interface{}, interface{}) error, interface{}, interface{}) error)
+	return func(dst, src interface{}) error {
+		return f(util.Copy, dst, src)
+	}
 }

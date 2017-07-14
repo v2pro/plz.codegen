@@ -33,15 +33,21 @@ type FuncTemplate struct {
 	FuncName     string
 	Dependencies map[string]*FuncTemplate
 	FuncMap      map[string]interface{}
+	Declarations string
 }
 
 type generator struct {
 	generatedTypes map[reflect.Type]bool
 	generatedFuncs map[string]bool
+	generatedDeclarations map[string]bool
 }
 
 func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, string) {
 	generatedSource := ""
+	if fTmpl.Declarations != "" && !g.generatedDeclarations[fTmpl.Declarations] {
+		generatedSource += fTmpl.Declarations
+		g.generatedDeclarations[fTmpl.Declarations] = true
+	}
 	data := map[string]interface{}{}
 	variables := map[string]string{}
 	for k, v := range fTmpl.Variables {
@@ -126,10 +132,7 @@ func fillDefaultFuncMap(funcMap map[string]interface{}) {
 }
 
 func gen(fTmpl *FuncTemplate, kv ...interface{}) (string, string) {
-	return (&generator{
-		generatedTypes: map[reflect.Type]bool{},
-		generatedFuncs: map[string]bool{},
-	}).gen(fTmpl, kv...)
+	return newGenerator().gen(fTmpl, kv...)
 }
 
 func genFuncName(funcNameTmpl string, data interface{}) string {

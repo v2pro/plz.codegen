@@ -11,9 +11,6 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		"cpStatically": cpStatically.F,
-	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
@@ -30,6 +27,11 @@ func {{ .funcName }}(
 	}
 	if *dst == nil {
 		*dst = src
+	} else {
+		newErr := cpDynamically(*dst, src)
+		if newErr != nil && *err == nil {
+			*err = newErr
+		}
 	}
 }
 `,
