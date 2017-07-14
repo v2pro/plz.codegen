@@ -13,6 +13,14 @@ func panicOnError(err error) {
 }
 
 func funcGetName(typ reflect.Type) string {
+	switch typ.Kind() {
+	case reflect.Int:
+		return "int"
+	case reflect.Int8:
+		return "int8"
+	case reflect.Ptr:
+		return "*" + funcGetName(typ.Elem())
+	}
 	typeName := typ.String()
 	typeName = strings.Replace(typeName, ".", "__", -1)
 	return typeName
