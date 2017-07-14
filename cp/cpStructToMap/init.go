@@ -27,13 +27,16 @@ var F = &gen.FuncTemplate{
 	{{ $cp.Source }}
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
+// generated from cpStructToMap
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	var existingElem {{ .DT|elem|name }}
+	var found bool
 	{{ range $_, $binding := $bindings }}
-		existingElem, found := dst["{{ $binding.dstFieldName }}"]
+		existingElem, found = dst["{{ $binding.dstFieldName }}"]
 		if found {
 			{{ $binding.cp }}(err, &existingElem, src.{{ $binding.srcFieldName }})
 			dst["{{ $binding.dstFieldName }}"] = existingElem

@@ -1,4 +1,4 @@
-package case1
+package cpVal
 
 import (
 	"testing"
@@ -10,12 +10,14 @@ import (
 
 func Test_round_trip(t *testing.T) {
 	should := require.New(t)
-	dst := fromType{}
+	dst := toType{}
 	src := fromType{}
 	fz := fuzz.New().MaxDepth(10).NilChance(0.3)
-	fz.Fuzz(&dst)
 	fz.Fuzz(&src)
-	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
-	should.Nil(f(&dst, src))
-	should.Equal(dst, src)
+	f1 := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f1(&dst, src))
+	f2 := cp.Gen(reflect.TypeOf(&src), reflect.TypeOf(dst))
+	src2 := fromType{}
+	should.Nil(f2(&src2, dst))
+	should.Equal(src, src2)
 }

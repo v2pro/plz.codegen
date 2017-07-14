@@ -3,6 +3,7 @@ package cpIntoPtr
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/gen"
+	"reflect"
 )
 
 func init() {
@@ -22,6 +23,7 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $cp := gen "cpStatically" "DT" (.DT|elem) "ST" .ST }}
 {{ $cp.Source }}
+// generated from cpIntoPtr
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -32,7 +34,11 @@ func {{ .funcName }}(
 	}
 	defDst := *dst
 	if defDst == nil {
-		defDst = new({{ .DT|elem|elem|name }})
+		{{ if .DT|elem|isMap }}
+			defDst = {{ .DT|elem|name }}{}
+		{{ else }}
+			defDst = new({{ .DT|elem|elem|name }})
+		{{ end }}
 		{{ $cp.FuncName }}(err, defDst, src)
 		*dst = defDst
 		return
@@ -40,4 +46,11 @@ func {{ .funcName }}(
 	{{ $cp.FuncName }}(err, *dst, src)
 }
 `,
+	FuncMap: map[string]interface{}{
+		"isMap": funcIsMap,
+	},
+}
+
+func funcIsMap(typ reflect.Type) bool {
+	return typ.Kind() == reflect.Map
 }

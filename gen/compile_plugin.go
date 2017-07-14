@@ -77,6 +77,7 @@ func compileAndOpenPlugin(source string) *plugin.Plugin {
 	fileName := hash(source)
 	homeDir := os.Getenv("HOME")
 	cacheDir := homeDir + "/.wombat/"
+	//cacheDir = "/tmp/"
 	if _, err := os.Stat(cacheDir); err != nil {
 		os.Mkdir(cacheDir, 0777)
 	}

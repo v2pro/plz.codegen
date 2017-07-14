@@ -26,3 +26,12 @@ func Test_map_exiting_entry(t *testing.T) {
 	should.Equal(1, existing)
 	should.Equal(2, *dst[2])
 }
+
+func Test_copy_into_ptr_map(t *testing.T) {
+	should := require.New(t)
+	dst := map[int]int{}
+	src := map[int]int{1: 1, 2: 2}
+	f := cp.Gen(reflect.TypeOf(&dst), reflect.TypeOf(src))
+	should.Nil(f(&dst, src))
+	should.Equal(map[int]int{1: 1, 2: 2}, dst)
+}

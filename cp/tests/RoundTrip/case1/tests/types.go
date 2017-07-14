@@ -1,4 +1,4 @@
-package case1
+package cpVal
 
 type fromType struct {
 	Field1 struct {

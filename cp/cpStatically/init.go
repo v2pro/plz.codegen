@@ -6,6 +6,7 @@ import (
 	"github.com/v2pro/wombat/gen"
 	"reflect"
 	"github.com/v2pro/plz/util"
+	"fmt"
 )
 
 var logger = plz.LoggerOf("package", "cpStatically")
@@ -115,14 +116,14 @@ func doDispatch(dstType, srcType reflect.Type) string {
 		srcType.Kind() == reflect.Slice {
 		return "cpSliceToSlice"
 	}
-	panic("not implemented")
+	panic(fmt.Sprintf("not implemented copy: from %v to %v", srcType, dstType))
 }
 
 func isDirectPtr(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Ptr {
 		return false
 	}
-	return typ.Elem().Kind() != reflect.Ptr
+	return typ.Elem().Kind() != reflect.Ptr && typ.Elem().Kind() != reflect.Map
 }
 
 func isSimpleValue(typ reflect.Type) bool {
