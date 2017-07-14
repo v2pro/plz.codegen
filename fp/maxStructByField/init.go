@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	util.GenMaxStructByField = Gen
+	util.GenMaxStructByField = genF
 }
 
 // F the function definition

@@ -3,7 +3,6 @@ package cpSimpleValue
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/gen"
-	"reflect"
 )
 
 func init() {

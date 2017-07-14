@@ -3,7 +3,6 @@ package cmpStructByField
 import (
 	"github.com/v2pro/wombat/fp/cmpSimpleValue"
 	"github.com/v2pro/wombat/gen"
-	"plugin"
 	"reflect"
 )
 

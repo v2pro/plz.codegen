@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	util.GenMaxSimpleValue = Gen
+	util.GenMaxSimpleValue = genF
 }
 
 // F the function definition
