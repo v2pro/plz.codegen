@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func Test_copy_int_to_int(t *testing.T) {
+func Test_copy_val_to_val(t *testing.T) {
 	should := require.New(t)
 	dst := typeForTest(0)
 	src := typeForTest(1)

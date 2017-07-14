@@ -24,16 +24,13 @@ var F = &gen.FuncTemplate{
 {{ $cpElem := gen "cpStatically" "DT" (.DT|ptrArrayElem) "ST" (.ST|elem) }}
 {{ $cpElem.Source }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	for i := 0; i < {{ minLength .DT .ST }}; i++ {
-		err := {{ $cpElem.FuncName }}(&dst[i], src[i])
-		if err != nil {
-			return err
-		}
+		{{ $cpElem.FuncName }}(err, &dst[i], src[i])
 	}
-	return nil
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrArrayElem": funcPtrArrayElem,

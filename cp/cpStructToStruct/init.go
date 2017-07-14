@@ -28,13 +28,13 @@ var F = &gen.FuncTemplate{
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	{{ range $_, $binding := $bindings }}
-		{{ $binding.cp }}(&dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
+		{{ $binding.cp }}(err, &dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
 	{{ end }}
-	return nil
 }`,
 	FuncMap: map[string]interface{}{
 		"calcBindings": calcBindings,

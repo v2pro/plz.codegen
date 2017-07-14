@@ -26,23 +26,24 @@ var F = &gen.FuncTemplate{
 {{ $cpKey := gen "cpStatically" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
 {{ $cpKey.Source }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	for key, elem := range src {
 		existingElem, found := dst[key]
 		if found {
-			{{ $cpElem.FuncName }}(&existingElem, elem)
+			{{ $cpElem.FuncName }}(err, &existingElem, elem)
 			dst[key] = existingElem
 		} else {
 			newKey := new({{ .DT|mapKey|name }})
-			{{ $cpKey.FuncName }}(newKey, key)
+			{{ $cpKey.FuncName }}(err, newKey, key)
 			newElem := new({{ .DT|elem|name }})
-			{{ $cpElem.FuncName }}(newElem, elem)
+			{{ $cpElem.FuncName }}(err, newElem, elem)
 			dst[*newKey] = *newElem
 		}
 	}
-	return nil
+	return
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrMapElem": funcPtrMapElem,

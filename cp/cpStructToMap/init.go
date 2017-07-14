@@ -28,27 +28,21 @@ var F = &gen.FuncTemplate{
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	{{ range $_, $binding := $bindings }}
 		existingElem, found := dst["{{ $binding.dstFieldName }}"]
 		if found {
-			err := {{ $binding.cp }}(&existingElem, src.{{ $binding.srcFieldName }})
-			if err != nil {
-				return err
-			}
+			{{ $binding.cp }}(err, &existingElem, src.{{ $binding.srcFieldName }})
 			dst["{{ $binding.dstFieldName }}"] = existingElem
 		} else {
 			newElem := new({{ $binding.dstFieldType|elem|name }})
-			err := {{ $binding.cp }}(newElem, src.{{ $binding.srcFieldName }})
-			if err != nil {
-				return err
-			}
+			{{ $binding.cp }}(err, newElem, src.{{ $binding.srcFieldName }})
 			dst["{{ $binding.dstFieldName }}"] = *newElem
 		}
 	{{ end }}
-	return nil
 }`,
 	FuncMap: map[string]interface{}{
 		"calcBindings": calcBindings,

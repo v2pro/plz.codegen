@@ -28,6 +28,7 @@ var F = &gen.FuncTemplate{
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) error {
 	// end of signature
@@ -35,10 +36,7 @@ func {{ .funcName }}(
 		switch key {
 			{{ range $_, $binding := $bindings }}
 				case "{{ $binding.srcFieldName }}":
-					err :={{ $binding.cp }}(&dst.{{ $binding.dstFieldName }}, elem)
-					if err != nil {
-						return err
-					}
+					{{ $binding.cp }}(err, &dst.{{ $binding.dstFieldName }}, elem)
 			{{ end }}
 		}
 	}

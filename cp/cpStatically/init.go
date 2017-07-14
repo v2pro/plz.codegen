@@ -39,11 +39,13 @@ var F = &gen.FuncTemplate{
 
 func Exported_{{ .funcName }}(
 	dst interface{},
-	src interface{}) error {
+	src interface{}) (err error) {
 	// end of signature
-	return {{ .funcName }}(
+	{{ .funcName }}(
+		&err,
 		{{ cast "dst" .DT }},
 		{{ cast "src" .ST }})
+	return
 }
 `,
 }

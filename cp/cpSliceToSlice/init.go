@@ -24,26 +24,26 @@ var F = &gen.FuncTemplate{
 {{ $cp := gen "cpStatically" "DT" (.DT|ptrSliceElem) "ST" (.ST|elem) }}
 {{ $cp.Source }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	dstLen := len(*dst)
 	if len(src) < dstLen {
 		dstLen = len(src)
 	}
 	for i := 0; i < dstLen; i++ {
-		{{ $cp.FuncName }}(&(*dst)[i], src[i])
+		{{ $cp.FuncName }}(err, &(*dst)[i], src[i])
 	}
 	{{ if .DT|isSlice }}
 	defDst := *dst
 	for i := dstLen; i < len(src); i++ {
 		newElem := new({{ .DT|ptrSliceElem|elem|name }})
-		{{ $cp.FuncName }}(newElem, src[i])
+		{{ $cp.FuncName }}(err, newElem, src[i])
 		defDst = append(defDst, *newElem)
 	}
 	*dst = defDst
 	{{ end }}
-	return nil
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrSliceElem": funcPtrSliceElem,

@@ -23,13 +23,14 @@ var F = &gen.FuncTemplate{
 {{ $cp := gen "cpStatically" "DT" .DT "ST" (.ST|elem) }}
 {{ $cp.Source }}
 func {{ .funcName }}(
+	err *error,
 	dst {{ .DT|name }},
-	src {{ .ST|name }}) error {
+	src {{ .ST|name }}) {
 	// end of signature
 	if src == nil {
-		return nil
+		return
 	}
-	return {{ $cp.FuncName }}(dst, *src)
+	{{ $cp.FuncName }}(err, dst, *src)
 }
 `,
 }
