@@ -38,6 +38,8 @@ func funcGetName(typ reflect.Type) string {
 		return "float32"
 	case reflect.Float64:
 		return "float64"
+	case reflect.String:
+		return "string"
 	case reflect.Ptr:
 		return "*" + funcGetName(typ.Elem())
 	}
