@@ -43,6 +43,9 @@ func funcGetName(typ reflect.Type) string {
 	}
 	typeName := typ.String()
 	typeName = strings.Replace(typeName, ".", "__", -1)
+	if strings.Contains(typeName, "{") {
+		typeName = hash(typeName)
+	}
 	return typeName
 }
 

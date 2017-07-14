@@ -3,7 +3,7 @@ package gen
 import (
 	"bytes"
 	"crypto/sha1"
-	"encoding/base64"
+	"encoding/base32"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -107,5 +107,5 @@ func hash(source string) string {
 	h := sha1.New()
 	h.Write([]byte(source))
 	h.Write([]byte(runtime.Version()))
-	return "g" + base64.URLEncoding.EncodeToString(h.Sum(nil))
+	return "g" + base32.StdEncoding.EncodeToString(h.Sum(nil))
 }
