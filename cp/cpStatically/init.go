@@ -21,6 +21,7 @@ func init() {
 	})
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{},
 	FuncMap: map[string]interface{}{
@@ -120,6 +121,7 @@ func isSimpleValue(typ reflect.Type) bool {
 	return false
 }
 
+// Gen generates a instance of F
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
 	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
 	return funcObj.(func(interface{}, interface{}) error)

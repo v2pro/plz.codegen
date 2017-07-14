@@ -26,6 +26,7 @@ func init() {
 	})
 }
 
+// FuncTemplate defines a generic function using template
 type FuncTemplate struct {
 	Variables    map[string]string
 	Source       string
@@ -86,9 +87,9 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 			generatedSource += objPtrSource
 			if typ.Kind() == reflect.Ptr {
 				return "((" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
-			} else {
-				return "(*(*" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			}
+			return "(*(*" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
+
 		},
 	}
 	fillDefaultFuncMap(funcMap)
@@ -149,6 +150,8 @@ type compileOp struct {
 	kv       []interface{}
 }
 
+// Compile expand the function template with provided type arguments,
+// compiles the code and loads as executable
 func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
 	if isInBatchCompileMode {
 		panic(&compileOp{template: template, kv: kv})
@@ -194,6 +197,7 @@ func annotateLines(source string) string {
 
 var dynamicCompilationDisabled = false
 
+// DisableDynamicCompilation prevents dynamic compilation, everything should be loaded from LoadPlugin
 func DisableDynamicCompilation() {
 	dynamicCompilationDisabled = true
 }

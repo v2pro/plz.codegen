@@ -9,6 +9,7 @@ func init() {
 	cpStatically.F.Dependencies["cpIntoPtr"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cpStatically": cpStatically.F,

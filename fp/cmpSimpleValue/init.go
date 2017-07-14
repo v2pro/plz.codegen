@@ -9,6 +9,7 @@ func init() {
 	F.Dependencies["cmpSimpleValue"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 	// set in init()
@@ -53,7 +54,7 @@ func Exported_{{ .funcName }}(
 `,
 }
 
-func Gen(typ reflect.Type) func(interface{}, interface{}) int {
+func genF(typ reflect.Type) func(interface{}, interface{}) int {
 	switch typ.Kind() {
 	case reflect.Ptr, reflect.Int, reflect.Int8, reflect.Int16:
 		funcObj := gen.Compile(F, `T`, typ)

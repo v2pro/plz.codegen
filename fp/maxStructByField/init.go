@@ -11,6 +11,7 @@ func init() {
 	util.GenMaxStructByField = Gen
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cmpStructByField": cmpStructByField.F,
@@ -36,7 +37,7 @@ func Exported_{{ .funcName }}(objs []interface{}) interface{} {
 }`,
 }
 
-func Gen(typ reflect.Type, fieldName string) func([]interface{}) interface{} {
+func genF(typ reflect.Type, fieldName string) func([]interface{}) interface{} {
 	funcObj := gen.Compile(F, "T", typ, "F", fieldName)
 	return funcObj.(func([]interface{}) interface{})
 }

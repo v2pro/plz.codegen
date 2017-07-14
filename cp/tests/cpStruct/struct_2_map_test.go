@@ -1,10 +1,10 @@
 package cpStruct
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
 	"reflect"
+	"testing"
 )
 
 func Test_to_map_new_entry(t *testing.T) {

@@ -10,6 +10,7 @@ func init() {
 	cpStatically.F.Dependencies["cpSliceToSlice"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cpStatically": cpStatically.F,
@@ -46,7 +47,7 @@ func {{ .funcName }}(
 }`,
 	FuncMap: map[string]interface{}{
 		"ptrSliceElem": funcPtrSliceElem,
-		"isSlice": funcIsSlice,
+		"isSlice":      funcIsSlice,
 	},
 }
 
@@ -66,9 +67,4 @@ func funcIsSlice(typ reflect.Type) bool {
 		panic("unexpected")
 	}
 	return typ.Elem().Kind() == reflect.Slice
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

@@ -10,6 +10,7 @@ func init() {
 	cpStatically.F.Dependencies["cpMapToStruct"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cpStatically": cpStatically.F,
@@ -66,9 +67,4 @@ func calcBindings(dstType, srcType reflect.Type) interface{} {
 func assignCp(binding map[string]interface{}, cpFuncName string) string {
 	binding["cp"] = cpFuncName
 	return ""
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

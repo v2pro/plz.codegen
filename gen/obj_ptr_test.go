@@ -22,9 +22,9 @@ func Test_ptr_int(t *testing.T) {
 func Test_ptr_ptr_int(t *testing.T) {
 	should := require.New(t)
 	hundred := int(100)
-	ptr_hundred := &hundred
-	f := objPtrGen(reflect.TypeOf(&ptr_hundred))
-	should.Equal(100, **(**int)(f(&ptr_hundred)))
+	pHundred := &hundred
+	f := objPtrGen(reflect.TypeOf(&pHundred))
+	should.Equal(100, **(**int)(f(&pHundred)))
 }
 
 func Test_struct_of_one_ptr(t *testing.T) {

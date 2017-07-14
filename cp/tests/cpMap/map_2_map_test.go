@@ -2,9 +2,9 @@ package cpMap
 
 import (
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
-	"github.com/v2pro/wombat/cp"
 )
 
 func Test_map_new_entry(t *testing.T) {

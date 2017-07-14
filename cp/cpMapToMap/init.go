@@ -10,6 +10,7 @@ func init() {
 	cpStatically.F.Dependencies["cpMapToMap"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cpStatically": cpStatically.F,
@@ -69,9 +70,4 @@ func funcMapKey(typ reflect.Type) reflect.Type {
 		panic("unexpected")
 	}
 	return typ.Key()
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

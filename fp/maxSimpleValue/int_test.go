@@ -9,11 +9,11 @@ import (
 
 func Test_int(t *testing.T) {
 	should := require.New(t)
-	f := Gen(reflect.TypeOf(int(0)))
+	f := genF(reflect.TypeOf(int(0)))
 	should.Equal(3, f([]interface{}{1, 3, 2}))
 }
 
-func max_int_typed(collection []int) int {
+func maxIntTyped(collection []int) int {
 	currentMax := collection[0]
 	for _, elem := range collection[1:] {
 		if elem > currentMax {
@@ -39,7 +39,7 @@ func Benchmark_int(b *testing.B) {
 		datasets[i] = dataset
 		typedDatasets[i] = typedDataset
 	}
-	f := Gen(reflect.TypeOf(int(0)))
+	f := genF(reflect.TypeOf(int(0)))
 	b.Run("plz", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
@@ -49,7 +49,7 @@ func Benchmark_int(b *testing.B) {
 	b.Run("typed", func(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			max_int_typed(typedDatasets[i%32])
+			maxIntTyped(typedDatasets[i%32])
 		}
 	})
 }

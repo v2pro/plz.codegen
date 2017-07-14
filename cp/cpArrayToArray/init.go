@@ -10,6 +10,7 @@ func init() {
 	cpStatically.F.Dependencies["cpArrayToArray"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cpStatically": cpStatically.F,
@@ -57,9 +58,4 @@ func funcMinLength(dstType reflect.Type, srcType reflect.Type) int {
 		len = srcType.Len()
 	}
 	return len
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

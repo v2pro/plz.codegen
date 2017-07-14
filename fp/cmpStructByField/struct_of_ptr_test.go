@@ -12,7 +12,7 @@ func Test_struct_of_two_ptr(t *testing.T) {
 		Field1 *int
 		Field2 *int
 	}
-	f := Gen(reflect.TypeOf(TestObject{}), "Field2")
+	f := genF(reflect.TypeOf(TestObject{}), "Field2")
 	one := int(1)
 	two := int(2)
 	should.Equal(-1, f(
@@ -24,7 +24,7 @@ func Test_struct_of_one_ptr(t *testing.T) {
 	type TestObject struct {
 		Field *int
 	}
-	f := Gen(reflect.TypeOf(TestObject{}), "Field")
+	f := genF(reflect.TypeOf(TestObject{}), "Field")
 	one := int(1)
 	two := int(2)
 	should.Equal(-1, f(

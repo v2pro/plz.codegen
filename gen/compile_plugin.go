@@ -17,6 +17,7 @@ import (
 var compilePluginMutex = &sync.Mutex{}
 var isInBatchCompileMode = false
 
+// CompilePlugin in the build time, producing a .so file
 func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
 	compilePluginMutex.Lock()
 	defer compilePluginMutex.Unlock()

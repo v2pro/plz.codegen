@@ -1,10 +1,10 @@
 package cpMap
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
 	"reflect"
+	"testing"
 )
 
 func Test_to_struct(t *testing.T) {

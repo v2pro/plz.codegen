@@ -12,13 +12,13 @@ func Test_struct(t *testing.T) {
 	type TestObject struct {
 		Field int
 	}
-	f := Gen(reflect.TypeOf(TestObject{}), "Field")
+	f := genF(reflect.TypeOf(TestObject{}), "Field")
 	should.Equal(TestObject{2}, f([]interface{}{
 		TestObject{1}, TestObject{2},
 	}))
 }
 
-func by_reflect(objs []interface{}, fieldName string) interface{} {
+func byReflect(objs []interface{}, fieldName string) interface{} {
 	currentMax := reflect.ValueOf(objs[0])
 	for i := 1; i < len(objs); i++ {
 		elem := reflect.ValueOf(objs[i])
@@ -44,7 +44,7 @@ func Benchmark_struct(b *testing.B) {
 		}
 		datasets[i] = dataset
 	}
-	f := Gen(reflect.TypeOf(TestObject{}), "Field")
+	f := genF(reflect.TypeOf(TestObject{}), "Field")
 	b.Run("plz", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.ReportAllocs()
@@ -54,7 +54,7 @@ func Benchmark_struct(b *testing.B) {
 	b.Run("reflect", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			b.ReportAllocs()
-			by_reflect(datasets[i%32], "Field")
+			byReflect(datasets[i%32], "Field")
 		}
 	})
 }

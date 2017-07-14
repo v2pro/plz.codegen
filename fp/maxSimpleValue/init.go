@@ -11,6 +11,7 @@ func init() {
 	util.GenMaxSimpleValue = Gen
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cmpSimpleValue": cmpSimpleValue.F,
@@ -43,7 +44,7 @@ func {{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 }`,
 }
 
-func Gen(typ reflect.Type) func([]interface{}) interface{} {
+func genF(typ reflect.Type) func([]interface{}) interface{} {
 	switch typ.Kind() {
 	case reflect.Int, reflect.Int8:
 		funcObj := gen.Compile(F, `T`, typ)

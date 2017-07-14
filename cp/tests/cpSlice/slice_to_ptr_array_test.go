@@ -1,10 +1,10 @@
 package cpSlice
 
 import (
-	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/cp"
 	"reflect"
+	"testing"
 )
 
 func Test_slice_have_less_elem(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 var loadPluginMutex = &sync.Mutex{}
 var plugins = []*plugin.Plugin{}
 
+// LoadPlugin in the run time, from .so file
 func LoadPlugin(soFileName string) {
 	loadPluginMutex.Lock()
 	defer loadPluginMutex.Unlock()

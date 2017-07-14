@@ -10,6 +10,7 @@ func init() {
 	cpStatically.F.Dependencies["cpSimpleValue"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 	//"cpSimpleValue": F,
@@ -28,9 +29,4 @@ func {{ .funcName }}(
 	return nil
 }
 `,
-}
-
-func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
-	return funcObj.(func(interface{}, interface{}) error)
 }

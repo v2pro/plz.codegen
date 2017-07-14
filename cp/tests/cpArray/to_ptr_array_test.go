@@ -2,9 +2,9 @@ package cpArray
 
 import (
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
-	"github.com/v2pro/wombat/cp"
 )
 
 func Test_array_more_element(t *testing.T) {

@@ -11,6 +11,7 @@ func init() {
 	F.Dependencies["cmpStructByField"] = F
 }
 
+// F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cmpSimpleValue": cmpSimpleValue.F,
@@ -52,9 +53,7 @@ func Exported_{{ .funcName }}(
 {{ end }}`,
 }
 
-var funcObj plugin.Symbol
-
-func Gen(typ reflect.Type, fieldName string) func(interface{}, interface{}) int {
-	funcObj = gen.Compile(F, "T", typ, "F", fieldName)
+func genF(typ reflect.Type, fieldName string) func(interface{}, interface{}) int {
+	funcObj := gen.Compile(F, "T", typ, "F", fieldName)
 	return funcObj.(func(interface{}, interface{}) int)
 }

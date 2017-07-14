@@ -8,7 +8,7 @@ import (
 
 func Test_ptr_int(t *testing.T) {
 	should := require.New(t)
-	f := Gen(reflect.TypeOf(new(int)))
+	f := genF(reflect.TypeOf(new(int)))
 	one := int(1)
 	zero := int(0)
 	should.Equal(0, f(&one, &one))
@@ -22,7 +22,7 @@ func Test_ptr_ptr_int(t *testing.T) {
 	zero := int(0)
 	ptrOne := &one
 	ptrZero := &zero
-	f := Gen(reflect.TypeOf(&ptrZero))
+	f := genF(reflect.TypeOf(&ptrZero))
 	should.Equal(0, f(&ptrOne, &ptrOne))
 	should.Equal(1, f(&ptrOne, &ptrZero))
 	should.Equal(-1, f(&ptrZero, &ptrOne))

@@ -2,9 +2,9 @@ package cpPtr
 
 import (
 	"github.com/stretchr/testify/require"
+	"github.com/v2pro/wombat/cp"
 	"reflect"
 	"testing"
-	"github.com/v2pro/wombat/cp"
 )
 
 func Test_copy_ptr_int_to_ptr_int(t *testing.T) {
