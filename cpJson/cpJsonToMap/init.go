@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpAnything" "DT" (.DT|ptrMapElem) "ST" .ST }}
-{{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -30,11 +29,11 @@ func {{ .funcName }}(
 	src.ReadMapCB(func(iter *jsoniter.Iterator, key string) bool {
 		elem, found := dst[key]
 		if found {
-			{{ $cpElem.FuncName }}(err, &elem, iter)
+			{{ $cpElem }}(err, &elem, iter)
 			dst[key] = elem
 		} else {
 			newElem := new({{ .DT|elem|name }})
-			{{ $cpElem.FuncName }}(err, newElem, iter)
+			{{ $cpElem }}(err, newElem, iter)
 			dst[key] = *newElem
 		}
 		return true

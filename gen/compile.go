@@ -88,18 +88,15 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		depMap[dep.FuncTemplateName] = dep
 	}
 	genMap := map[string]interface{}{
-		"gen": func(depName string, newKv ...interface{}) interface{} {
+		"gen": func(depName string, newKv ...interface{}) string {
 			dep := depMap[depName]
 			if dep == nil {
 				logger.Error("referenced unfound dependency", "depName", depName, "kv", newKv)
 				panic("referenced unfound dependency " + depName)
 			}
 			funcName, source := g.gen(dep, newKv...)
-			// TODO: include source automatically
-			return struct {
-				FuncName string
-				Source   string
-			}{FuncName: funcName, Source: source}
+			generatedSource += source
+			return funcName
 		},
 		"cast": func(identifier string, typ reflect.Type) string {
 			if typ.Kind() == reflect.Interface {

@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpAnything" "DT" (.DT|ptrSliceElem) "ST" .ST }}
-{{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -36,10 +35,10 @@ func {{ .funcName }}(
 	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
 		if index < originalLen {
 			elem := &(*dst)[index]
-			{{ $cpElem.FuncName }}(err, elem, iter)
+			{{ $cpElem }}(err, elem, iter)
 		} else {
 			elem := new({{ .DT|elem|elem|name }})
-			{{ $cpElem.FuncName }}(err, elem, iter)
+			{{ $cpElem }}(err, elem, iter)
 			*dst = append(*dst, *elem)
 		}
 		index++

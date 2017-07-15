@@ -30,22 +30,20 @@ func Exported_{{ .funcName }}(
 }
 {{ if .T|isPtr }}
 	{{ $compareElem := gen "cmpStructByField" "T" (.T|elem) "F" .F }}
-	{{ $compareElem.Source }}
 	func {{ .funcName }}(
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature
-		return {{ $compareElem.FuncName }}(*obj1, *obj2)
+		return {{ $compareElem }}(*obj1, *obj2)
 	}
 {{ else }}
 	{{ $field := fieldOf .T .F }}
 	{{ $compareField := gen "cmpSimpleValue" "T" $field.Type }}
-	{{ $compareField.Source }}
 	func {{ .funcName }}(
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature
-		return {{ $compareField.FuncName }}(obj1.{{ .F }}, obj2.{{ .F }})
+		return {{ $compareField }}(obj1.{{ .F }}, obj2.{{ .F }})
 	}
 {{ end }}`,
 }

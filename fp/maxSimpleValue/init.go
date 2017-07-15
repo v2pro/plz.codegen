@@ -21,12 +21,11 @@ var F = &gen.FuncTemplate{
 	FuncName: `Max_{{ .T|symbol }}`,
 	Source: `
 {{ $compare := gen "cmpSimpleValue" "T" .T }}
-{{ $compare.Source }}
 func Exported_{{ .funcName }}(objs []interface{}) interface{} {
 	currentMax := objs[0].({{ .T|name }})
 	for i := 1; i < len(objs); i++ {
 		typedObj := objs[i].({{ .T|name }})
-		if {{ $compare.FuncName }}(typedObj, currentMax) > 0 {
+		if {{ $compare }}(typedObj, currentMax) > 0 {
 			currentMax = typedObj
 		}
 	}
@@ -35,7 +34,7 @@ func Exported_{{ .funcName }}(objs []interface{}) interface{} {
 func {{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 	currentMax := objs[0]
 	for i := 1; i < len(objs); i++ {
-		if {{ $compare.FuncName }}(objs[i], currentMax) > 0 {
+		if {{ $compare }}(objs[i], currentMax) > 0 {
 			currentMax = objs[i]
 		}
 	}

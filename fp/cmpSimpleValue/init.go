@@ -27,12 +27,11 @@ func Exported_{{ .funcName }}(
 }
 {{ if .T|isPtr }}
 	{{ $compareElem := gen "cmpSimpleValue" "T" (.T|elem) }}
-	{{ $compareElem.Source }}
 	func {{ .funcName }}(
 		obj1 {{ .T|name }},
 		obj2 {{ .T|name }}) int {
 		// end of signature
-		return {{ $compareElem.FuncName }}(*obj1, *obj2)
+		return {{ $compareElem }}(*obj1, *obj2)
 	}
 {{ else }}
 	func {{ .funcName }}(

@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpAnything" "DT" .DT "ST" (.ST|elem) }}
-{{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -32,7 +31,7 @@ func {{ .funcName }}(
 		{{ if ne $index 0 }}
 		dst.WriteMore()
 		{{ end }}
-		{{ $cpElem.FuncName }}(err, dst, src[{{ $index }}])
+		{{ $cpElem }}(err, dst, src[{{ $index }}])
 	{{ end }}
 	dst.WriteArrayEnd()
 }

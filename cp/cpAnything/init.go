@@ -40,7 +40,6 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $tmpl := dispatch .DT .ST }}
 {{ $cp := gen $tmpl "DT" .DT "ST" .ST }}
-{{ $cp.Source }}
 
 func Exported_{{ .funcName }}(
 	cp func(interface{}, interface{}) error,

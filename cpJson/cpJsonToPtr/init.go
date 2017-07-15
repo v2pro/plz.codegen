@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cp := gen "cpAnything" "DT" (.DT|elem) "ST" .ST }}
-{{ $cp.Source }}
 // generated from cpJsonToPtr
 func {{ .funcName }}(
 	err *error,
@@ -43,11 +42,11 @@ func {{ .funcName }}(
 		{{ else }}
 			defDst = new({{ .DT|elem|elem|name }})
 		{{ end }}
-		{{ $cp.FuncName }}(err, defDst, src)
+		{{ $cp }}(err, defDst, src)
 		*dst = defDst
 		return
 	}
-	{{ $cp.FuncName }}(err, *dst, src)
+	{{ $cp }}(err, *dst, src)
 }
 `,
 	GenMap: map[string]interface{}{

@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cp := gen "cpAnything" "DT" (.DT|ptrSliceElem) "ST" (.ST|elem) }}
-{{ $cp.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -32,13 +31,13 @@ func {{ .funcName }}(
 		dstLen = len(src)
 	}
 	for i := 0; i < dstLen; i++ {
-		{{ $cp.FuncName }}(err, &(*dst)[i], src[i])
+		{{ $cp }}(err, &(*dst)[i], src[i])
 	}
 	{{ if .DT|isSlice }}
 	defDst := *dst
 	for i := dstLen; i < len(src); i++ {
 		newElem := new({{ .DT|ptrSliceElem|elem|name }})
-		{{ $cp.FuncName }}(err, newElem, src[i])
+		{{ $cp }}(err, newElem, src[i])
 		defDst = append(defDst, *newElem)
 	}
 	*dst = defDst

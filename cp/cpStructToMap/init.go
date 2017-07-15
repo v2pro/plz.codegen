@@ -23,10 +23,8 @@ var F = &gen.FuncTemplate{
 {{ $bindings := calcBindings .DT .ST }}
 {{ range $_, $binding := $bindings}}
 	{{ $cp := gen "cpAnything" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
-	{{ $cp.Source }}
-	{{ assignCp $binding $cp.FuncName }}
+	{{ assignCp $binding $cp }}
 {{ end }}
-// generated from cpStructToMap
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},

@@ -21,14 +21,13 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpAnything" "DT" (.DT|ptrArrayElem) "ST" (.ST|elem) }}
-{{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
 	for i := 0; i < {{ minLength .DT .ST }}; i++ {
-		{{ $cpElem.FuncName }}(err, &dst[i], src[i])
+		{{ $cpElem }}(err, &dst[i], src[i])
 	}
 }`,
 	GenMap: map[string]interface{}{

@@ -23,8 +23,7 @@ var F = &gen.FuncTemplate{
 {{ $bindings := calcBindings .DT .ST }}
 {{ range $_, $binding := $bindings}}
 	{{ $cp := gen "cpAnything" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
-	{{ $cp.Source }}
-	{{ assignCp $binding $cp.FuncName }}
+	{{ assignCp $binding $cp }}
 {{ end }}
 func {{ .funcName }}(
 	err *error,

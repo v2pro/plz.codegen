@@ -21,9 +21,7 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cpElem := gen "cpAnything" "DT" (.DT|ptrMapElem) "ST" (.ST|elem) }}
-{{ $cpElem.Source }}
 {{ $cpKey := gen "cpAnything" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
-{{ $cpKey.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -32,13 +30,13 @@ func {{ .funcName }}(
 	for key, elem := range src {
 		existingElem, found := dst[key]
 		if found {
-			{{ $cpElem.FuncName }}(err, &existingElem, elem)
+			{{ $cpElem }}(err, &existingElem, elem)
 			dst[key] = existingElem
 		} else {
 			newKey := new({{ .DT|mapKey|name }})
-			{{ $cpKey.FuncName }}(err, newKey, key)
+			{{ $cpKey }}(err, newKey, key)
 			newElem := new({{ .DT|elem|name }})
-			{{ $cpElem.FuncName }}(err, newElem, elem)
+			{{ $cpElem }}(err, newElem, elem)
 			dst[*newKey] = *newElem
 		}
 	}
