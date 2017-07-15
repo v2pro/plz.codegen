@@ -39,6 +39,22 @@ func GenOpFuncName(typ reflect.Type) string {
 		return "Int"
 	case reflect.Int8:
 		return "Int8"
+	case reflect.Int16:
+		return "Int16"
+	case reflect.Int32:
+		return "Int32"
+	case reflect.Int64:
+		return "Int64"
+	case reflect.Uint:
+		return "Uint"
+	case reflect.Uint8:
+		return "Uint8"
+	case reflect.Uint16:
+		return "Uint16"
+	case reflect.Uint32:
+		return "Uint32"
+	case reflect.Uint64:
+		return "Uint64"
 	case reflect.String:
 		return "String"
 	}
