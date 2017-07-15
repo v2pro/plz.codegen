@@ -30,11 +30,12 @@ func {{ .funcName }}(
 	// end of signature
 	index := 0
 	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-		{{ $cpElem.FuncName }}(err, &((*dst)[index]), iter)
-		index++
-		if index >= {{ .DT|arrayLen }} {
-			return false
+		if index < {{ .DT|arrayLen }} {
+			{{ $cpElem.FuncName }}(err, &((*dst)[index]), iter)
+		} else {
+			iter.Skip()
 		}
+		index++
 		return true
 	})
 }

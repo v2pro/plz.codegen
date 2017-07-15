@@ -7,6 +7,8 @@ import (
 	"github.com/v2pro/plz"
 	_ "github.com/v2pro/wombat/cpJson"
 	"github.com/google/gofuzz"
+	"reflect"
+	"fmt"
 )
 
 func Test_roundtrip(t *testing.T) {
@@ -20,6 +22,11 @@ func Test_roundtrip(t *testing.T) {
 		var dst typeForTest
 		iterator := jsoniter.ParseBytes(jsoniter.ConfigDefault, stream.Buffer())
 		should.Nil(plz.Copy(&dst, iterator))
-		should.Equal(src, dst)
+		if !reflect.DeepEqual(src, dst) {
+			fmt.Println(src)
+			fmt.Println(string(stream.Buffer()))
+			fmt.Println(dst)
+			t.FailNow()
+		}
 	}
 }
