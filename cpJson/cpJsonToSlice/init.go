@@ -28,10 +28,18 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	index := 0
+	originalLen := len(*dst)
 	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-		newElem := new({{ .DT|elem|elem|name }})
-		{{ $cpElem.FuncName }}(err, newElem, iter)
-		*dst = append(*dst, *newElem)
+		if index < originalLen {
+			elem := &(*dst)[index]
+			{{ $cpElem.FuncName }}(err, elem, iter)
+		} else {
+			elem := new({{ .DT|elem|elem|name }})
+			{{ $cpElem.FuncName }}(err, elem, iter)
+			*dst = append(*dst, *elem)
+		}
+		index++
 		return true
 	})
 }

@@ -17,8 +17,10 @@ import (
 	"github.com/v2pro/wombat/gen"
 	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
+	"github.com/v2pro/plz"
 )
 
+var logger = plz.LoggerOf("package", "cpJson")
 var jsoniterStreamType = reflect.TypeOf((*jsoniter.Stream)(nil))
 var jsoniterIteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
 
@@ -43,7 +45,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 			return "cpJsonToSlice"
 		case reflect.Struct:
 			return "cpJsonToStruct"
-		case reflect.Map:
+		case reflect.Map, reflect.Ptr:
 			return "cpJsonToPtr"
 		case reflect.Array:
 			return "cpJsonToArray"

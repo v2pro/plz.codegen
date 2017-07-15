@@ -64,6 +64,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 }
 
 func doDispatch(dstType, srcType reflect.Type) string {
+	logger.Debug("dispatch", "dstType", dstType, "srcType", srcType)
 	for _, dispatcher := range Dispatchers {
 		tmpl := dispatcher(dstType, srcType)
 		if tmpl != "" {
