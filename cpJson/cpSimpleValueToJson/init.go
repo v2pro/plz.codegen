@@ -3,7 +3,7 @@ package cpSimpleValueToJson
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cpJson/cpJsonDispatcher"
+	"reflect"
 )
 
 func init() {
@@ -30,6 +30,17 @@ func {{ .funcName }}(
 }
 `,
 	FuncMap: map[string]interface{}{
-		"opFuncName": cpJsonDispatcher.GenOpFuncName,
+		"opFuncName": GenOpFuncName,
 	},
+}
+
+// GenOpFuncName get corresponding read/write operation name for this type
+func GenOpFuncName(typ reflect.Type) string {
+	switch typ.Kind() {
+	case reflect.Int:
+		return "Int"
+	case reflect.Int8:
+		return "Int8"
+	}
+	return ""
 }

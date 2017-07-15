@@ -3,7 +3,7 @@ package cpJsonToSimpleValue
 import (
 	"github.com/v2pro/wombat/cp/cpStatically"
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cpJson/cpJsonDispatcher"
+	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 )
 
 func init() {
@@ -30,6 +30,6 @@ func {{ .funcName }}(
 }
 `,
 	FuncMap: map[string]interface{}{
-		"opFuncName": cpJsonDispatcher.GenOpFuncName,
+		"opFuncName": cpSimpleValueToJson.GenOpFuncName,
 	},
 }

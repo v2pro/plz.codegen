@@ -1,9 +1,54 @@
 package cpJson
 
 import (
-	_ "github.com/v2pro/wombat/cpJson/cpJsonDispatcher"
+	_ "github.com/v2pro/wombat/cp"
 	_ "github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpSliceToJson"
+	_ "github.com/v2pro/wombat/cpJson/cpStructToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpJsonToSimpleValue"
 	_ "github.com/v2pro/wombat/cpJson/cpJsonToSlice"
+	_ "github.com/v2pro/wombat/cpJson/cpJsonToStruct"
+	"reflect"
+	"github.com/json-iterator/go"
+	"github.com/v2pro/wombat/gen"
+	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 )
+
+var jsoniterStreamType = reflect.TypeOf((*jsoniter.Stream)(nil))
+var jsoniterIteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
+
+func init() {
+	gen.ImportPackages["github.com/json-iterator/go"] = true
+	cpStatically.Dispatchers = append(cpStatically.Dispatchers, dispatch)
+}
+
+func dispatch(dstType, srcType reflect.Type) string {
+	if srcType == jsoniterIteratorType {
+		if dstType.Kind() != reflect.Ptr {
+			return ""
+		}
+		if cpSimpleValueToJson.GenOpFuncName(dstType.Elem()) != "" {
+			return "cpJsonToSimpleValue"
+		}
+		switch dstType.Elem().Kind() {
+		case reflect.Slice:
+			return "cpJsonToSlice"
+		case reflect.Struct:
+			return "cpJsonToStruct"
+		}
+
+	}
+	if dstType == jsoniterStreamType {
+		if cpSimpleValueToJson.GenOpFuncName(srcType) != "" {
+			return "cpSimpleValueToJson"
+		}
+		switch srcType.Kind() {
+		case reflect.Slice:
+			return "cpSliceToJson"
+		case reflect.Struct:
+			return "cpStructToJson"
+		}
+	}
+	return ""
+}

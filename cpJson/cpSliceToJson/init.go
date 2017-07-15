@@ -2,7 +2,6 @@ package cpSliceToJson
 
 import (
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cpJson/cpJsonDispatcher"
 	"github.com/v2pro/wombat/cp/cpStatically"
 )
 
@@ -38,7 +37,4 @@ func {{ .funcName }}(
 	dst.WriteArrayEnd()
 }
 `,
-	FuncMap: map[string]interface{}{
-		"opFuncName": cpJsonDispatcher.GenOpFuncName,
-	},
 }

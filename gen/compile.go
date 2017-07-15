@@ -33,6 +33,7 @@ type FuncTemplate struct {
 	Source       string
 	FuncName     string
 	Dependencies map[string]*FuncTemplate
+	// TODO: rename to GenMap
 	FuncMap      map[string]interface{}
 	Declarations string
 }
