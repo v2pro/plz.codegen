@@ -27,7 +27,12 @@ func {{ .funcName }}(
 		return
 	}
 	if *dst == nil {
-		*dst = src
+		newDst := new({{ .ST|name }})
+		newErr := cpDynamically(newDst, src)
+		if newErr != nil && *err == nil {
+			*err = newErr
+		}
+		*dst = *newDst
 	} else {
 		newErr := cpDynamically(*dst, src)
 		if newErr != nil && *err == nil {

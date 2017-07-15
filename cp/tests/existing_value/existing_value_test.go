@@ -61,3 +61,21 @@ func Test_map_string_int_2_map_string_ptr_int(t *testing.T) {
 	should.Nil(plz.Copy(&dst, src))
 	should.Equal(1, existing)
 }
+
+func Test_int_2_ptr_ei(t *testing.T) {
+	should := require.New(t)
+	existing := int(0)
+	var dst interface{} = &existing
+	src := int(1)
+	should.Nil(plz.Copy(&dst, src))
+	should.Equal(1, existing)
+}
+
+func Test_slice_int_2_ptr_ei(t *testing.T) {
+	should := require.New(t)
+	existing := int(0)
+	var dst interface{} = &[]*int{&existing}
+	src := []int{1, 2, 3}
+	should.Nil(plz.Copy(&dst, src))
+	should.Equal(1, existing)
+}
