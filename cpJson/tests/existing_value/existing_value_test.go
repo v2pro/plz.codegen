@@ -8,7 +8,7 @@ import (
 	_ "github.com/v2pro/wombat/cpJson"
 )
 
-func Test_array_int(t *testing.T) {
+func Test_array_ptr_int(t *testing.T) {
 	should := require.New(t)
 	existing := int(0)
 	dst := [3]*int{&existing}
@@ -17,11 +17,20 @@ func Test_array_int(t *testing.T) {
 	should.Equal(1, existing)
 }
 
-func Test_slice_int(t *testing.T) {
+func Test_slice_ptr_int(t *testing.T) {
 	should := require.New(t)
 	existing := int(0)
 	dst := []*int{&existing}
 	src := `[1,2,3]`
+	should.Nil(jsonCopy(&dst, src))
+	should.Equal(1, existing)
+}
+
+func Test_map_string_ptr_int(t *testing.T) {
+	should := require.New(t)
+	existing := int(0)
+	dst := map[string]*int{"Field": &existing}
+	src := `{"Field":1}`
 	should.Nil(jsonCopy(&dst, src))
 	should.Equal(1, existing)
 }

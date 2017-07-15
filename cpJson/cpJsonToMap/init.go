@@ -29,9 +29,15 @@ func {{ .funcName }}(
 	src {{ .ST|name }}) {
 	// end of signature
 	src.ReadMapCB(func(iter *jsoniter.Iterator, key string) bool {
-		newElem := new({{ .DT|elem|name }})
-		{{ $cpElem.FuncName }}(err, newElem, iter)
-		dst[key] = *newElem
+		elem, found := dst[key]
+		if found {
+			{{ $cpElem.FuncName }}(err, &elem, iter)
+			dst[key] = elem
+		} else {
+			newElem := new({{ .DT|elem|name }})
+			{{ $cpElem.FuncName }}(err, newElem, iter)
+			dst[key] = *newElem
+		}
 		return true
 	})
 }
