@@ -61,6 +61,8 @@ func GenOpFuncName(typ reflect.Type) string {
 		return "Float64"
 	case reflect.String:
 		return "String"
+	case reflect.Bool:
+		return "Bool"
 	}
 	return ""
 }
