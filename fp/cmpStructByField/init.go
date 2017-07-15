@@ -16,7 +16,7 @@ var F = &gen.FuncTemplate{
 		"cmpSimpleValue": cmpSimpleValue.F,
 		//"cmpStructByField": F,
 	},
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"T": "the struct type to compare",
 		"F": "the field name of T",
 	},

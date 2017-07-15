@@ -15,7 +15,7 @@ var F = &gen.FuncTemplate{
 	// set in init()
 	// "cmpSimpleValue": F,
 	},
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"T": "the type to compare",
 	},
 	FuncName: `Compare_{{ .T|symbol }}`,

@@ -6,7 +6,7 @@ import (
 )
 
 var objPtrF = &FuncTemplate{
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"T": "the type to get ptr from",
 	},
 	FuncName: `obj_ptr_{{ .T|symbol }}`,

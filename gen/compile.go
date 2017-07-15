@@ -30,14 +30,12 @@ func init() {
 // FuncTemplate used to generate similar functions with template by applying different arguments
 type FuncTemplate struct {
 	// TODO: add FuncTemplateName
-	// TODO: rename to TemplateParameters
-	Variables    map[string]string
-	Source       string
-	FuncName     string
-	Dependencies map[string]*FuncTemplate
-	// TODO: rename to GenMap
-	GenMap       map[string]interface{}
-	Declarations string
+	TemplateParams map[string]string
+	Source         string
+	FuncName       string
+	Dependencies   map[string]*FuncTemplate
+	GenMap         map[string]interface{}
+	Declarations   string
 }
 
 type generator struct {
@@ -52,35 +50,35 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		generatedSource += fTmpl.Declarations
 		g.generatedDeclarations[fTmpl.Declarations] = true
 	}
-	data := map[string]interface{}{}
-	variables := map[string]string{}
-	for k, v := range fTmpl.Variables {
-		variables[k] = v
+	templateArgs := map[string]interface{}{}
+	templateParams := map[string]string{}
+	for k, v := range fTmpl.TemplateParams {
+		templateParams[k] = v
 	}
 	for i := 0; i < len(args); i += 2 {
-		varName := args[i].(string)
-		_, isDeclared := variables[varName]
+		param := args[i].(string)
+		_, isDeclared := templateParams[param]
 		if !isDeclared {
-			logger.Error("variable not declared", "varName", varName, "args", args)
-			panic("variable " + varName + " is not declared")
+			logger.Error("variable not declared", "param", param, "args", args)
+			panic("variable " + param + " is not declared")
 		}
-		delete(variables, varName)
+		delete(templateParams, param)
 		typ, _ := args[i+1].(reflect.Type)
 		if typ != nil {
 			args[i+1] = typ
 			generatedSource += g.genTypeDef(typ)
 		}
-		data[varName] = args[i+1]
+		templateArgs[param] = args[i+1]
 	}
-	for k, v := range variables {
+	for k, v := range templateParams {
 		logger.Error("missing variable", "varName", k, "varDescription", v, "args", args)
 		panic("missing variable " + k + ": " + v)
 	}
-	funcName := genFuncName(fTmpl.FuncName, data)
+	funcName := genFuncName(fTmpl.FuncName, templateArgs)
 	if g.generatedFuncs[funcName] {
 		return funcName, ""
 	}
-	data["funcName"] = funcName
+	templateArgs["funcName"] = funcName
 	genMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
 			dep := fTmpl.Dependencies[depName]
@@ -89,6 +87,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 				panic("referenced unfound dependency " + depName)
 			}
 			funcName, source := g.gen(dep, newKv...)
+			// TODO: include source automatically
 			return struct {
 				FuncName string
 				Source   string
@@ -107,14 +106,13 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 				return "((" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
 			}
 			return "(*(*" + funcGetName(typ) + ")(" + objPtrFuncName + "(" + identifier + ")))"
-
 		},
 	}
 	fillDefaultFuncMap(genMap)
 	for k, v := range fTmpl.GenMap {
 		genMap[k] = v
 	}
-	out := executeTemplate(fTmpl.Source, genMap, data)
+	out := executeTemplate(fTmpl.Source, genMap, templateArgs)
 	g.generatedFuncs[funcName] = true
 	return funcName, generatedSource + out
 }

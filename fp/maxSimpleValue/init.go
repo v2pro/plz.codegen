@@ -16,7 +16,7 @@ var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cmpSimpleValue": cmpSimpleValue.F,
 	},
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"T": "the type to max",
 	},
 	FuncName: `Max_{{ .T|symbol }}`,

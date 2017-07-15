@@ -16,7 +16,7 @@ var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
 		"cmpStructByField": cmpStructByField.F,
 	},
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"T": "the struct type to max",
 		"F": "the field name of T",
 	},

@@ -31,7 +31,7 @@ var F = &gen.FuncTemplate{
 	GenMap: map[string]interface{}{
 		"dispatch": genDispatch,
 	},
-	Variables: map[string]string{
+	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
