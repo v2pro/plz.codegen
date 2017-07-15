@@ -55,6 +55,10 @@ func GenOpFuncName(typ reflect.Type) string {
 		return "Uint32"
 	case reflect.Uint64:
 		return "Uint64"
+	case reflect.Float32:
+		return "Float32"
+	case reflect.Float64:
+		return "Float64"
 	case reflect.String:
 		return "String"
 	}
