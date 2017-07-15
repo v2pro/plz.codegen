@@ -50,6 +50,8 @@ func funcGetName(typ reflect.Type) string {
 		return "*" + funcGetName(typ.Elem())
 	case reflect.Slice:
 		return "[]" + funcGetName(typ.Elem())
+	case reflect.Array:
+		return fmt.Sprintf("[%d]%s", typ.Len(), funcGetName(typ.Elem()))
 	case reflect.Map:
 		return "map[" + funcGetName(typ.Key()) + "]" + funcGetName(typ.Elem())
 	}

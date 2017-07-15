@@ -11,6 +11,7 @@ import (
 	_ "github.com/v2pro/wombat/cpJson/cpJsonToStruct"
 	_ "github.com/v2pro/wombat/cpJson/cpJsonToMap"
 	_ "github.com/v2pro/wombat/cpJson/cpJsonToPtr"
+	_ "github.com/v2pro/wombat/cpJson/cpJsonToArray"
 	"reflect"
 	"github.com/json-iterator/go"
 	"github.com/v2pro/wombat/gen"
@@ -44,6 +45,8 @@ func dispatch(dstType, srcType reflect.Type) string {
 			return "cpJsonToStruct"
 		case reflect.Map:
 			return "cpJsonToPtr"
+		case reflect.Array:
+			return "cpJsonToArray"
 		}
 
 	}
@@ -58,6 +61,8 @@ func dispatch(dstType, srcType reflect.Type) string {
 			return "cpStructToJson"
 		case reflect.Map:
 			return "cpMapToJson"
+		case reflect.Array:
+			return "cpSliceToJson"
 		}
 	}
 	return ""
