@@ -1,0 +1,3 @@
+ignore:
+    - "cp/tests/.*"
+    - "cpJson/tests/.*"

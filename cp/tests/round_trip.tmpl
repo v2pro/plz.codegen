@@ -6,8 +6,6 @@ import (
 	"github.com/google/gofuzz"
 	"github.com/v2pro/plz"
 	_ "github.com/v2pro/wombat/cp"
-	"reflect"
-	"fmt"
 	"encoding/json"
 )
 
@@ -17,16 +15,14 @@ func Test_round_trip(t *testing.T) {
 	for i := 0; i < 100; i++ {
 		var src srcType
 		fz.Fuzz(&src)
-		var dst dstType
-		should.Nil(plz.Copy(&dst, src))
-		var src2 srcType
-		should.Nil(plz.Copy(&src2, dst))
-		if !reflect.DeepEqual(src, src2) {
-			fmt.Println(toJson(src))
-			fmt.Println(toJson(dst))
-			fmt.Println(toJson(src2))
-			t.FailNow()
-		}
+		srcJson := toJson(src)
+		var dst1 dstType
+		should.Nil(plz.Copy(&dst1, src))
+		var dst2 dstType
+		fromJson(&dst2, srcJson)
+		dst1Json := toJson(dst1)
+		dst2Json := toJson(dst2)
+		should.Equal(dst1Json, dst2Json)
 	}
 }
 
@@ -36,4 +32,11 @@ func toJson(obj interface{}) string {
 		panic(err.Error())
 	}
 	return string(output)
+}
+
+func fromJson(obj interface{}, encodedAsJson string) {
+	err := json.Unmarshal([]byte(encodedAsJson), obj)
+	if err != nil {
+		panic(err.Error())
+	}
 }

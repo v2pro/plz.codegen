@@ -26,6 +26,14 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	{{ if .ST|isSlice }}
+	if src == nil {
+		{{ if .DT|elem|isSlice }}
+		*dst = nil
+		{{ end }}
+		return
+	}
+	{{ end }}
 	dstLen := len(*dst)
 	if len(src) < dstLen {
 		dstLen = len(src)
@@ -33,7 +41,7 @@ func {{ .funcName }}(
 	for i := 0; i < dstLen; i++ {
 		{{ $cp }}(err, &(*dst)[i], src[i])
 	}
-	{{ if .DT|isSlice }}
+	{{ if .DT|elem|isSlice }}
 	defDst := *dst
 	for i := dstLen; i < len(src); i++ {
 		newElem := new({{ .DT|ptrSliceElem|elem|name }})
@@ -61,8 +69,5 @@ func genPtrSliceElem(typ reflect.Type) reflect.Type {
 }
 
 func genIsSlice(typ reflect.Type) bool {
-	if typ.Kind() != reflect.Ptr {
-		panic("unexpected")
-	}
-	return typ.Elem().Kind() == reflect.Slice
+	return typ.Kind() == reflect.Slice
 }

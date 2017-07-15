@@ -3,6 +3,7 @@ package cpFromPtr
 import (
 	"github.com/v2pro/wombat/cp/cpAnything"
 	"github.com/v2pro/wombat/gen"
+	"reflect"
 )
 
 func init() {
@@ -25,10 +26,30 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	if dst == nil {
+		return
+	}
 	if src == nil {
+		{{ if .DT|isPtrNullable }}
+		*dst = nil
+		{{ end }}
 		return
 	}
 	{{ $cp }}(err, dst, *src)
 }
 `,
+	GenMap: map[string]interface{}{
+		"isPtrNullable": genIsPtrNullable,
+	},
+}
+
+func genIsPtrNullable(typ reflect.Type) bool {
+	if typ.Kind() != reflect.Ptr {
+		return false
+	}
+	switch typ.Elem().Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Interface, reflect.Slice:
+		return true
+	}
+	return false
 }

@@ -46,10 +46,14 @@ func Exported_{{ .funcName }}(
 	dst interface{},
 	src interface{}) (err error) {
 	// end of signature
+	pDst := {{ cast "dst" .DT }}
+	if pDst == nil {
+		return
+	}
 	cpDynamically = cp
 	{{ .funcName }}(
 		&err,
-		{{ cast "dst" .DT }},
+		pDst,
 		{{ cast "src" .ST }})
 	return
 }
