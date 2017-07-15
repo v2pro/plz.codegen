@@ -27,8 +27,10 @@ func init() {
 	})
 }
 
-// FuncTemplate defines a generic function using template
+// FuncTemplate used to generate similar functions with template by applying different arguments
 type FuncTemplate struct {
+	// TODO: add FuncTemplateName
+	// TODO: rename to TemplateParameters
 	Variables    map[string]string
 	Source       string
 	FuncName     string

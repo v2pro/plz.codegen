@@ -23,16 +23,18 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $cp := gen "cpStatically" "DT" (.DT|elem) "ST" .ST }}
 {{ $cp.Source }}
-// generated from cpIntoPtr
+// generated from cpJsonToPtr
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
-	if src.ReadNil() {
+	if dst == nil {
+		src.Skip()
 		return
 	}
-	if dst == nil {
+	if src.ReadNil() {
+		*dst = nil
 		return
 	}
 	defDst := *dst
