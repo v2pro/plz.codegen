@@ -29,7 +29,7 @@ func {{ .funcName }}(
 	*dst = src.Read{{ .DT|elem|opFuncName }}()
 }
 `,
-	FuncMap: map[string]interface{}{
+	GenMap: map[string]interface{}{
 		"opFuncName": cpSimpleValueToJson.GenOpFuncName,
 	},
 }

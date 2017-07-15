@@ -48,7 +48,7 @@ func {{ .funcName }}(
 	})
 }
 `,
-	FuncMap: map[string]interface{}{
+	GenMap: map[string]interface{}{
 		"ptrSliceElem": genPtrSliceElem,
 	},
 }

@@ -4,6 +4,7 @@ import (
 	_ "github.com/v2pro/wombat/cp"
 	_ "github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpSliceToJson"
+	_ "github.com/v2pro/wombat/cpJson/cpArrayToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpStructToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpMapToJson"
 	_ "github.com/v2pro/wombat/cpJson/cpPtrToJson"
@@ -65,7 +66,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 		case reflect.Map:
 			return "cpMapToJson"
 		case reflect.Array:
-			return "cpSliceToJson"
+			return "cpArrayToJson"
 		case reflect.Ptr:
 			return "cpPtrToJson"
 		}

@@ -45,28 +45,28 @@ func {{ .funcName }}(
 	}
 	return
 }`,
-	FuncMap: map[string]interface{}{
-		"ptrMapElem": funcPtrMapElem,
-		"ptrMapKey":  funcPtrMapKey,
-		"mapKey":     funcMapKey,
+	GenMap: map[string]interface{}{
+		"ptrMapElem": genPtrMapElem,
+		"ptrMapKey":  genPtrMapKey,
+		"mapKey":     genMapKey,
 	},
 }
 
-func funcPtrMapElem(typ reflect.Type) reflect.Type {
+func genPtrMapElem(typ reflect.Type) reflect.Type {
 	if typ.Kind() != reflect.Map {
 		panic("unexpected")
 	}
 	return reflect.PtrTo(typ.Elem())
 }
 
-func funcPtrMapKey(typ reflect.Type) reflect.Type {
+func genPtrMapKey(typ reflect.Type) reflect.Type {
 	if typ.Kind() != reflect.Map {
 		panic("unexpected")
 	}
 	return reflect.PtrTo(typ.Key())
 }
 
-func funcMapKey(typ reflect.Type) reflect.Type {
+func genMapKey(typ reflect.Type) reflect.Type {
 	if typ.Kind() != reflect.Map {
 		panic("unexpected")
 	}

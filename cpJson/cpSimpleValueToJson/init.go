@@ -29,7 +29,7 @@ func {{ .funcName }}(
 	dst.Write{{ .ST|opFuncName }}(src)
 }
 `,
-	FuncMap: map[string]interface{}{
+	GenMap: map[string]interface{}{
 		"opFuncName": GenOpFuncName,
 	},
 }

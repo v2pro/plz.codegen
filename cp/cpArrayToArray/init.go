@@ -32,13 +32,13 @@ func {{ .funcName }}(
 		{{ $cpElem.FuncName }}(err, &dst[i], src[i])
 	}
 }`,
-	FuncMap: map[string]interface{}{
-		"ptrArrayElem": funcPtrArrayElem,
-		"minLength":    funcMinLength,
+	GenMap: map[string]interface{}{
+		"ptrArrayElem": genPtrArrayElem,
+		"minLength":    genMinLength,
 	},
 }
 
-func funcPtrArrayElem(typ reflect.Type) reflect.Type {
+func genPtrArrayElem(typ reflect.Type) reflect.Type {
 	if typ.Kind() != reflect.Ptr {
 		panic("unexpected")
 	}
@@ -49,7 +49,7 @@ func funcPtrArrayElem(typ reflect.Type) reflect.Type {
 	return reflect.PtrTo(typ.Elem())
 }
 
-func funcMinLength(dstType reflect.Type, srcType reflect.Type) int {
+func genMinLength(dstType reflect.Type, srcType reflect.Type) int {
 	len := dstType.Elem().Len()
 	if srcType.Len() < len {
 		len = srcType.Len()

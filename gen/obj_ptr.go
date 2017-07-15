@@ -7,7 +7,7 @@ import (
 
 var objPtrF = &FuncTemplate{
 	Variables: map[string]string{
-		"T": "the type to compare",
+		"T": "the type to get ptr from",
 	},
 	FuncName: `obj_ptr_{{ .T|symbol }}`,
 	Source: `
@@ -16,15 +16,15 @@ func Exported_{{ .funcName }}(obj interface{}) unsafe.Pointer {
 }
 func {{ .funcName }}(obj interface{}) unsafe.Pointer {
 	ptr := (*((*emptyInterface)(unsafe.Pointer(&obj)))).word
-	{{ if .T|isOnePtrStructOrArray }}
+	{{ if .T|isDirectlyEmbedded }}
 		ptrAsVal := uintptr(ptr)
 		ptr = unsafe.Pointer(&ptrAsVal)
 	{{ end }}
 	return ptr
 }
 `,
-	FuncMap: map[string]interface{}{
-		"isOnePtrStructOrArray": funcIsOnePtrStructOrArray,
+	GenMap: map[string]interface{}{
+		"isDirectlyEmbedded": genIsDirectlyEmbedded,
 	},
 }
 
@@ -33,7 +33,7 @@ func objPtrGen(typ reflect.Type) func(interface{}) unsafe.Pointer {
 	return funcObj.(func(interface{}) unsafe.Pointer)
 }
 
-func funcIsOnePtrStructOrArray(typ reflect.Type) bool {
+func genIsDirectlyEmbedded(typ reflect.Type) bool {
 	switch reflect.Kind(typ.Kind()) {
 	case reflect.Array:
 		if typ.Len() == 1 && (typ.Elem().Kind() == reflect.Ptr || typ.Elem().Kind() == reflect.Map) {

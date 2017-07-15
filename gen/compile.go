@@ -36,7 +36,7 @@ type FuncTemplate struct {
 	FuncName     string
 	Dependencies map[string]*FuncTemplate
 	// TODO: rename to GenMap
-	FuncMap      map[string]interface{}
+	GenMap       map[string]interface{}
 	Declarations string
 }
 
@@ -81,7 +81,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		return funcName, ""
 	}
 	data["funcName"] = funcName
-	funcMap := map[string]interface{}{
+	genMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
 			dep := fTmpl.Dependencies[depName]
 			if dep == nil {
@@ -110,11 +110,11 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 
 		},
 	}
-	fillDefaultFuncMap(funcMap)
-	for k, v := range fTmpl.FuncMap {
-		funcMap[k] = v
+	fillDefaultFuncMap(genMap)
+	for k, v := range fTmpl.GenMap {
+		genMap[k] = v
 	}
-	out := executeTemplate(fTmpl.Source, funcMap, data)
+	out := executeTemplate(fTmpl.Source, genMap, data)
 	g.generatedFuncs[funcName] = true
 	return funcName, generatedSource + out
 }

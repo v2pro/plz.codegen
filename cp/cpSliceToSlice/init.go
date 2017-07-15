@@ -45,13 +45,13 @@ func {{ .funcName }}(
 	*dst = defDst
 	{{ end }}
 }`,
-	FuncMap: map[string]interface{}{
-		"ptrSliceElem": funcPtrSliceElem,
-		"isSlice":      funcIsSlice,
+	GenMap: map[string]interface{}{
+		"ptrSliceElem": genPtrSliceElem,
+		"isSlice":      genIsSlice,
 	},
 }
 
-func funcPtrSliceElem(typ reflect.Type) reflect.Type {
+func genPtrSliceElem(typ reflect.Type) reflect.Type {
 	if typ.Kind() != reflect.Ptr {
 		panic("unexpected")
 	}
@@ -62,7 +62,7 @@ func funcPtrSliceElem(typ reflect.Type) reflect.Type {
 	return reflect.PtrTo(typ.Elem())
 }
 
-func funcIsSlice(typ reflect.Type) bool {
+func genIsSlice(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Ptr {
 		panic("unexpected")
 	}

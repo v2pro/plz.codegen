@@ -36,13 +36,13 @@ func {{ .funcName }}(
 		{{ $binding.cp }}(err, &dst.{{ $binding.dstFieldName }}, src.{{ $binding.srcFieldName }})
 	{{ end }}
 }`,
-	FuncMap: map[string]interface{}{
-		"calcBindings": calcBindings,
-		"assignCp":     assignCp,
+	GenMap: map[string]interface{}{
+		"calcBindings": genCalcBindings,
+		"assignCp":     genAssignCp,
 	},
 }
 
-func calcBindings(dstType, srcType reflect.Type) interface{} {
+func genCalcBindings(dstType, srcType reflect.Type) interface{} {
 	bindings := []interface{}{}
 	for i := 0; i < dstType.NumField(); i++ {
 		dstField := dstType.Field(i)
@@ -60,7 +60,7 @@ func calcBindings(dstType, srcType reflect.Type) interface{} {
 	return bindings
 }
 
-func assignCp(binding map[string]interface{}, cpFuncName string) string {
+func genAssignCp(binding map[string]interface{}, cpFuncName string) string {
 	binding["cp"] = cpFuncName
 	return ""
 }

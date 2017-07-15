@@ -28,8 +28,8 @@ func init() {
 // F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{},
-	FuncMap: map[string]interface{}{
-		"dispatch": dispatch,
+	GenMap: map[string]interface{}{
+		"dispatch": genDispatch,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -57,13 +57,13 @@ func Exported_{{ .funcName }}(
 `,
 }
 
-func dispatch(dstType, srcType reflect.Type) string {
-	template := doDispatch(dstType, srcType)
+func genDispatch(dstType, srcType reflect.Type) string {
+	template := dispatch(dstType, srcType)
 	logger.Info("dispatch result", "dstType", dstType, "srcType", srcType, "template", template)
 	return template
 }
 
-func doDispatch(dstType, srcType reflect.Type) string {
+func dispatch(dstType, srcType reflect.Type) string {
 	logger.Debug("dispatch", "dstType", dstType, "srcType", srcType)
 	for _, dispatcher := range Dispatchers {
 		tmpl := dispatcher(dstType, srcType)

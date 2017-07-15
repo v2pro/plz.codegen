@@ -43,7 +43,7 @@ func {{ .funcName }}(
 	dst.WriteObjectEnd()
 }
 `,
-	FuncMap: map[string]interface{}{
+	GenMap: map[string]interface{}{
 		"calcBindings": genCalcBindings,
 		"assignCp":     genAssignCp,
 	},

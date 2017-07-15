@@ -40,7 +40,7 @@ func {{ .funcName }}(
 	})
 }
 `,
-	FuncMap: map[string]interface{}{
+	GenMap: map[string]interface{}{
 		"ptrArrayElem": genPtrArrayElem,
 		"arrayLen": genArrayLen,
 	},

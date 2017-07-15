@@ -46,11 +46,11 @@ func {{ .funcName }}(
 	{{ $cp.FuncName }}(err, *dst, src)
 }
 `,
-	FuncMap: map[string]interface{}{
-		"isMap": funcIsMap,
+	GenMap: map[string]interface{}{
+		"isMap": genIsMap,
 	},
 }
 
-func funcIsMap(typ reflect.Type) bool {
+func genIsMap(typ reflect.Type) bool {
 	return typ.Kind() == reflect.Map
 }
