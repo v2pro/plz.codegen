@@ -13,7 +13,7 @@ func init() {
 // F the function definition
 var F = &gen.FuncTemplate{
 	Dependencies: map[string]*gen.FuncTemplate{
-		//"cpSimpleValue": F,
+		"cpStatically": cpStatically.F,
 	},
 	Variables: map[string]string{
 		"DT": "the dst type to copy into",
@@ -21,6 +21,8 @@ var F = &gen.FuncTemplate{
 	},
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
+{{ $cpElem := gen "cpStatically" "DT" .DT "ST" (.ST|elem) }}
+{{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -31,7 +33,7 @@ func {{ .funcName }}(
 		if i != 0 {
 			dst.WriteMore()
 		}
-		dst.Write{{ .ST|elem|opFuncName }}(elem)
+		{{ $cpElem.FuncName }}(err, dst, elem)
 	}
 	dst.WriteArrayEnd()
 }
