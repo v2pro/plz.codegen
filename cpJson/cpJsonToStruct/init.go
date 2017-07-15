@@ -4,6 +4,7 @@ import (
 	"github.com/v2pro/wombat/cp/cpAnything"
 	"github.com/v2pro/wombat/gen"
 	"reflect"
+	"github.com/v2pro/plz/lang/tagging"
 )
 
 func init() {
@@ -50,10 +51,16 @@ func {{ .funcName }}(
 
 func genCalcBindings(dstType, srcType reflect.Type) interface{} {
 	bindings := []interface{}{}
+	tags := tagging.Get(dstType)
 	for i := 0; i < dstType.NumField(); i++ {
 		dstField := dstType.Field(i)
+		srcFieldName := dstField.Name
+		jsonTag := tags.Fields[dstField.Name]["json"].Text()
+		if jsonTag != "" {
+			srcFieldName = jsonTag
+		}
 		bindings = append(bindings, map[string]interface{}{
-			"srcFieldName": dstField.Name,
+			"srcFieldName": srcFieldName,
 			"srcFieldType": srcType,
 			"dstFieldName": dstField.Name,
 			"dstFieldType": reflect.PtrTo(dstField.Type),
