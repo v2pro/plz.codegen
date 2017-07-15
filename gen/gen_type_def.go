@@ -15,7 +15,7 @@ func (g *generator) genTypeDef(typ reflect.Type) string {
 		return ""
 	}
 	g.generatedTypes[typ] = true
-	if typ.Kind() == reflect.Ptr {
+	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Slice || typ.Kind() == reflect.Array {
 		return g.genTypeDef(typ.Elem())
 	}
 	if typ.Kind() == reflect.Struct {

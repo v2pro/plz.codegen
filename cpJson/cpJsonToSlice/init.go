@@ -29,7 +29,7 @@ func {{ .funcName }}(
 	src {{ .ST|name }}) {
 	// end of signature
 	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
-		newElem := new({{ .DT|elem|elem }})
+		newElem := new({{ .DT|elem|elem|name }})
 		{{ $cpElem.FuncName }}(err, newElem, iter)
 		*dst = append(*dst, *newElem)
 		return true
