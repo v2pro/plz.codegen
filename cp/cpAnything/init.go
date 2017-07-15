@@ -73,72 +73,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 	if dstType.Kind() != reflect.Ptr && dstType.Kind() != reflect.Map && dstType.Kind() != reflect.Interface {
 		panic("destination type is not writable: " + dstType.String())
 	}
-	if srcType.Kind() == reflect.Ptr {
-		return "cpFromPtr"
-	}
-	if srcType.Kind() == reflect.Interface && srcType.NumMethod() == 0 {
-		return "cpFromInterface"
-	}
-	if dstType.Kind() == reflect.Map &&
-		srcType.Kind() == reflect.Map {
-		return "cpMapToMap"
-	}
-	if dstType.Kind() == reflect.Map &&
-		srcType.Kind() == reflect.Struct {
-		return "cpStructToMap"
-	}
-	if isPtrPtr(dstType) {
-		return "cpIntoPtr"
-	}
-	if dstType.Kind() == reflect.Ptr {
-		if isSimpleValue(dstType.Elem()) && dstType.Elem().Kind() == srcType.Kind() {
-			return "cpSimpleValue"
-		}
-		if dstType.Elem().Kind() == reflect.Interface {
-			return "cpIntoInterface"
-		}
-		if dstType.Elem().Kind() == reflect.Struct &&
-			srcType.Kind() == reflect.Struct {
-			return "cpStructToStruct"
-		}
-		if dstType.Elem().Kind() == reflect.Struct &&
-			srcType.Kind() == reflect.Map {
-			return "cpMapToStruct"
-		}
-		if dstType.Elem().Kind() == reflect.Slice &&
-			srcType.Kind() == reflect.Slice {
-			return "cpSliceToSlice"
-		}
-		if dstType.Elem().Kind() == reflect.Array &&
-			srcType.Kind() == reflect.Array {
-			return "cpArrayToArray"
-		}
-		if dstType.Elem().Kind() == reflect.Slice &&
-			srcType.Kind() == reflect.Array {
-			return "cpSliceToSlice"
-		}
-		if dstType.Elem().Kind() == reflect.Array &&
-			srcType.Kind() == reflect.Slice {
-			return "cpSliceToSlice"
-		}
-	}
 	panic(fmt.Sprintf("not implemented copy: from %v to %v", srcType, dstType))
-}
-
-func isPtrPtr(typ reflect.Type) bool {
-	return typ.Kind() == reflect.Ptr && (
-		typ.Elem().Kind() == reflect.Ptr ||
-			typ.Elem().Kind() == reflect.Map)
-}
-
-func isSimpleValue(typ reflect.Type) bool {
-	switch typ.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64, reflect.String:
-		return true
-	}
-	return false
 }
 
 // Gen generates a instance of F
