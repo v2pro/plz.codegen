@@ -28,6 +28,10 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	if src.ReadNil() {
+		*dst = nil
+		return
+	}
 	index := 0
 	originalLen := len(*dst)
 	src.ReadArrayCB(func(iter *jsoniter.Iterator) bool {

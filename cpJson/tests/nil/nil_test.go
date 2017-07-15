@@ -22,13 +22,32 @@ func Test_ptr_ptr_int(t *testing.T) {
 	should := require.New(t)
 	var src *int
 	pSrc := &src
-	should.Equal("null", copyToJson(pSrc))
+	should.Equal(`null`, copyToJson(pSrc))
 	pSrc = nil
-	should.Equal("null", copyToJson(pSrc))
+	should.Equal(`null`, copyToJson(pSrc))
 	var dst *int
 	pDst := &dst
 	should.Nil(copyFromJson(&pDst, `null`))
 	should.Nil(pDst)
+}
+
+func Test_slice_ptr_int(t *testing.T) {
+	should := require.New(t)
+	src := []*int{nil}
+	should.Equal(`[null]`, copyToJson(src))
+	one := int(1)
+	dst := []*int{&one}
+	should.Nil(copyFromJson(&dst, `[null]`))
+	should.Nil(dst[0])
+}
+
+func Test_slice_int(t *testing.T) {
+	should := require.New(t)
+	var src []int
+	should.Equal(`null`, copyToJson(src))
+	dst := []int{1}
+	should.Nil(copyFromJson(&dst, `null`))
+	should.Nil(dst)
 }
 
 func copyToJson(src interface{}) string {

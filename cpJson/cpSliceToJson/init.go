@@ -27,6 +27,10 @@ func {{ .funcName }}(
 	dst {{ .DT|name }},
 	src {{ .ST|name }}) {
 	// end of signature
+	if src == nil {
+		dst.WriteNil()
+		return
+	}
 	dst.WriteArrayStart()
 	for i, elem := range src {
 		if i != 0 {
