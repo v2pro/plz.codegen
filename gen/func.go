@@ -50,6 +50,8 @@ func funcGetName(typ reflect.Type) string {
 		return "*" + funcGetName(typ.Elem())
 	case reflect.Slice:
 		return "[]" + funcGetName(typ.Elem())
+	case reflect.Map:
+		return "map[" + funcGetName(typ.Key()) + "]" + funcGetName(typ.Elem())
 	}
 	typeName := typ.String()
 	typeName = strings.Replace(typeName, ".", "__", -1)
@@ -84,7 +86,11 @@ func funcIsPtr(typ reflect.Type) bool {
 }
 
 func funcElem(typ reflect.Type) reflect.Type {
-	return typ.Elem()
+	switch typ.Kind() {
+	case reflect.Map, reflect.Slice, reflect.Array, reflect.Ptr:
+		return typ.Elem()
+	}
+	panic("can not get elem from " + typ.String())
 }
 
 func funcFieldOf(typ reflect.Type, fieldName string) reflect.StructField {
