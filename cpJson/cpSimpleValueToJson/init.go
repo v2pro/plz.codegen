@@ -41,6 +41,8 @@ func GenOpFuncName(typ reflect.Type) string {
 		return "Int"
 	case reflect.Int8:
 		return "Int8"
+	case reflect.String:
+		return "String"
 	}
 	return ""
 }
