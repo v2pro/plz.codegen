@@ -2,24 +2,24 @@ package cpMapToJson
 
 import (
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
 )
 
 func init() {
-	cpStatically.F.AddDependency(F)
+	cpAnything.F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
 	FuncTemplateName: "cpMapToJson",
-	Dependencies: []*gen.FuncTemplate{cpStatically.F},
+	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
-{{ $cpElem := gen "cpStatically" "DT" .DT "ST" (.ST|elem) }}
+{{ $cpElem := gen "cpAnything" "DT" .DT "ST" (.ST|elem) }}
 {{ $cpElem.Source }}
 func {{ .funcName }}(
 	err *error,

@@ -2,18 +2,18 @@ package cpStructToJson
 
 import (
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
 	"reflect"
 )
 
 func init() {
-	cpStatically.F.AddDependency(F)
+	cpAnything.F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
 	FuncTemplateName: "cpStructToJson",
-	Dependencies: []*gen.FuncTemplate{cpStatically.F},
+	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
@@ -22,7 +22,7 @@ var F = &gen.FuncTemplate{
 	Source: `
 {{ $bindings := calcBindings .DT .ST }}
 {{ range $_, $binding := $bindings}}
-	{{ $cp := gen "cpStatically" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
+	{{ $cp := gen "cpAnything" "DT" $binding.dstFieldType "ST" $binding.srcFieldType }}
 	{{ $cp.Source }}
 	{{ assignCp $binding $cp.FuncName }}
 {{ end }}

@@ -1,4 +1,4 @@
-package cpStatically
+package cpAnything
 
 import (
 	"fmt"
@@ -10,14 +10,14 @@ import (
 )
 
 var Dispatchers = []func(dstType, srcType reflect.Type) string{}
-var logger = plz.LoggerOf("package", "cpStatically")
+var logger = plz.LoggerOf("package", "cpAnything")
 
 func init() {
 	util.GenCopy = Gen
 	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
 		for i := 0; i < len(loggerKv); i += 2 {
 			key := loggerKv[i].(string)
-			if key == "package" && "cpStatically" == loggerKv[i+1] {
+			if key == "package" && "cpAnything" == loggerKv[i+1] {
 				return logging.NewStderrLogger(loggerKv, logging.LEVEL_DEBUG)
 			}
 		}
@@ -27,7 +27,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cpStatically",
+	FuncTemplateName: "cpAnything",
 	GenMap: map[string]interface{}{
 		"dispatch": genDispatch,
 	},

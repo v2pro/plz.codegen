@@ -1,13 +1,13 @@
 package cpJsonToSimpleValue
 
 import (
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
 	"github.com/v2pro/wombat/gen"
 	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 )
 
 func init() {
-	cpStatically.F.AddDependency(F)
+	cpAnything.F.AddDependency(F)
 }
 
 // F the function definition

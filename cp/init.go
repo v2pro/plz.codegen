@@ -1,7 +1,7 @@
 package cp
 
 import (
-	// register functions into cpStatically
+	// register functions into cpAnything
 	_ "github.com/v2pro/wombat/cp/cpArrayToArray"
 	_ "github.com/v2pro/wombat/cp/cpFromInterface"
 	_ "github.com/v2pro/wombat/cp/cpFromPtr"
@@ -11,14 +11,14 @@ import (
 	_ "github.com/v2pro/wombat/cp/cpMapToStruct"
 	_ "github.com/v2pro/wombat/cp/cpSimpleValue"
 	_ "github.com/v2pro/wombat/cp/cpSliceToSlice"
-	"github.com/v2pro/wombat/cp/cpStatically"
-	_ "github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
+	_ "github.com/v2pro/wombat/cp/cpAnything"
 	_ "github.com/v2pro/wombat/cp/cpStructToMap"
 	_ "github.com/v2pro/wombat/cp/cpStructToStruct"
 	"reflect"
 )
 
-// Gen generates a instance of cpStatically
+// Gen generates a instance of cpAnything
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	return cpStatically.Gen(dstType, srcType)
+	return cpAnything.Gen(dstType, srcType)
 }

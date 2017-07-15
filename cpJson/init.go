@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"github.com/json-iterator/go"
 	"github.com/v2pro/wombat/gen"
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
 	"github.com/v2pro/wombat/cpJson/cpSimpleValueToJson"
 	"github.com/v2pro/plz"
 )
@@ -28,7 +28,7 @@ var jsoniterIteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
 
 func init() {
 	gen.ImportPackages["github.com/json-iterator/go"] = true
-	cpStatically.Dispatchers = append(cpStatically.Dispatchers, dispatch)
+	cpAnything.Dispatchers = append(cpAnything.Dispatchers, dispatch)
 }
 
 func dispatch(dstType, srcType reflect.Type) string {

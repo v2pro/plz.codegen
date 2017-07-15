@@ -1,28 +1,28 @@
 package cpMapToMap
 
 import (
-	"github.com/v2pro/wombat/cp/cpStatically"
+	"github.com/v2pro/wombat/cp/cpAnything"
 	"github.com/v2pro/wombat/gen"
 	"reflect"
 )
 
 func init() {
-	cpStatically.F.AddDependency(F)
+	cpAnything.F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
 	FuncTemplateName: "cpMapToMap",
-	Dependencies: []*gen.FuncTemplate{cpStatically.F},
+	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
 	},
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
-{{ $cpElem := gen "cpStatically" "DT" (.DT|ptrMapElem) "ST" (.ST|elem) }}
+{{ $cpElem := gen "cpAnything" "DT" (.DT|ptrMapElem) "ST" (.ST|elem) }}
 {{ $cpElem.Source }}
-{{ $cpKey := gen "cpStatically" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
+{{ $cpKey := gen "cpAnything" "DT" (.DT|ptrMapKey) "ST" (.ST|mapKey) }}
 {{ $cpKey.Source }}
 func {{ .funcName }}(
 	err *error,
