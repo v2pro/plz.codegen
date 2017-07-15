@@ -50,6 +50,49 @@ func Test_slice_int(t *testing.T) {
 	should.Nil(dst)
 }
 
+func Test_array_ptr_int(t *testing.T) {
+	should := require.New(t)
+	src := [3]*int{}
+	should.Equal(`[null,null,null]`, copyToJson(src))
+	one := int(1)
+	dst := [3]*int{&one}
+	should.Nil(copyFromJson(&dst, `[null]`))
+	should.Nil(dst[0])
+}
+
+func Test_map_string_ptr_int(t *testing.T) {
+	should := require.New(t)
+	src := map[string]*int{"Field": nil}
+	should.Equal(`{"Field":null}`, copyToJson(src))
+	one := int(1)
+	dst := map[string]*int{"Field": &one}
+	should.Nil(copyFromJson(&dst, `{"Field":null}`))
+	should.Nil(dst["Field"])
+}
+
+func Test_map_string_int(t *testing.T) {
+	should := require.New(t)
+	var src map[string]int
+	should.Equal(`null`, copyToJson(src))
+	dst := map[string]int{"Field": 1}
+	should.Nil(copyFromJson(&dst, `null`))
+	should.Nil(dst)
+}
+
+func Test_struct(t *testing.T) {
+	should := require.New(t)
+
+	type TestObject struct {
+		Field *int
+	}
+	src := TestObject{}
+	should.Equal(`{"Field":null}`, copyToJson(src))
+	one := int(1)
+	dst := TestObject{Field: &one}
+	should.Nil(copyFromJson(&dst, `{"Field":null}`))
+	should.Nil(dst.Field)
+}
+
 func copyToJson(src interface{}) string {
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 512)
 	err := plz.Copy(stream, src)
