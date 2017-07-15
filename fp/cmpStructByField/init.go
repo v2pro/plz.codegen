@@ -7,15 +7,13 @@ import (
 )
 
 func init() {
-	F.Dependencies["cmpStructByField"] = F
+	F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		"cmpSimpleValue": cmpSimpleValue.F,
-		//"cmpStructByField": F,
-	},
+	FuncTemplateName: "cmpStructByField",
+	Dependencies: []*gen.FuncTemplate{cmpSimpleValue.F},
 	TemplateParams: map[string]string{
 		"T": "the struct type to compare",
 		"F": "the field name of T",

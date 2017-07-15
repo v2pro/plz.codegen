@@ -6,6 +6,7 @@ import (
 )
 
 var objPtrF = &FuncTemplate{
+	FuncTemplateName: "objPtr",
 	TemplateParams: map[string]string{
 		"T": "the type to get ptr from",
 	},

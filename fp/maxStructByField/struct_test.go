@@ -1,4 +1,4 @@
-package max
+package maxStructByField
 
 import (
 	"github.com/google/gofuzz"

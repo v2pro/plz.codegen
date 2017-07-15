@@ -13,9 +13,8 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		"cmpSimpleValue": cmpSimpleValue.F,
-	},
+	FuncTemplateName: "maxSimpleValue",
+	Dependencies: []*gen.FuncTemplate{cmpSimpleValue.F},
 	TemplateParams: map[string]string{
 		"T": "the type to max",
 	},

@@ -29,13 +29,17 @@ func init() {
 
 // FuncTemplate used to generate similar functions with template by applying different arguments
 type FuncTemplate struct {
-	// TODO: add FuncTemplateName
+	FuncTemplateName string
+	Dependencies   []*FuncTemplate
 	TemplateParams map[string]string
 	Source         string
 	FuncName       string
-	Dependencies   map[string]*FuncTemplate
 	GenMap         map[string]interface{}
 	Declarations   string
+}
+
+func (template *FuncTemplate) AddDependency(dep *FuncTemplate) {
+	template.Dependencies = append(template.Dependencies, dep)
 }
 
 type generator struct {
@@ -79,9 +83,13 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 		return funcName, ""
 	}
 	templateArgs["funcName"] = funcName
+	depMap := map[string]*FuncTemplate{}
+	for _, dep := range fTmpl.Dependencies {
+		depMap[dep.FuncTemplateName] = dep
+	}
 	genMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) interface{} {
-			dep := fTmpl.Dependencies[depName]
+			dep := depMap[depName]
 			if dep == nil {
 				logger.Error("referenced unfound dependency", "depName", depName, "kv", newKv)
 				panic("referenced unfound dependency " + depName)

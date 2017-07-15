@@ -7,14 +7,12 @@ import (
 )
 
 func init() {
-	cpStatically.F.Dependencies["cpSimpleValueToJson"] = F
+	cpStatically.F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		//"cpSimpleValue": F,
-	},
+	FuncTemplateName: "cpSimpleValueToJson",
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",

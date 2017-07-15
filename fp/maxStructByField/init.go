@@ -1,4 +1,4 @@
-package max
+package maxStructByField
 
 import (
 	"github.com/v2pro/plz/util"
@@ -13,9 +13,8 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		"cmpStructByField": cmpStructByField.F,
-	},
+	FuncTemplateName: "maxStructByField",
+	Dependencies: []*gen.FuncTemplate{cmpStructByField.F},
 	TemplateParams: map[string]string{
 		"T": "the struct type to max",
 		"F": "the field name of T",

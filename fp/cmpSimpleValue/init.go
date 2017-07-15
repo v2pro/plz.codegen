@@ -6,15 +6,12 @@ import (
 )
 
 func init() {
-	F.Dependencies["cmpSimpleValue"] = F
+	F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-	// set in init()
-	// "cmpSimpleValue": F,
-	},
+	FuncTemplateName: "cmpSimpleValue",
 	TemplateParams: map[string]string{
 		"T": "the type to compare",
 	},

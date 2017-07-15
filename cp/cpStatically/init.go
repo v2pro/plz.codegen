@@ -27,7 +27,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{},
+	FuncTemplateName: "cpStatically",
 	GenMap: map[string]interface{}{
 		"dispatch": genDispatch,
 	},

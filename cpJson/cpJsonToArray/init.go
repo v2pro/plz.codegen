@@ -7,14 +7,13 @@ import (
 )
 
 func init() {
-	cpStatically.F.Dependencies["cpJsonToArray"] = F
+	cpStatically.F.AddDependency(F)
 }
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	Dependencies: map[string]*gen.FuncTemplate{
-		"cpStatically": cpStatically.F,
-	},
+	FuncTemplateName: "cpJsonToArray",
+	Dependencies: []*gen.FuncTemplate{cpStatically.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
@@ -42,7 +41,7 @@ func {{ .funcName }}(
 `,
 	GenMap: map[string]interface{}{
 		"ptrArrayElem": genPtrArrayElem,
-		"arrayLen": genArrayLen,
+		"arrayLen":     genArrayLen,
 	},
 }
 
