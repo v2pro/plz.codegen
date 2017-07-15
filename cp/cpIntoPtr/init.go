@@ -21,7 +21,6 @@ var F = &gen.FuncTemplate{
 	FuncName: `cp_into_{{ .DT|symbol }}_from_{{ .ST|symbol }}`,
 	Source: `
 {{ $cp := gen "cpAnything" "DT" (.DT|elem) "ST" .ST }}
-// generated from cpIntoPtr
 func {{ .funcName }}(
 	err *error,
 	dst {{ .DT|name }},
@@ -30,6 +29,12 @@ func {{ .funcName }}(
 	if dst == nil {
 		return
 	}
+	{{ if .ST|isNullable }}
+		if src == nil {
+			*dst = nil
+			return
+		}
+	{{ end }}
 	defDst := *dst
 	if defDst == nil {
 		{{ if .DT|elem|isMap }}
@@ -46,9 +51,18 @@ func {{ .funcName }}(
 `,
 	GenMap: map[string]interface{}{
 		"isMap": genIsMap,
+		"isNullable": genIsNullable,
 	},
 }
 
 func genIsMap(typ reflect.Type) bool {
 	return typ.Kind() == reflect.Map
+}
+
+func genIsNullable(typ reflect.Type) bool {
+	switch typ.Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Interface, reflect.Slice:
+		return true
+	}
+	return false
 }

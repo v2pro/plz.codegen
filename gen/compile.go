@@ -119,7 +119,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	}
 	out := executeTemplate(fTmpl.Source, genMap, templateArgs)
 	g.generatedFuncs[funcName] = true
-	return funcName, generatedSource + out
+	return funcName, generatedSource + out + "\n// generated from " + fTmpl.FuncTemplateName + "/n"
 }
 
 func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map[string]interface{}) string {
