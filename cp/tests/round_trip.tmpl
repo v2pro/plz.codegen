@@ -1,0 +1,23 @@
+package test
+
+import (
+	"testing"
+	"github.com/stretchr/testify/require"
+	"github.com/google/gofuzz"
+	"github.com/v2pro/plz"
+	_ "github.com/v2pro/wombat/cp"
+)
+
+func Test_round_trip(t *testing.T) {
+	should := require.New(t)
+	fz := fuzz.New().MaxDepth(10).NilChance(0.3)
+	for i := 0; i < 100; i++ {
+		var src srcType
+		fz.Fuzz(&src)
+		var dst dstType
+		should.Nil(plz.Copy(&dst, src))
+		var src2 srcType
+		should.Nil(plz.Copy(&src2, dst))
+		should.Equal(src2, src)
+	}
+}

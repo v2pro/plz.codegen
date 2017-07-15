@@ -46,6 +46,8 @@ func funcGetName(typ reflect.Type) string {
 		return "float64"
 	case reflect.String:
 		return "string"
+	case reflect.Bool:
+		return "bool"
 	case reflect.Ptr:
 		return "*" + funcGetName(typ.Elem())
 	case reflect.Slice:
@@ -54,13 +56,15 @@ func funcGetName(typ reflect.Type) string {
 		return fmt.Sprintf("[%d]%s", typ.Len(), funcGetName(typ.Elem()))
 	case reflect.Map:
 		return "map[" + funcGetName(typ.Key()) + "]" + funcGetName(typ.Elem())
+	case reflect.Struct, reflect.Interface:
+		typeName := typ.String()
+		typeName = strings.Replace(typeName, ".", "__", -1)
+		if strings.Contains(typeName, "struct {") {
+			typeName = hash(typeName)
+		}
+		return typeName
 	}
-	typeName := typ.String()
-	typeName = strings.Replace(typeName, ".", "__", -1)
-	if strings.Contains(typeName, "struct {") {
-		typeName = hash(typeName)
-	}
-	return typeName
+	panic("do not support " + typ.Kind().String())
 }
 
 func funcSymbol(typ reflect.Type) string {
