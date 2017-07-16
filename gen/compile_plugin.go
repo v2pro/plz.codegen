@@ -64,11 +64,13 @@ func compileAndOpenPlugin(soFileName string, source string) *plugin.Plugin {
 package main
 import "unsafe"
 import "fmt"
+import "io"
 `
 	for pkg := range ImportPackages {
 		prelog += "import \"" + pkg + "\"\n"
 	}
 	prelog += `
+var ioEOF = io.EOF
 var debugLog = fmt.Println
 
 type emptyInterface struct {

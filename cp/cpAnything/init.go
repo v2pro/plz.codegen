@@ -51,8 +51,13 @@ func Exported_{{ .funcName }}(
 	cpDynamically = cp
 	{{ .funcName }}(&err, pDst, pSrc)
 	{{ if hasErrorField .ST }}
-	if err == nil && pSrc.Error != nil {
+	if pSrc.Error != nil && pSrc.Error != io.EOF {
 		err = pSrc.Error
+	}
+	{{ end }}
+	{{ if hasErrorField .DT }}
+	if pDst.Error != nil {
+		err = pDst.Error
 	}
 	{{ end }}
 	return
