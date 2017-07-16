@@ -28,6 +28,8 @@ var jsoniterIteratorType = reflect.TypeOf((*jsoniter.Iterator)(nil))
 
 func init() {
 	gen.ImportPackages["github.com/json-iterator/go"] = true
+	gen.ImportTypes[jsoniterStreamType] = true
+	gen.ImportTypes[jsoniterIteratorType] = true
 	cpAnything.Dispatchers = append([]func(dstType, srcType reflect.Type) string {dispatch},
 		cpAnything.Dispatchers...)
 }

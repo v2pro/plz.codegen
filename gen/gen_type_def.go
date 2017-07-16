@@ -8,7 +8,7 @@ import (
 )
 
 func (g *generator) genTypeDef(typ reflect.Type) string {
-	if ImportPackages[typ.PkgPath()] {
+	if ImportTypes[typ] {
 		return ""
 	}
 	if g.generatedTypes[typ] {

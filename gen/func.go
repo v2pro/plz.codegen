@@ -8,6 +8,8 @@ import (
 
 var ImportPackages = map[string]bool {
 }
+var ImportTypes = map[reflect.Type]bool {
+}
 
 func panicOnError(err error) {
 	if err != nil {
@@ -16,7 +18,7 @@ func panicOnError(err error) {
 }
 
 func funcGetName(typ reflect.Type) string {
-	if ImportPackages[typ.PkgPath()] {
+	if ImportTypes[typ] {
 		return typ.String()
 	}
 	switch typ.Kind() {
