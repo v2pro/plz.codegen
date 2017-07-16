@@ -52,6 +52,8 @@ func dispatch(dstType, srcType reflect.Type) string {
 			return "cpJsonToStruct"
 		case reflect.Map, reflect.Ptr:
 			return "cpJsonToPtr"
+		case reflect.Interface:
+			return "cpIntoInterface"
 		case reflect.Array:
 			return "cpJsonToArray"
 		}

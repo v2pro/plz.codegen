@@ -37,6 +37,8 @@ func {{ .funcName }}(
 				case "{{ $binding.srcFieldName }}":
 					{{ $binding.cp }}(err, &dst.{{ $binding.dstFieldName }}, iter)
 			{{ end }}
+			default:
+				iter.Skip()
 		}
 		return true
 	})

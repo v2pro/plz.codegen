@@ -28,9 +28,6 @@ func init() {
 // F the function definition
 var F = &gen.FuncTemplate{
 	FuncTemplateName: "cpAnything",
-	GenMap: map[string]interface{}{
-		"dispatch": genDispatch,
-	},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
@@ -50,14 +47,33 @@ func Exported_{{ .funcName }}(
 	if pDst == nil {
 		return
 	}
+	pSrc := {{ cast "src" .ST }}
 	cpDynamically = cp
-	{{ .funcName }}(
-		&err,
-		pDst,
-		{{ cast "src" .ST }})
+	{{ .funcName }}(&err, pDst, pSrc)
+	{{ if hasErrorField .ST }}
+	if err == nil && pSrc.Error != nil {
+		err = pSrc.Error
+	}
+	{{ end }}
 	return
 }
 `,
+	GenMap: map[string]interface{}{
+		"dispatch": genDispatch,
+		"hasErrorField": genHasErrorField,
+	},
+}
+
+func genHasErrorField(typ reflect.Type) bool {
+	if typ.Kind() != reflect.Ptr {
+		return false
+	}
+	typ = typ.Elem()
+	if typ.Kind() != reflect.Struct {
+		return false
+	}
+	_, found := typ.FieldByName("Error")
+	return found
 }
 
 func genDispatch(dstType, srcType reflect.Type) string {
