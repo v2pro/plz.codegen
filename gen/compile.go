@@ -168,15 +168,16 @@ type expansion struct {
 	templateArgs       []interface{}
 }
 
-var expansions = []expansion{}
+var declaredExpansions = []expansion{}
 
-func Expand(template *FuncTemplate, templateArgs ...interface{}) {
-	expansions = append(expansions, expansion{template:template, templateArgs: templateArgs})
+func Declare(template *FuncTemplate, templateArgs ...interface{}) {
+	declaredExpansions = append(declaredExpansions,
+		expansion{template: template, templateArgs: templateArgs})
 }
 
-// Compile expand the function template with provided type arguments,
+// Expand expand the function template with provided type arguments,
 // compiles the code and loads as executable
-func Compile(template *FuncTemplate, templateArgs ...interface{}) plugin.Symbol {
+func Expand(template *FuncTemplate, templateArgs ...interface{}) plugin.Symbol {
 	funcName, source := gen(template, templateArgs...)
 	logger.Debug("generated source", "source", source)
 	symbol := lookupFunc("Exported_" + funcName)

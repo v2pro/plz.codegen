@@ -49,6 +49,6 @@ func Exported_{{ .funcName }}(
 }
 
 func genF(typ reflect.Type, fieldName string) func(interface{}, interface{}) int {
-	funcObj := gen.Compile(F, "T", typ, "F", fieldName)
+	funcObj := gen.Expand(F, "T", typ, "F", fieldName)
 	return funcObj.(func(interface{}, interface{}) int)
 }

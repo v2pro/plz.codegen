@@ -45,7 +45,7 @@ func {{ .funcName }}(objs []{{ .T|name }}) {{ .T|name }} {
 func genF(typ reflect.Type) func([]interface{}) interface{} {
 	switch typ.Kind() {
 	case reflect.Int, reflect.Int8:
-		funcObj := gen.Compile(F, `T`, typ)
+		funcObj := gen.Expand(F, `T`, typ)
 		return funcObj.(func([]interface{}) interface{})
 	}
 	return nil

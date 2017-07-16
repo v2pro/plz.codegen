@@ -22,7 +22,7 @@ func CompilePlugin(soFileName string) {
 	defer compilePluginMutex.Unlock()
 	generator := newGenerator()
 	source := ""
-	for _, expansion := range expansions {
+	for _, expansion := range declaredExpansions {
 		_, oneSource := generator.gen(expansion.template, expansion.templateArgs...)
 		source += oneSource
 	}

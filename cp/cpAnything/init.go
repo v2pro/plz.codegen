@@ -103,7 +103,7 @@ func dispatch(dstType, srcType reflect.Type) string {
 
 // Gen generates a instance of F
 func Gen(dstType, srcType reflect.Type) func(interface{}, interface{}) error {
-	funcObj := gen.Compile(F, "DT", dstType, "ST", srcType)
+	funcObj := gen.Expand(F, "DT", dstType, "ST", srcType)
 	f := funcObj.(func(func(interface{}, interface{}) error, interface{}, interface{}) error)
 	return func(dst, src interface{}) error {
 		return f(util.Copy, dst, src)

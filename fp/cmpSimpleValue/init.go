@@ -53,7 +53,7 @@ func Exported_{{ .funcName }}(
 func genF(typ reflect.Type) func(interface{}, interface{}) int {
 	switch typ.Kind() {
 	case reflect.Ptr, reflect.Int, reflect.Int8, reflect.Int16:
-		funcObj := gen.Compile(F, `T`, typ)
+		funcObj := gen.Expand(F, `T`, typ)
 		return funcObj.(func(interface{}, interface{}) int)
 	}
 	return nil

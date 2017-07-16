@@ -22,9 +22,9 @@ var Float64 = reflect.TypeOf(float64(0))
 var String = reflect.TypeOf("")
 var Bool = reflect.TypeOf(true)
 
-// Expand export from gen
-func Expand(template *gen.FuncTemplate, templateArgs ...interface{}) {
-	gen.Expand(template, templateArgs...)
+// Declare export from gen
+func Declare(template *gen.FuncTemplate, templateArgs ...interface{}) {
+	gen.Declare(template, templateArgs...)
 }
 
 // CompilePlugin export from gen

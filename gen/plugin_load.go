@@ -19,7 +19,7 @@ func LoadPlugin(soFileName string) {
 	plugins = append(plugins, thePlugin)
 }
 
-func lookupFunc(funcName string) plugin.Symbol {
+func lookupFuncFromPlugins(funcName string) interface{} {
 	for _, thePlugin := range plugins {
 		symbol, err := thePlugin.Lookup(funcName)
 		logger.Debug("lookup func", "funcName", funcName, "plugin", thePlugin, "err", err)

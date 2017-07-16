@@ -30,7 +30,7 @@ func {{ .funcName }}(obj interface{}) unsafe.Pointer {
 }
 
 func objPtrGen(typ reflect.Type) func(interface{}) unsafe.Pointer {
-	funcObj := Compile(objPtrF, `T`, typ)
+	funcObj := Expand(objPtrF, `T`, typ)
 	return funcObj.(func(interface{}) unsafe.Pointer)
 }
 

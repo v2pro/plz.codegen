@@ -31,7 +31,7 @@ func assertDynamicCompilation(template *FuncTemplate, templateArgs []interface{}
 			argsAsStr = append(argsAsStr, fmt.Sprintf("%v", argsAsStr))
 		}
 	}
-	panic(fmt.Sprintf("please add wombat.Expand(%s.F, %s) to init() or enable dynamic compilation",
+	panic(fmt.Sprintf("please add wombat.Declare(%s.F, %s) to init() or enable dynamic compilation",
 		template.FuncTemplateName,
 		strings.Join(argsAsStr, ", ")))
 }
