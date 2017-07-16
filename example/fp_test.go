@@ -6,6 +6,9 @@ import (
 	"github.com/v2pro/wombat"
 	_ "github.com/v2pro/wombat/fp"
 	"testing"
+	"github.com/v2pro/wombat/fp/maxSimpleValue"
+	"github.com/v2pro/wombat/fp/maxStructByField"
+	"reflect"
 )
 
 type User struct {
@@ -13,13 +16,12 @@ type User struct {
 }
 
 func Test_max_min(t *testing.T) {
-	wombat.CompilePlugin("/tmp/fp_test.so", func() {
-		plz.Max(1, 3, 2)
-	}, func() {
-		plz.Max(
-			User{1}, User{3}, User{2},
-			"Score")
-	})
+	wombat.Expand(maxSimpleValue.F,
+		"T", wombat.Int)
+	wombat.Expand(maxStructByField.F,
+		"T", reflect.TypeOf(User{}),
+		"F", "Score")
+	wombat.CompilePlugin("/tmp/fp_test.so")
 	wombat.LoadPlugin("/tmp/fp_test.so")
 	wombat.DisableDynamicCompilation()
 

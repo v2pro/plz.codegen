@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/base32"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -12,31 +11,19 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
+	"fmt"
 )
 
 var compilePluginMutex = &sync.Mutex{}
-var isInBatchCompileMode = false
 
-// CompilePlugin in the build time, producing a .so file
-func CompilePlugin(soFileName string, compileOpTriggers ...func()) {
+// CompilePlugin compiles the expanded template into plugin, producing a .so file
+func CompilePlugin(soFileName string) {
 	compilePluginMutex.Lock()
 	defer compilePluginMutex.Unlock()
-	isInBatchCompileMode = true
-	defer func() {
-		isInBatchCompileMode = false
-	}()
-	compileOps := []*compileOp{}
-	for i, compileOpTrigger := range compileOpTriggers {
-		compileOp := collectCompileOp(compileOpTrigger)
-		if compileOp == nil {
-			panic(fmt.Sprintf("the %d trigger did not call any gen.Compile internally", i))
-		}
-		compileOps = append(compileOps, compileOp)
-	}
 	generator := newGenerator()
 	source := ""
-	for _, compileOp := range compileOps {
-		_, oneSource := generator.gen(compileOp.template, compileOp.kv...)
+	for _, expansion := range expansions {
+		_, oneSource := generator.gen(expansion.template, expansion.templateArgs...)
 		source += oneSource
 	}
 	logger.Debug("generated source", "source", source)
@@ -50,16 +37,7 @@ func newGenerator() *generator {
 	}
 }
 
-func collectCompileOp(compileOpTrigger func()) (op *compileOp) {
-	defer func() {
-		recoved := recover()
-		op, _ = recoved.(*compileOp)
-	}()
-	compileOpTrigger()
-	return nil
-}
-
-func compileAndOpenPlugin(soFileName string, source string) *plugin.Plugin {
+func compileAndOpenPlugin(origSoFileName string, origSource string) *plugin.Plugin {
 	prelog := `
 package main
 import "unsafe"
@@ -69,7 +47,9 @@ import "io"
 	for pkg := range ImportPackages {
 		prelog += "import \"" + pkg + "\"\n"
 	}
-	prelog += `
+	sourceHash := hash(origSource)
+	prelog += fmt.Sprintf(`
+var SOURCE__HASH = "%s"
 var ioEOF = io.EOF
 var debugLog = fmt.Println
 
@@ -77,9 +57,9 @@ type emptyInterface struct {
 	typ  unsafe.Pointer
 	word unsafe.Pointer
 }
-	`
-	source = prelog + source
-	fileName := hash(source)
+	`, sourceHash)
+	source := prelog + origSource
+	fileName := sourceHash
 	homeDir := os.Getenv("HOME")
 	cacheDir := homeDir + "/.wombat/"
 	//cacheDir = "/tmp/"
@@ -87,6 +67,7 @@ type emptyInterface struct {
 		os.Mkdir(cacheDir, 0777)
 	}
 	srcFileName := cacheDir + fileName + ".go"
+	soFileName := origSoFileName
 	if soFileName == "" {
 		soFileName = cacheDir + fileName + ".so"
 	}
@@ -112,7 +93,33 @@ type emptyInterface struct {
 	if err != nil {
 		panic("failed to load generated plugin: " + err.Error())
 	}
+	if origSoFileName != "" && !verifySourceHash(thePlugin, sourceHash) {
+		logger.Info("remove out")
+		err = os.Remove(origSoFileName)
+		if err != nil {
+			panic("failed to removed out of date plugin: " + err.Error())
+		}
+		return compileAndOpenPlugin(origSoFileName, origSource)
+	}
 	return thePlugin
+}
+
+func verifySourceHash(thePlugin *plugin.Plugin, sourceHash string) bool {
+	symbol, err := thePlugin.Lookup("SOURCE__HASH")
+	if err != nil {
+		logger.Error("SOURCE__HASH missing from so")
+		return false
+	}
+	actualSourceHash, isStr := symbol.(*string)
+	if !isStr {
+		logger.Error("SOURCE__HASH is not string")
+		return false
+	}
+	if *actualSourceHash != sourceHash {
+		logger.Error("SOURCE__HASH mismatch", "expected", sourceHash, "actual", *actualSourceHash)
+		return false
+	}
+	return true
 }
 
 func hash(source string) string {

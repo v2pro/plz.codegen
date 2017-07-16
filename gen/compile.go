@@ -163,33 +163,33 @@ func genFuncName(funcNameTmpl string, data interface{}) string {
 	return out.String()
 }
 
-type compileOp struct {
+type expansion struct {
 	template *FuncTemplate
-	kv       []interface{}
+	templateArgs       []interface{}
+}
+
+var expansions = []expansion{}
+
+func Expand(template *FuncTemplate, templateArgs ...interface{}) {
+	expansions = append(expansions, expansion{template:template, templateArgs: templateArgs})
 }
 
 // Compile expand the function template with provided type arguments,
 // compiles the code and loads as executable
-func Compile(template *FuncTemplate, kv ...interface{}) plugin.Symbol {
-	if isInBatchCompileMode {
-		panic(&compileOp{template: template, kv: kv})
-	}
-	funcName, source := gen(template, kv...)
+func Compile(template *FuncTemplate, templateArgs ...interface{}) plugin.Symbol {
+	funcName, source := gen(template, templateArgs...)
 	logger.Debug("generated source", "source", source)
 	symbol := lookupFunc("Exported_" + funcName)
 	if symbol != nil {
 		return symbol
 	}
+	assertDynamicCompilation(template, templateArgs)
 	return dynamicCompile("Exported_"+funcName, source)
 }
 
 var dynamicCompileMutex = &sync.Mutex{}
 
 func dynamicCompile(funcName, source string) plugin.Symbol {
-	if dynamicCompilationDisabled {
-		logger.Error("dynamic compilation disabled", "funcName", funcName, "source", source)
-		panic("dynamic compilation disabled")
-	}
 	dynamicCompileMutex.Lock()
 	defer dynamicCompileMutex.Unlock()
 	thePlugin := compileAndOpenPlugin("", source)
@@ -211,11 +211,4 @@ func annotateLines(source string) string {
 		buf.WriteString("\n")
 	}
 	return buf.String()
-}
-
-var dynamicCompilationDisabled = false
-
-// DisableDynamicCompilation prevents dynamic compilation, everything should be loaded from LoadPlugin
-func DisableDynamicCompilation() {
-	dynamicCompilationDisabled = true
 }
