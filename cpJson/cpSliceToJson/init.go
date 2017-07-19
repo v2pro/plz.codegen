@@ -11,7 +11,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cpSliceToJson",
+	TemplateName: "cpSliceToJson",
 	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",

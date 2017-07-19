@@ -18,7 +18,7 @@ func assertDynamicCompilation(template *FuncTemplate, templateArgs []interface{}
 		return
 	}
 	logger.Error("dynamic compilation disabled",
-		"templateFuncName", template.FuncTemplateName,
+		"templateFuncName", template.TemplateName,
 		"templateArgs", templateArgs)
 	argsAsStr := []string{}
 	for _, arg := range templateArgs {
@@ -32,7 +32,7 @@ func assertDynamicCompilation(template *FuncTemplate, templateArgs []interface{}
 		}
 	}
 	panic(fmt.Sprintf("please add wombat.Declare(%s.F, %s) to init() or enable dynamic compilation",
-		template.FuncTemplateName,
+		template.TemplateName,
 		strings.Join(argsAsStr, ", ")))
 }
 

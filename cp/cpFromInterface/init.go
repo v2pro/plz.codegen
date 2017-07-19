@@ -11,7 +11,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName:"cpFromInterface",
+	TemplateName: "cpFromInterface",
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",

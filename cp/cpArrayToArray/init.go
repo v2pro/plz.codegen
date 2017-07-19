@@ -12,8 +12,8 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cpArrayToArray",
-	Dependencies:     []*gen.FuncTemplate{cpAnything.F},
+	TemplateName: "cpArrayToArray",
+	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",

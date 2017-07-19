@@ -27,7 +27,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cpAnything",
+	TemplateName: "cpAnything",
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",
 		"ST": "the src type to copy from",
@@ -51,7 +51,7 @@ func Exported_{{ .funcName }}(
 	cpDynamically = cp
 	{{ .funcName }}(&err, pDst, pSrc)
 	{{ if hasErrorField .ST }}
-	if pSrc.Error != nil && pSrc.Error != io.EOF {
+	if pSrc.Error != nil && pSrc.ErrorLevel != io.EOF {
 		err = pSrc.Error
 	}
 	{{ end }}

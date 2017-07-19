@@ -11,7 +11,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cmpSimpleValue",
+	TemplateName: "cmpSimpleValue",
 	TemplateParams: map[string]string{
 		"T": "the type to compare",
 	},

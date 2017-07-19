@@ -13,7 +13,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "maxStructByField",
+	TemplateName: "maxStructByField",
 	Dependencies: []*gen.FuncTemplate{cmpStructByField.F},
 	TemplateParams: map[string]string{
 		"T": "the struct type to max",

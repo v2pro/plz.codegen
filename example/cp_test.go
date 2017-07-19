@@ -7,6 +7,15 @@ import (
 	"testing"
 )
 
+type MyInterface interface{
+	Hello()
+}
+
+func Test_interface(t *testing.T) {
+	obj := new(MyInterface)
+	(*obj).Hello()
+}
+
 func Test_copy(t *testing.T) {
 	should := require.New(t)
 

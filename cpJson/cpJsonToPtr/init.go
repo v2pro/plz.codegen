@@ -12,7 +12,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cpJsonToPtr",
+	TemplateName: "cpJsonToPtr",
 	Dependencies: []*gen.FuncTemplate{cpAnything.F},
 	TemplateParams: map[string]string{
 		"DT": "the dst type to copy into",

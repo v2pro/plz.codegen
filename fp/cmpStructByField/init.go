@@ -12,7 +12,7 @@ func init() {
 
 // F the function definition
 var F = &gen.FuncTemplate{
-	FuncTemplateName: "cmpStructByField",
+	TemplateName: "cmpStructByField",
 	Dependencies: []*gen.FuncTemplate{cmpSimpleValue.F},
 	TemplateParams: map[string]string{
 		"T": "the struct type to compare",

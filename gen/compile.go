@@ -29,11 +29,12 @@ func init() {
 
 // FuncTemplate used to generate similar functions with template by applying different arguments
 type FuncTemplate struct {
-	FuncTemplateName string
-	Dependencies   []*FuncTemplate
+	TemplateName   string
 	TemplateParams map[string]string
-	Source         string
+	Dependencies   []*FuncTemplate
 	FuncName       string
+	Signature string
+	Source         string
 	GenMap         map[string]interface{}
 	Declarations   string
 }
@@ -85,7 +86,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	templateArgs["funcName"] = funcName
 	depMap := map[string]*FuncTemplate{}
 	for _, dep := range fTmpl.Dependencies {
-		depMap[dep.FuncTemplateName] = dep
+		depMap[dep.TemplateName] = dep
 	}
 	genMap := map[string]interface{}{
 		"gen": func(depName string, newKv ...interface{}) string {
@@ -119,7 +120,7 @@ func (g *generator) gen(fTmpl *FuncTemplate, args ...interface{}) (string, strin
 	}
 	out := executeTemplate(fTmpl.Source, genMap, templateArgs)
 	g.generatedFuncs[funcName] = true
-	return funcName, generatedSource + out + "\n// generated from " + fTmpl.FuncTemplateName + "\n"
+	return funcName, generatedSource + out + "\n// generated from " + fTmpl.TemplateName + "\n"
 }
 
 func executeTemplate(tmplSource string, funcMap map[string]interface{}, data map[string]interface{}) string {
