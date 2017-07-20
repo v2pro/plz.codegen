@@ -20,6 +20,8 @@ func dispatch(typ reflect.Type) string {
 	switch typ.Kind() {
 	case reflect.Int:
 		return "CompareSimpleValue"
+	case reflect.Ptr:
+		return "ComparePtr"
 	}
 	panic("unsupported type: " + typ.String())
 }

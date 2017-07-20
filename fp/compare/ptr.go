@@ -2,6 +2,10 @@ package compare
 
 import "github.com/v2pro/wombat/generic"
 
+func init() {
+	F.ImportFunc(comparePtr)
+}
+
 var comparePtr = generic.Func("ComparePtr").
 	Params("T", "the type of value to compare").
 	ImportFunc(F).
