@@ -10,27 +10,38 @@ type FuncTemplateBuilder struct {
 
 func Func(funcName string) *FuncTemplateBuilder {
 	importedFuncTemplates := map[string]*FuncTemplate{}
+	importedStructTemplates := map[string]*StructTemplate{}
 	return &FuncTemplateBuilder{funcTemplate: &FuncTemplate{
-		funcName:              funcName,
-		templateParams:        map[string]interface{}{},
-		importedFuncTemplates: importedFuncTemplates,
+		funcName:                funcName,
+		templateParams:          map[string]interface{}{},
+		importedFuncTemplates:   importedFuncTemplates,
+		importedStructTemplates: importedStructTemplates,
 		generators: map[string]interface{}{
 			"name": genName,
 			"elem": genElem,
 			"expand": func(depName string, templateArgs ...interface{}) (string, error) {
-				dep := importedFuncTemplates[depName]
-				if dep == nil {
-					logger.Error(nil, "missing dependency", "depName", depName)
-					return "", fmt.Errorf(
-						"referenced generic function %s should be imported by ImportFunc",
-						depName)
+				depFunc := importedFuncTemplates[depName]
+				if depFunc != nil {
+					expandedFuncName, err := depFunc.expand(templateArgs)
+					if err != nil {
+						return "", logger.Error(err, fmt.Sprintf("expand func %s failed", depName),
+							"templateArgs", templateArgs)
+					}
+					return expandedFuncName, nil
 				}
-				expandedFuncName, _, err := dep.expand(templateArgs)
-				if err != nil {
-					return "", logger.Error(err, fmt.Sprintf("expand %s failed", depName),
-						"templateArgs", templateArgs)
+				depStruct := importedStructTemplates[depName]
+				if depStruct != nil {
+					expandedStructName, err := depStruct.expand(templateArgs)
+					if err != nil {
+						return "", logger.Error(err, fmt.Sprintf("expand struct %s failed", depName),
+							"templateArgs", templateArgs)
+					}
+					return expandedStructName, nil
 				}
-				return expandedFuncName, nil
+				logger.Error(nil, "missing dependency", "depName", depName)
+				return "", fmt.Errorf(
+					"referenced generic function %s should be imported by ImportFunc",
+					depName)
 			},
 		},
 	}}
@@ -61,17 +72,25 @@ func (builder *FuncTemplateBuilder) ImportFunc(funcTemplates ...*FuncTemplate) *
 	return builder
 }
 
+func (builder *FuncTemplateBuilder) ImportStruct(structTemplates ...*StructTemplate) *FuncTemplateBuilder {
+	for _, structTemplate := range structTemplates {
+		builder.funcTemplate.importedStructTemplates[structTemplate.structName] = structTemplate
+	}
+	return builder
+}
+
 func (builder *FuncTemplateBuilder) Source(source string) *FuncTemplate {
 	builder.funcTemplate.templateSource = source
 	return builder.funcTemplate
 }
 
 type FuncTemplate struct {
-	funcName              string
-	templateParams        map[string]interface{}
-	templateSource        string
-	generators            map[string]interface{}
-	importedFuncTemplates map[string]*FuncTemplate
+	funcName                string
+	templateParams          map[string]interface{}
+	templateSource          string
+	generators              map[string]interface{}
+	importedFuncTemplates   map[string]*FuncTemplate
+	importedStructTemplates map[string]*StructTemplate
 }
 
 func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {
