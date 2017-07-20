@@ -58,6 +58,10 @@ func genName(typ reflect.Type) string {
 	panic("do not support " + typ.Kind().String())
 }
 
+func genElem(typ reflect.Type) reflect.Type {
+	return typ.Elem()
+}
+
 func hash(source string) string {
 	h := sha1.New()
 	h.Write([]byte(source))

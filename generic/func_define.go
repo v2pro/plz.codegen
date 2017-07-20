@@ -16,6 +16,7 @@ func Func(funcName string) *FuncTemplateBuilder {
 		importedFuncTemplates: importedFuncTemplates,
 		generators: map[string]interface{}{
 			"name": genName,
+			"elem": genElem,
 			"expand": func(depName string, templateArgs ...interface{}) (string, error) {
 				dep := importedFuncTemplates[depName]
 				if dep == nil {

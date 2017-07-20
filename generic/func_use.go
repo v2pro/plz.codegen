@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"github.com/v2pro/wombat/compiler"
 	"github.com/v2pro/plz"
+	"strings"
 )
 
 var logger = plz.LoggerOf("package", "generic")
@@ -98,5 +99,21 @@ func expandFuncName(funcName string, templateArgs []interface{}) string {
 }
 
 func typeToSymbol(typ reflect.Type) string {
-	return typ.String()
+	switch typ.Kind() {
+	case reflect.Map:
+		return "map_" + typeToSymbol(typ.Key()) + "_to_" + typeToSymbol(typ.Elem())
+	case reflect.Slice:
+		return "slice_" + typeToSymbol(typ.Elem())
+	case reflect.Array:
+		return fmt.Sprintf("array_%d_%s", typ.Len(), typeToSymbol(typ.Elem()))
+	case reflect.Ptr:
+		return "ptr_" + typeToSymbol(typ.Elem())
+	default:
+		typeName := genName(typ)
+		typeName = strings.Replace(typeName, ".", "__", -1)
+		if strings.Contains(typeName, "{") {
+			typeName = hash(typeName)
+		}
+		return typeName
+	}
 }
