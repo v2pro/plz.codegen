@@ -4,20 +4,33 @@ import (
 	"reflect"
 	"fmt"
 	"strings"
+	"sort"
+	"strconv"
 )
 
-func expandSymbolName(plainName string, templateArgs []interface{}) string {
+func expandSymbolName(plainName string, argMap map[string]interface{}) string {
 	expanded := []byte(plainName)
-	for _, arg := range templateArgs {
-		switch typedArg := arg.(type) {
+	keys := []string{}
+	for key := range argMap {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		value := argMap[key]
+		expanded = append(expanded, '_')
+		expanded = append(expanded, key...)
+		switch typedArg := value.(type) {
 		case string:
 			expanded = append(expanded, '_')
 			expanded = append(expanded, typedArg...)
+		case bool:
+			expanded = append(expanded, '_')
+			expanded = strconv.AppendBool(expanded, typedArg)
 		case reflect.Type:
 			expanded = append(expanded, '_')
 			expanded = append(expanded, typeToSymbol(typedArg)...)
 		default:
-			panic(fmt.Sprintf("unsupported template arg %v of type %s", arg, reflect.TypeOf(arg).String()))
+			panic(fmt.Sprintf("unsupported template arg %v of type %s", value, reflect.TypeOf(value).String()))
 		}
 	}
 	return string(expanded)

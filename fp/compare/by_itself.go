@@ -5,16 +5,12 @@ import (
 	"reflect"
 )
 
-var F = generic.Func("Compare").
+var ByItself = generic.Func("CompareByItself(val1 T, val2 T) int").
 	Params("T", "the type of value to compare").
 	Generators("dispatch", dispatch).
-	ImportFunc(compareSimpleValue).
 	Source(`
 {{ $compare := expand (.T|dispatch) "T" .T }}
-func {{.funcName}}(val1 {{.T|name}}, val2 {{.T|name}}) int {
-	return {{$compare}}(val1, val2)
-}`)
-
+return {{$compare}}(val1, val2)`)
 
 func dispatch(typ reflect.Type) string {
 	switch typ.Kind() {

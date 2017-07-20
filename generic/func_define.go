@@ -8,12 +8,16 @@ type FuncTemplateBuilder struct {
 	funcTemplate *FuncTemplate
 }
 
-func Func(funcName string) *FuncTemplateBuilder {
+func Func(signature string) *FuncTemplateBuilder {
 	importedFuncTemplates := map[string]*FuncTemplate{}
 	importedStructTemplates := map[string]*StructTemplate{}
+	parsedSignature, err := parseSignature(signature)
+	if err != nil {
+		panic(err.Error())
+	}
 	return &FuncTemplateBuilder{funcTemplate: &FuncTemplate{
-		funcName:                funcName,
-		templateParams:          map[string]interface{}{},
+		funcSignature:           parsedSignature,
+		templateParams:          map[string]string{},
 		importedFuncTemplates:   importedFuncTemplates,
 		importedStructTemplates: importedStructTemplates,
 		generators: map[string]interface{}{
@@ -47,9 +51,9 @@ func Func(funcName string) *FuncTemplateBuilder {
 	}}
 }
 
-func (builder *FuncTemplateBuilder) Params(kv ...interface{}) *FuncTemplateBuilder {
+func (builder *FuncTemplateBuilder) Params(kv ...string) *FuncTemplateBuilder {
 	for i := 0; i < len(kv); i += 2 {
-		k := kv[i].(string)
+		k := kv[i]
 		v := kv[i+1]
 		builder.funcTemplate.templateParams[k] = v
 	}
@@ -85,8 +89,8 @@ func (builder *FuncTemplateBuilder) Source(source string) *FuncTemplate {
 }
 
 type FuncTemplate struct {
-	funcName                string
-	templateParams          map[string]interface{}
+	*funcSignature
+	templateParams          map[string]string
 	templateSource          string
 	generators              map[string]interface{}
 	importedFuncTemplates   map[string]*FuncTemplate

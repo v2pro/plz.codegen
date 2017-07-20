@@ -8,7 +8,7 @@ import (
 
 func Test_compare(t *testing.T) {
 	should := require.New(t)
-	f := generic.Expand(F, "T", generic.Int).
+	f := generic.Expand(ByItself, "T", generic.Int).
 	(func(int, int) int)
 	should.Equal(-1, f(3, 4))
 	should.Equal(0, f(3, 3))

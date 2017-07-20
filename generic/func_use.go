@@ -15,6 +15,7 @@ var templates = map[string]*template.Template{}
 var state = struct{
 	out *bytes.Buffer
 	importPackages map[string]bool
+	declarations map[string]bool
 }{}
 
 func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{} {
@@ -22,6 +23,7 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 	defer expandLock.Unlock()
 	state.out = bytes.NewBuffer(nil)
 	state.importPackages = map[string]bool{}
+	state.declarations = map[string]bool{}
 	expandedFuncName, err := funcTemplate.expand(templateArgs)
 	if err != nil {
 		logger.Error(err, "expand func template failed",
@@ -36,6 +38,9 @@ package main
 		prelog = fmt.Sprintf(`
 %s
 import "%s"`, prelog, importPackage)
+	}
+	for declaration := range state.declarations {
+		prelog = prelog + "\n" + declaration
 	}
 	expandedSource := state.out.String()
 	plugin, err := compiler.DynamicCompile(prelog + expandedSource)
@@ -59,16 +64,27 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 		argVal := templateArgs[i+1]
 		argMap[argName] = argVal
 	}
-	expandedFuncName := expandSymbolName(funcTemplate.funcName, templateArgs)
-	argMap["funcName"] = expandedFuncName
-	parsedTemplate, err := funcTemplate.parse()
-	if err != nil {
-		return "", err
+	localOut := bytes.NewBuffer(nil)
+	expandedFuncName := expandSymbolName(funcTemplate.funcName, argMap)
+	asEmptyInterface := argMap["asEmptyInterface"] == true
+	if asEmptyInterface {
+		err := funcTemplate.expandAsEmptyInterface(localOut, expandedFuncName, argMap)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		parsedTemplate, err := funcTemplate.parse()
+		if err != nil {
+			return "", err
+		}
+		funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
+		err = parsedTemplate.Execute(localOut, argMap)
+		if err != nil {
+			return "", err
+		}
+		localOut.WriteString("}")
 	}
-	err = parsedTemplate.Execute(state.out, argMap)
-	if err != nil {
-		return "", err
-	}
+	state.out.Write(localOut.Bytes())
 	return expandedFuncName, nil
 }
 

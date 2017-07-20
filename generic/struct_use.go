@@ -48,7 +48,7 @@ func (structTemplate *StructTemplate) expand(templateArgs []interface{}) (string
 		argVal := templateArgs[i+1]
 		argMap[argName] = argVal
 	}
-	expandedStructName := expandSymbolName(structTemplate.structName, templateArgs)
+	expandedStructName := expandSymbolName(structTemplate.structName, argMap)
 	argMap["structName"] = expandedStructName
 	parsedTemplate, err := structTemplate.parse()
 	if err != nil {
