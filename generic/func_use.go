@@ -13,10 +13,14 @@ import (
 var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
+var state = struct{
+	out *bytes.Buffer
+}{}
 
 func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{} {
 	expandLock.Lock()
 	defer expandLock.Unlock()
+	state.out = bytes.NewBuffer(nil)
 	expandedFuncName, expandedSource, err := funcTemplate.expand(templateArgs)
 	if err != nil {
 		logger.Error(err, "expand func template failed",
@@ -54,23 +58,19 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, st
 	if err != nil {
 		return "", "", err
 	}
-	out := bytes.NewBuffer(nil)
-	err = parsedTemplate.Execute(out, argMap)
+	err = parsedTemplate.Execute(state.out, argMap)
 	if err != nil {
 		return "", "", err
 	}
-	return expandedFuncName, out.String(), nil
+	return expandedFuncName, state.out.String(), nil
 }
 
 func (funcTemplate *FuncTemplate) parse() (*template.Template, error) {
 	parsedTemplate := templates[funcTemplate.funcName]
 	if parsedTemplate == nil {
-		genMap := template.FuncMap{
-			"name": genName,
-		}
 		var err error
 		parsedTemplate, err = template.New(funcTemplate.funcName).
-			Funcs(genMap).
+			Funcs(funcTemplate.generators).
 			Parse(funcTemplate.templateSource)
 		if err != nil {
 			return nil, err

@@ -2,7 +2,7 @@ package compare
 
 import "github.com/v2pro/wombat/generic"
 
-var SimpleValue = generic.Func("CompareSimpleValue").
+var compareSimpleValue = generic.Func("CompareSimpleValue").
 	Params("T", "the type of value to compare").
 	Source(`
 	func {{.funcName}}(val1 {{.T|name}}, val2 {{.T|name}}) int {
