@@ -6,17 +6,42 @@ import (
 	"text/template"
 	"sync"
 	"bytes"
+	"github.com/v2pro/wombat/compiler"
+	"github.com/v2pro/plz"
 )
 
+var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
 
 func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{} {
 	expandLock.Lock()
 	defer expandLock.Unlock()
+	expandedFuncName, expandedSource, err := funcTemplate.expand(templateArgs)
+	if err != nil {
+		logger.Error(err, "expand func template failed",
+			"funcTemplate", funcTemplate.funcName,
+			"templateArgs", templateArgs)
+		panic(err.Error())
+	}
+	prelog := `
+package main
+	`
+	plugin, err := compiler.DynamicCompile(prelog + expandedSource)
+	if err != nil {
+		panic(err.Error())
+	}
+	symbol, err := plugin.Lookup(expandedFuncName)
+	if err != nil {
+		logger.Error(err, "lookup symbol failed",
+			"expandedFuncName", expandedFuncName,
+			"expandedSource", expandedSource)
+		panic(err.Error())
+	}
+	return symbol
 }
 
-func (funcTemplate *FuncTemplate) render(templateArgs []interface{}) (string, error) {
+func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, string, error) {
 	argMap := map[string]interface{}{}
 	for i := 0; i < len(templateArgs); i += 2 {
 		argName := templateArgs[i].(string)
@@ -27,21 +52,25 @@ func (funcTemplate *FuncTemplate) render(templateArgs []interface{}) (string, er
 	argMap["funcName"] = expandedFuncName
 	parsedTemplate, err := funcTemplate.parse()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	var out bytes.Buffer
+	out := bytes.NewBuffer(nil)
 	err = parsedTemplate.Execute(out, argMap)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return out.String(), nil
+	return expandedFuncName, out.String(), nil
 }
 
 func (funcTemplate *FuncTemplate) parse() (*template.Template, error) {
 	parsedTemplate := templates[funcTemplate.funcName]
 	if parsedTemplate == nil {
+		genMap := template.FuncMap{
+			"name": genName,
+		}
 		var err error
 		parsedTemplate, err = template.New(funcTemplate.funcName).
+			Funcs(genMap).
 			Parse(funcTemplate.templateSource)
 		if err != nil {
 			return nil, err

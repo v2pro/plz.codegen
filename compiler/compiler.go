@@ -94,6 +94,8 @@ var SOURCE__HASH = "%s"
 	if err != nil {
 		return nil, logger.Error(err,
 			"failed to compile generated plugin",
+			"stdout", outBuf.String(),
+			"stderr", errBuf.String(),
 			"srcFileName", srcFileName,
 			"source", annotateLines(source))
 	}

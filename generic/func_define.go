@@ -7,6 +7,7 @@ type FuncTemplateBuilder struct {
 func Func(funcName string) *FuncTemplateBuilder {
 	return &FuncTemplateBuilder{funcTemplate: &FuncTemplate{
 		funcName: funcName,
+		templateParams: map[string]interface{}{},
 	}}
 }
 
