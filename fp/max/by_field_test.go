@@ -5,22 +5,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"reflect"
 	"github.com/v2pro/wombat/generic"
-	"github.com/json-iterator/go"
+	"github.com/v2pro/wombat/fp/testobj"
 )
 
 func Test_max_by_field(t *testing.T) {
 	should := require.New(t)
-
-	type TestObject struct {
-		Field int
-	}
-
-	f := generic.Expand(ByField, "T", reflect.TypeOf([]TestObject{}), "F", "Field", "testMode", true).
-	(func(interface{}) interface{})
-	maxE := f([]TestObject{
+	f := generic.Expand(ByField, "T", reflect.TypeOf([]testobj.TestObject{}), "F", "Field").
+	(func([]testobj.TestObject) testobj.TestObject)
+	maxE := f([]testobj.TestObject{
 		{1}, {3}, {2},
 	})
-	maxAsJson, err := jsoniter.MarshalToString(maxE)
-	should.Nil(err)
-	should.Equal(`{"Field":3}`, maxAsJson)
+	should.Equal(testobj.TestObject{3}, maxE)
 }

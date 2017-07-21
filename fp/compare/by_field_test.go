@@ -5,17 +5,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/wombat/generic"
 	"reflect"
+	"github.com/v2pro/wombat/fp/testobj"
 )
 
 func Test_compare_by_field(t *testing.T) {
 	should := require.New(t)
-
-	type TestObject struct {
-		Field int
-	}
-
-	testObjectType := reflect.TypeOf(TestObject{})
-	f := generic.Expand(ByField, "T", testObjectType, "F", "Field", "testMode", true).
-	(func(interface{}, interface{}) int)
-	should.Equal(-1, f(TestObject{2}, TestObject{3}))
+	testObjectType := reflect.TypeOf(testobj.TestObject{})
+	f := generic.Expand(ByField, "T", testObjectType, "F", "Field").
+	(func(testobj.TestObject, testobj.TestObject) int)
+	should.Equal(-1, f(testobj.TestObject{2}, testobj.TestObject{3}))
 }

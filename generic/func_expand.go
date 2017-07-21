@@ -13,12 +13,11 @@ import (
 var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
-var state = struct{
-	pkgPath string
-	testMode bool
-	out *bytes.Buffer
-	importPackages map[string]bool
-	declarations map[string]bool
+var state = struct {
+	pkgPath           string
+	out               *bytes.Buffer
+	importPackages    map[string]bool
+	declarations      map[string]bool
 	expandedFuncNames map[string]bool
 }{}
 
@@ -73,24 +72,16 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 		return expandedFuncName, nil
 	}
 	state.expandedFuncNames[expandedFuncName] = true
-	testMode := argMap["testMode"] == true
-	if testMode {
-		err := funcTemplate.expandTestModeEntryFunc(localOut, expandedFuncName, argMap)
-		if err != nil {
-			return "", err
-		}
-	} else {
-		parsedTemplate, err := funcTemplate.parse()
-		if err != nil {
-			return "", err
-		}
-		funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
-		err = parsedTemplate.Execute(localOut, argMap)
-		if err != nil {
-			return "", err
-		}
-		localOut.WriteString("\n}")
+	parsedTemplate, err := funcTemplate.parse()
+	if err != nil {
+		return "", err
 	}
+	funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
+	err = parsedTemplate.Execute(localOut, argMap)
+	if err != nil {
+		return "", err
+	}
+	localOut.WriteString("\n}")
 	state.out.Write(localOut.Bytes())
 	return expandedFuncName, nil
 }
@@ -124,9 +115,7 @@ func (funcTemplate *FuncTemplate) toArgMap(templateArgs []interface{}) (ArgMap, 
 		if found {
 			delete(params, argName)
 		} else {
-			if argName != "testMode" {
-				return nil, errors.New("argument " + argName + " not declared as param")
-			}
+			return nil, errors.New("argument " + argName + " not declared as param")
 		}
 		argVal := templateArgs[i+1]
 		argMap[argName] = argVal

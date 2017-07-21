@@ -4,12 +4,24 @@ import (
 	"github.com/v2pro/wombat/generic"
 	"github.com/v2pro/wombat/fp/compare"
 	"reflect"
+	"github.com/v2pro/plz/util"
 )
+
+func init() {
+	util.GenMaxByItself = func(typ reflect.Type) func(collection []interface{}) interface{} {
+		switch typ.Kind() {
+		case reflect.Int:
+			return generic.Expand(ByItselfForPlz, "T", typ).
+			(func(collection []interface{}) interface{})
+		}
+		return nil
+	}
+}
 
 var ByItself = generic.DefineFunc("MaxByItself(vals T) E").
 	Param("T", "array type").
 	Param("E", "array element type", func(argMap generic.ArgMap) interface{} {
-		return argMap["T"].(reflect.Type).Elem()
+	return argMap["T"].(reflect.Type).Elem()
 }).
 	ImportFunc(compare.ByItself).
 	Source(`
@@ -18,6 +30,20 @@ currentMax := vals[0]
 for i := 1; i < len(vals); i++ {
 	if {{$compare}}(vals[i], currentMax) > 0 {
 		currentMax = vals[i]
+	}
+}
+return currentMax`)
+
+var ByItselfForPlz = generic.DefineFunc("MaxByItselfForPlz(vals []interface{}) interface{}").
+	Param("T", "array element type").
+	ImportFunc(compare.ByItself).
+	Source(`
+{{ $compare := expand "CompareByItself" "T" .T }}
+currentMax := vals[0].({{.T|name}})
+for i := 1; i < len(vals); i++ {
+	typedVal := vals[i].({{.T|name}})
+	if {{$compare}}(typedVal, currentMax) > 0 {
+		currentMax = typedVal
 	}
 }
 return currentMax`)

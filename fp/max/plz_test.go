@@ -1,9 +1,10 @@
-package fp
+package max
 
 import (
+	"testing"
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz"
-	"testing"
+	"github.com/v2pro/wombat/fp/testobj"
 )
 
 func Test_max_of_nothing(t *testing.T) {
@@ -18,10 +19,8 @@ func Test_max_of_simple_value(t *testing.T) {
 
 func Test_max_of_struct_by_field(t *testing.T) {
 	should := require.New(t)
-	type TestObject struct {
-		Field int
-	}
-	should.Equal(TestObject{2}, plz.Max(
-		TestObject{1}, TestObject{2},
+	should.Equal(testobj.TestObject{2}, plz.Max(
+		testobj.TestObject{1}, testobj.TestObject{2},
 		"Field"))
 }
+
