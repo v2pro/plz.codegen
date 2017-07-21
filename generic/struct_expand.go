@@ -28,7 +28,7 @@ func New(structTemplate *StructTemplate, interfaceType reflect.Type) interface{}
 }
 
 func (structTemplate *StructTemplate) expandCtor(interfaceType reflect.Type) func() interface{} {
-	f := Func("New_" + structTemplate.structName).
+	f := DefineFunc("New_" + structTemplate.structName).
 		Param("I", "interface of the expanded struct").
 		ImportStruct(structTemplate).
 		Source(fmt.Sprintf(`

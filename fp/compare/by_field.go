@@ -8,7 +8,7 @@ import (
 
 var logger = plz.LoggerOf("package", "compare")
 
-var ByField = generic.Func("CompareByField(val1 T, val2 T) int").
+var ByField = generic.DefineFunc("CompareByField(val1 T, val2 T) int").
 	Param("T", "the type of value to compare").
 	Param("F", "the field name").
 	ImportFunc(ByItself).

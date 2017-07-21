@@ -14,10 +14,12 @@ var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
 var state = struct{
+	pkgPath string
 	testMode bool
 	out *bytes.Buffer
 	importPackages map[string]bool
 	declarations map[string]bool
+	expandedFuncNames map[string]bool
 }{}
 
 func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{} {
@@ -26,6 +28,7 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 	state.out = bytes.NewBuffer(nil)
 	state.importPackages = map[string]bool{}
 	state.declarations = map[string]bool{}
+	state.expandedFuncNames = map[string]bool{}
 	expandedFuncName, err := funcTemplate.expand(templateArgs)
 	if err != nil {
 		logger.Error(err, "expand func template failed",
@@ -66,6 +69,10 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 	}
 	localOut := bytes.NewBuffer(nil)
 	expandedFuncName := expandSymbolName(funcTemplate.funcName, argMap)
+	if state.expandedFuncNames[expandedFuncName] {
+		return expandedFuncName, nil
+	}
+	state.expandedFuncNames[expandedFuncName] = true
 	testMode := argMap["testMode"] == true
 	if testMode {
 		err := funcTemplate.expandTestModeEntryFunc(localOut, expandedFuncName, argMap)

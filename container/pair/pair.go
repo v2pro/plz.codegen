@@ -2,7 +2,7 @@ package pair
 
 import "github.com/v2pro/wombat/generic"
 
-var Pair = generic.Struct("Pair").
+var Pair = generic.DefineStruct("Pair").
 	Source(`
 {{ $T1 := .I | method "First" | returnType }}
 {{ $T2 := .I | method "Second" | returnType }}

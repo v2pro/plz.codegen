@@ -6,7 +6,7 @@ func init() {
 	ByItself.ImportFunc(compareSimpleValue)
 }
 
-var compareSimpleValue = generic.Func("CompareSimpleValue(val1 T, val2 T) int").
+var compareSimpleValue = generic.DefineFunc("CompareSimpleValue(val1 T, val2 T) int").
 	Param("T", "the type of value to compare").
 	Source(`
 if val1 < val2 {

@@ -10,6 +10,9 @@ import (
 
 func genName(typ reflect.Type) string {
 	if typ.PkgPath() != "" {
+		if typ.PkgPath() == state.pkgPath {
+			return typ.Name()
+		}
 		state.importPackages[typ.PkgPath()] = true
 	}
 	return typ.String()

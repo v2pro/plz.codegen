@@ -13,12 +13,12 @@ func main() {
 	if gopath == "" {
 		reportError("GOPATH env not found")
 	}
-	writeCodeGeneratorMain(gopath+"/src/tmp-codegen",
-		gopath+"/src/github.com/v2pro/wombat/example/model/generated.go")
+	writeCodeGeneratorMain(gopath, "github.com/v2pro/wombat/example/model")
 	executeTmpCodegen(gopath + "/bin/tmp-codegen")
 }
 
-func writeCodeGeneratorMain(dir string, generatedTo string) {
+func writeCodeGeneratorMain(gopath string, pkgPath string) {
+	dir := gopath+"/src/tmp-codegen"
 	if _, err := os.Stat(dir); err != nil {
 		err := os.Mkdir(dir, 0777)
 		if err != nil {
@@ -28,11 +28,11 @@ func writeCodeGeneratorMain(dir string, generatedTo string) {
 	ioutil.WriteFile(dir+"/main.go", []byte(fmt.Sprintf(`
 package main
 import _ "github.com/v2pro/wombat/example/model"
-import "github.com/v2pro/wombat/gen"
+import "github.com/v2pro/wombat/generic"
 func main() {
-	gen.GenerateCode("%s")
+	generic.GenerateCode("%s", "%s")
 }
-	`, generatedTo)), 0666)
+	`, gopath, pkgPath)), 0666)
 	goInstallTmpCodegen()
 }
 

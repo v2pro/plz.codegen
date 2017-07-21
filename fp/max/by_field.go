@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-var ByField = generic.Func("MaxByField(vals T) E").
+var ByField = generic.DefineFunc("MaxByField(vals T) E").
 	Param("T", "array type").
 	Param("E", "array element type", func(argMap generic.ArgMap) interface{} {
 	return argMap["T"].(reflect.Type).Elem()

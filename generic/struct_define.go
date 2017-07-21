@@ -4,7 +4,7 @@ type StructTemplateBuilder struct {
 	structTemplate *StructTemplate
 }
 
-func Struct(structName string) *StructTemplateBuilder {
+func DefineStruct(structName string) *StructTemplateBuilder {
 	return &StructTemplateBuilder{
 		structTemplate: &StructTemplate{
 			structName: structName,

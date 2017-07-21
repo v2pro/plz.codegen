@@ -9,7 +9,7 @@ type FuncTemplateBuilder struct {
 	funcTemplate *FuncTemplate
 }
 
-func Func(signature string) *FuncTemplateBuilder {
+func DefineFunc(signature string) *FuncTemplateBuilder {
 	importedFuncTemplates := map[string]*FuncTemplate{}
 	importedStructTemplates := map[string]*StructTemplate{}
 	parsedSignature, err := parseSignature(signature)

@@ -6,7 +6,7 @@ func init() {
 	ByItself.ImportFunc(comparePtr)
 }
 
-var comparePtr = generic.Func("ComparePtr(val1 T, val2 T) int").
+var comparePtr = generic.DefineFunc("ComparePtr(val1 T, val2 T) int").
 	Param("T", "the type of value to compare").
 	ImportFunc(ByItself).
 	Source(`

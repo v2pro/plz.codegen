@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-var ByItself = generic.Func("CompareByItself(val1 T, val2 T) int").
+var ByItself = generic.DefineFunc("CompareByItself(val1 T, val2 T) int").
 	Param("T", "the type of value to compare").
 	Generators("dispatch", dispatch).
 	Source(`

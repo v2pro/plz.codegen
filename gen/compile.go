@@ -3,7 +3,6 @@ package gen
 import (
 	"bytes"
 	"github.com/v2pro/plz"
-	"github.com/v2pro/plz/logging"
 	"plugin"
 	"reflect"
 	"strconv"
@@ -14,18 +13,6 @@ import (
 )
 
 var logger = plz.LoggerOf("package", "gen")
-
-func init() {
-	logging.Providers = append(logging.Providers, func(loggerKv []interface{}) logging.Logger {
-		for i := 0; i < len(loggerKv); i += 2 {
-			key := loggerKv[i].(string)
-			if key == "package" && "gen" == loggerKv[i+1] {
-				return logging.NewStderrLogger(loggerKv, logging.LEVEL_DEBUG)
-			}
-		}
-		return nil
-	})
-}
 
 // FuncTemplate used to generate similar functions with template by applying different arguments
 type FuncTemplate struct {
