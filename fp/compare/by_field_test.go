@@ -15,8 +15,7 @@ func Test_compare_by_field(t *testing.T) {
 	}
 
 	testObjectType := reflect.TypeOf(TestObject{})
-	generic.UnsafeCastTypes[testObjectType] = true
-	f := generic.Expand(ByField, "T", testObjectType, "F", "Field").
-	(func(TestObject, TestObject) int)
+	f := generic.Expand(ByField, "T", testObjectType, "F", "Field", "testMode", true).
+	(func(interface{}, interface{}) int)
 	should.Equal(-1, f(TestObject{2}, TestObject{3}))
 }

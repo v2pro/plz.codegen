@@ -13,6 +13,7 @@ var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
 var state = struct{
+	testMode bool
 	out *bytes.Buffer
 	importPackages map[string]bool
 	declarations map[string]bool
@@ -66,9 +67,9 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 	}
 	localOut := bytes.NewBuffer(nil)
 	expandedFuncName := expandSymbolName(funcTemplate.funcName, argMap)
-	asEmptyInterface := argMap["asEmptyInterface"] == true
-	if asEmptyInterface {
-		err := funcTemplate.expandAsEmptyInterface(localOut, expandedFuncName, argMap)
+	testMode := argMap["testMode"] == true
+	if testMode {
+		err := funcTemplate.expandTestModeEntryFunc(localOut, expandedFuncName, argMap)
 		if err != nil {
 			return "", err
 		}
@@ -77,12 +78,15 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 		if err != nil {
 			return "", err
 		}
-		funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
+		err = funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
+		if err != nil {
+			return "", err
+		}
 		err = parsedTemplate.Execute(localOut, argMap)
 		if err != nil {
 			return "", err
 		}
-		localOut.WriteString("}")
+		localOut.WriteString("\n}")
 	}
 	state.out.Write(localOut.Bytes())
 	return expandedFuncName, nil

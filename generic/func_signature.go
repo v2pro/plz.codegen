@@ -73,7 +73,7 @@ type funcReturn struct {
 }
 
 func (signature *funcSignature) expand(out *bytes.Buffer,
-	expandedFuncName string, argMap map[string]interface{}) {
+	expandedFuncName string, argMap map[string]interface{}) error {
 	out.WriteString("\nfunc ")
 	out.WriteString(expandedFuncName)
 	out.WriteByte('(')
@@ -85,7 +85,15 @@ func (signature *funcSignature) expand(out *bytes.Buffer,
 		out.WriteByte(' ')
 		typ, isType := argMap[param.paramType].(reflect.Type)
 		if isType {
-			out.WriteString(genName(typ))
+			if state.testMode {
+				typeName, err := internalizeType(typ)
+				if err != nil {
+					return err
+				}
+				out.WriteString(typeName)
+			} else {
+				out.WriteString(genName(typ))
+			}
 		} else {
 			out.WriteString(param.paramType)
 		}
@@ -107,14 +115,15 @@ func (signature *funcSignature) expand(out *bytes.Buffer,
 	}
 	out.WriteByte(')')
 	out.WriteByte('{')
+	return nil
 }
 
-func (funcTemplate *FuncTemplate) expandAsEmptyInterface(out *bytes.Buffer,
+func (funcTemplate *FuncTemplate) expandTestModeEntryFunc(out *bytes.Buffer,
 	expandedFuncName string, argMap map[string]interface{}) error {
 	signature := funcTemplate.funcSignature
 	invocation := bytes.NewBuffer(nil)
 
-	typedFuncName, err := funcTemplate.expandTypedVersion(argMap)
+	typedFuncName, err := funcTemplate.expandTestModeInternalFunc(argMap)
 	if err != nil {
 		return err
 	}
@@ -137,7 +146,11 @@ func (funcTemplate *FuncTemplate) expandAsEmptyInterface(out *bytes.Buffer,
 		typ, isType := argMap[param.paramType].(reflect.Type)
 		if isType {
 			out.WriteString("interface{}")
-			invocation.WriteString(genCast(param.paramName, typ))
+			typeName, err := genCast(param.paramName, typ)
+			if err != nil {
+				return err
+			}
+			invocation.WriteString(typeName)
 		} else {
 			out.WriteString(param.paramType)
 			invocation.WriteString(param.paramName)
@@ -165,18 +178,19 @@ func (funcTemplate *FuncTemplate) expandAsEmptyInterface(out *bytes.Buffer,
 	return nil
 }
 
-func (funcTemplate *FuncTemplate) expandTypedVersion(argMap map[string]interface{}) (string, error) {
+func (funcTemplate *FuncTemplate) expandTestModeInternalFunc(argMap map[string]interface{}) (string, error) {
 	templateArgsWithoutAsEmptyInterface := []interface{}{}
 	for k, v := range argMap {
-		if k != "asEmptyInterface" {
+		if k != "testMode" {
 			templateArgsWithoutAsEmptyInterface = append(templateArgsWithoutAsEmptyInterface, k)
 			templateArgsWithoutAsEmptyInterface = append(templateArgsWithoutAsEmptyInterface, v)
 		}
 	}
+	state.testMode = true
 	return funcTemplate.expand(templateArgsWithoutAsEmptyInterface)
 }
 
-func genCast(identifier string, typ reflect.Type) string {
+func genCast(identifier string, typ reflect.Type) (string, error) {
 	state.importPackages["unsafe"] = true
 	state.declarations[`
 type emptyInterface struct {
@@ -187,5 +201,13 @@ func objPtr(obj interface{}) unsafe.Pointer {
 	return (*((*emptyInterface)(unsafe.Pointer(&obj)))).word
 }
 	`] = true
-	return fmt.Sprintf("*(*%s)(objPtr(%s))", typ.String(), identifier)
+	typeName := typ.String()
+	if typ.PkgPath() != "" {
+		var err error
+		typeName, err = internalizeType(typ)
+		if err != nil {
+			return "", err
+		}
+	}
+	return fmt.Sprintf("*(*%s)(objPtr(%s))", typeName, identifier), nil
 }
