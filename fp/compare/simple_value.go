@@ -7,7 +7,7 @@ func init() {
 }
 
 var compareSimpleValue = generic.Func("CompareSimpleValue(val1 T, val2 T) int").
-	Params("T", "the type of value to compare").
+	Param("T", "the type of value to compare").
 	Source(`
 if val1 < val2 {
 	return -1

@@ -7,6 +7,7 @@ import (
 	"github.com/v2pro/wombat/compiler"
 	"github.com/v2pro/plz"
 	"fmt"
+	"errors"
 )
 
 var logger = plz.LoggerOf("package", "generic")
@@ -59,11 +60,9 @@ import "%s"`, prelog, importPackage)
 }
 
 func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, error) {
-	argMap := map[string]interface{}{}
-	for i := 0; i < len(templateArgs); i += 2 {
-		argName := templateArgs[i].(string)
-		argVal := templateArgs[i+1]
-		argMap[argName] = argVal
+	argMap, err := funcTemplate.toArgMap(templateArgs)
+	if err != nil {
+		return "", err
 	}
 	localOut := bytes.NewBuffer(nil)
 	expandedFuncName := expandSymbolName(funcTemplate.funcName, argMap)
@@ -105,4 +104,32 @@ func (funcTemplate *FuncTemplate) parse() (*template.Template, error) {
 		templates[funcTemplate.funcName] = parsedTemplate
 	}
 	return parsedTemplate, nil
+}
+
+func (funcTemplate *FuncTemplate) toArgMap(templateArgs []interface{}) (map[string]interface{}, error) {
+	argMap := map[string]interface{}{}
+	params := map[string]TemplateParam{}
+	for k, v := range funcTemplate.templateParams {
+		params[k] = v
+	}
+	for i := 0; i < len(templateArgs); i += 2 {
+		argName := templateArgs[i].(string)
+		_, found := funcTemplate.templateParams[argName]
+		if found {
+			delete(params, argName)
+		} else {
+			if argName != "testMode" {
+				return nil, errors.New("argument " + argName + " not declared as param")
+			}
+		}
+		argVal := templateArgs[i+1]
+		argMap[argName] = argVal
+	}
+	for _, param := range params {
+		if param.DefaultValueProvider == nil {
+			return nil, errors.New("missing param " + param.Name)
+		}
+		argMap[param.Name] = param.DefaultValueProvider(argMap)
+	}
+	return argMap, nil
 }

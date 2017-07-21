@@ -2,6 +2,7 @@ package generic
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type FuncTemplateBuilder struct {
@@ -17,7 +18,7 @@ func Func(signature string) *FuncTemplateBuilder {
 	}
 	return &FuncTemplateBuilder{funcTemplate: &FuncTemplate{
 		funcSignature:           parsedSignature,
-		templateParams:          map[string]string{},
+		templateParams:          map[string]TemplateParam{},
 		importedFuncTemplates:   importedFuncTemplates,
 		importedStructTemplates: importedStructTemplates,
 		generators: map[string]interface{}{
@@ -51,12 +52,30 @@ func Func(signature string) *FuncTemplateBuilder {
 	}}
 }
 
-func (builder *FuncTemplateBuilder) Params(kv ...string) *FuncTemplateBuilder {
-	for i := 0; i < len(kv); i += 2 {
-		k := kv[i]
-		v := kv[i+1]
-		builder.funcTemplate.templateParams[k] = v
+func (builder *FuncTemplateBuilder) Param(paramName string, paramDescription string, defaultValues ...interface{}) *FuncTemplateBuilder {
+	param := TemplateParam{
+		Name: paramName,
+		Description: paramDescription,
 	}
+	switch len(defaultValues) {
+	case 1:
+		defaultValueProvider, isProvider := defaultValues[0].(func(map[string]interface{})interface{})
+		if isProvider {
+			param.DefaultValueProvider = defaultValueProvider
+		} else {
+			if reflect.TypeOf(defaultValues[0]).Kind() == reflect.Func {
+				panic("default value provider should be func(map[string]interface{})interface{}")
+			}
+			param.DefaultValueProvider = func(argMap map[string]interface{}) interface{} {
+				return defaultValues[0]
+			}
+		}
+	case 0:
+		// ignore
+	default:
+		panic("only one default value should be provided")
+	}
+	builder.funcTemplate.templateParams[paramName] = param
 	return builder
 }
 
@@ -90,7 +109,7 @@ func (builder *FuncTemplateBuilder) Source(source string) *FuncTemplate {
 
 type FuncTemplate struct {
 	*funcSignature
-	templateParams          map[string]string
+	templateParams          map[string]TemplateParam
 	templateSource          string
 	generators              map[string]interface{}
 	importedFuncTemplates   map[string]*FuncTemplate
@@ -101,4 +120,10 @@ func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {
 	for _, dep := range funcTemplates {
 		funcTemplate.importedFuncTemplates[dep.funcName] = dep
 	}
+}
+
+type TemplateParam struct {
+	Name string
+	Description string
+	DefaultValueProvider func(argMap map[string]interface{}) interface{}
 }

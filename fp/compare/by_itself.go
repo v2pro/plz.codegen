@@ -6,7 +6,7 @@ import (
 )
 
 var ByItself = generic.Func("CompareByItself(val1 T, val2 T) int").
-	Params("T", "the type of value to compare").
+	Param("T", "the type of value to compare").
 	Generators("dispatch", dispatch).
 	Source(`
 {{ $compare := expand (.T|dispatch) "T" .T }}

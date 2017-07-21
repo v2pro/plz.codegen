@@ -29,7 +29,7 @@ func New(structTemplate *StructTemplate, interfaceType reflect.Type) interface{}
 
 func (structTemplate *StructTemplate) expandCtor(interfaceType reflect.Type) func() interface{} {
 	f := Func("New_" + structTemplate.structName).
-		Params("I", "interface of the expanded struct").
+		Param("I", "interface of the expanded struct").
 		ImportStruct(structTemplate).
 		Source(fmt.Sprintf(`
 {{ $struct := expand "%s" "I" .I }}

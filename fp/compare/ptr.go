@@ -7,7 +7,7 @@ func init() {
 }
 
 var comparePtr = generic.Func("ComparePtr(val1 T, val2 T) int").
-	Params("T", "the type of value to compare").
+	Param("T", "the type of value to compare").
 	ImportFunc(ByItself).
 	Source(`
 {{ $compare := expand "CompareByItself" "T" (.T|elem) }}
