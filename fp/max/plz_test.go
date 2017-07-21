@@ -5,7 +5,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz"
 	"github.com/v2pro/wombat/fp/testobj"
+	"github.com/v2pro/wombat/generic"
 )
+
+func init() {
+	generic.DynamicCompilationEnabled = true
+}
 
 func Test_max_of_nothing(t *testing.T) {
 	should := require.New(t)

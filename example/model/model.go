@@ -3,13 +3,13 @@ package model
 import (
 	"reflect"
 	"github.com/v2pro/wombat/generic"
-	"github.com/v2pro/wombat/fp/compare"
+	"github.com/v2pro/wombat/fp/max"
 )
 
 func init() {
-	generic.DeclareFunc(compare.ByItself,
+	generic.DeclareFunc(max.ByItselfForPlz,
 		"T", generic.Int)
-	generic.DeclareFunc(compare.ByField,
+	generic.DeclareFunc(max.ByFieldForPlz,
 		"T", reflect.TypeOf(User{}),
 		"F", "Score")
 }

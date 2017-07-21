@@ -8,6 +8,10 @@ import (
 	"github.com/v2pro/wombat/fp/testobj"
 )
 
+func init() {
+	generic.DynamicCompilationEnabled = true
+}
+
 func Test_max_by_field(t *testing.T) {
 	should := require.New(t)
 	f := generic.Expand(ByField, "T", reflect.TypeOf([]testobj.TestObject{}), "F", "Field").

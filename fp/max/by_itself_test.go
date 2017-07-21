@@ -8,6 +8,10 @@ import (
 	"github.com/google/gofuzz"
 )
 
+func init() {
+	generic.DynamicCompilationEnabled = true
+}
+
 func Test_slice_int(t *testing.T) {
 	should := require.New(t)
 	f := generic.Expand(ByItself, "T", reflect.TypeOf([]int{})).

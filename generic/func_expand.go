@@ -20,6 +20,7 @@ var state = struct {
 	declarations      map[string]bool
 	expandedFuncNames map[string]bool
 }{}
+var DynamicCompilationEnabled = false
 
 func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{} {
 	expandLock.Lock()
@@ -31,6 +32,16 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 	expandedFuncName, err := funcTemplate.expand(templateArgs)
 	if err != nil {
 		logger.Error(err, "expand func template failed",
+			"funcTemplate", funcTemplate.funcName,
+			"templateArgs", templateArgs)
+		panic(err.Error())
+	}
+	expandedFunc := expandedFuncs[expandedFuncName]
+	if expandedFunc != nil {
+		return expandedFunc
+	}
+	if !DynamicCompilationEnabled {
+		err := logger.Error(nil, "dynamic compilation disabled, can not expand",
 			"funcTemplate", funcTemplate.funcName,
 			"templateArgs", templateArgs)
 		panic(err.Error())
