@@ -28,17 +28,18 @@ func New(structTemplate *StructTemplate, interfaceType reflect.Type) interface{}
 }
 
 func (structTemplate *StructTemplate) expandCtor(interfaceType reflect.Type) func() interface{} {
-	f := DefineFunc("New_" + structTemplate.structName).
+	ctorTemplate := structTemplate.ctorTemplate()
+	ctor := Expand(ctorTemplate, "I", interfaceType).(func() interface{})
+	return ctor
+}
+
+func (structTemplate *StructTemplate) ctorTemplate() *FuncTemplate {
+	return DefineFunc("New_" + structTemplate.structName + "()interface{}").
 		Param("I", "interface of the expanded struct").
 		ImportStruct(structTemplate).
 		Source(fmt.Sprintf(`
 {{ $struct := expand "%s" "I" .I }}
-
-func {{.funcName}} () interface{} {
-    return &{{$struct}}{}
-}`, structTemplate.structName))
-	ctor := Expand(f, "I", interfaceType).(func() interface{})
-	return ctor
+return &{{$struct}}{}`, structTemplate.structName))
 }
 
 func (structTemplate *StructTemplate) expand(templateArgs []interface{}) (string, error) {

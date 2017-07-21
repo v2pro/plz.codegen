@@ -4,7 +4,8 @@ package model
 import "github.com/v2pro/wombat/generic"
 func init() {
 generic.RegisterExpandedFunc("MaxByItselfForPlz_T_int",MaxByItselfForPlz_T_int)
-generic.RegisterExpandedFunc("MaxByFieldForPlz_F_Score_T_model__User",MaxByFieldForPlz_F_Score_T_model__User)}
+generic.RegisterExpandedFunc("MaxByFieldForPlz_F_Score_T_model__User",MaxByFieldForPlz_F_Score_T_model__User)
+generic.RegisterExpandedFunc("New_Pair_I_model__IntStringPair",New_Pair_I_model__IntStringPair)}
 func CompareSimpleValue_T_int(val1 int,val2 int)( int){
 if val1 < val2 {
 	return -1
@@ -44,4 +45,31 @@ for i := 1; i < len(vals); i++ {
 	}
 }
 return currentMax
+}
+
+
+
+type Pair_I_model__IntStringPair struct {
+    first int
+    second string
+}
+
+func (pair *Pair_I_model__IntStringPair) SetFirst(val int) {
+    pair.first = val
+}
+
+func (pair *Pair_I_model__IntStringPair) First() int {
+    return pair.first
+}
+
+func (pair *Pair_I_model__IntStringPair) SetSecond(val string) {
+    pair.second = val
+}
+
+func (pair *Pair_I_model__IntStringPair) Second() string {
+    return pair.second
+}
+func New_Pair_I_model__IntStringPair()( interface{}){
+
+return &Pair_I_model__IntStringPair{}
 }

@@ -7,6 +7,10 @@ import (
 	"reflect"
 )
 
+func init() {
+	generic.DynamicCompilationEnabled = true
+}
+
 func Test_pair(t *testing.T) {
 	type IntStringPair interface {
 		First() int

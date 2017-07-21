@@ -6,14 +6,21 @@ import (
 	"fmt"
 	"os/exec"
 	"bytes"
+	"flag"
 )
 
 func main() {
+	pkgPath := flag.String("pkg", "", "the package to generate generic code for")
+	flag.Parse()
+	if *pkgPath == "" {
+		flag.Usage()
+		os.Exit(1)
+	}
 	gopath := os.Getenv("GOPATH")
 	if gopath == "" {
 		reportError("GOPATH env not found")
 	}
-	writeCodeGeneratorMain(gopath, "github.com/v2pro/wombat/example/model")
+	writeCodeGeneratorMain(gopath, *pkgPath)
 	executeTmpCodegen(gopath + "/bin/tmp-codegen")
 }
 
@@ -27,12 +34,12 @@ func writeCodeGeneratorMain(gopath string, pkgPath string) {
 	}
 	ioutil.WriteFile(dir+"/main.go", []byte(fmt.Sprintf(`
 package main
-import _ "github.com/v2pro/wombat/example/model"
+import _ "%s"
 import "github.com/v2pro/wombat/generic"
 func main() {
 	generic.GenerateCode("%s", "%s")
 }
-	`, gopath, pkgPath)), 0666)
+	`, pkgPath, gopath, pkgPath)), 0666)
 	goInstallTmpCodegen()
 }
 
