@@ -77,10 +77,7 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 		if err != nil {
 			return "", err
 		}
-		err = funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
-		if err != nil {
-			return "", err
-		}
+		funcTemplate.funcSignature.expand(localOut, expandedFuncName, argMap)
 		err = parsedTemplate.Execute(localOut, argMap)
 		if err != nil {
 			return "", err
@@ -106,8 +103,10 @@ func (funcTemplate *FuncTemplate) parse() (*template.Template, error) {
 	return parsedTemplate, nil
 }
 
-func (funcTemplate *FuncTemplate) toArgMap(templateArgs []interface{}) (map[string]interface{}, error) {
-	argMap := map[string]interface{}{}
+type ArgMap map[string]interface{}
+
+func (funcTemplate *FuncTemplate) toArgMap(templateArgs []interface{}) (ArgMap, error) {
+	argMap := ArgMap{}
 	params := map[string]TemplateParam{}
 	for k, v := range funcTemplate.templateParams {
 		params[k] = v

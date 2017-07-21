@@ -7,20 +7,22 @@ import (
 	"strings"
 )
 
-func internalizeType(typ reflect.Type) (string, error) {
+func internalizeType(typ reflect.Type) string {
 	switch typ.Kind() {
 	case reflect.Struct:
 		return internalizeStruct(typ)
 	case reflect.Int:
-		return "int", nil
+		return "int"
+	case reflect.Slice:
+		return "[]" + internalizeType(typ.Elem())
 	default:
-		return "", logger.Error(nil, "can not internalize type: " + typ.String())
+		panic("can not internalize type: " + typ.String())
 	}
 }
 
 var internalizeStructTmpl *template.Template
 
-func internalizeStruct(typ reflect.Type) (string, error) {
+func internalizeStruct(typ reflect.Type) string {
 	var err error
 	if internalizeStructTmpl == nil {
 		internalizeStructTmpl, err = template.New(typ.String()).Funcs(map[string]interface{}{
@@ -33,7 +35,7 @@ type {{.structName}} struct {
 	{{- end }}
 }`)
 		if err != nil {
-			return "", err
+			panic(err.Error())
 		}
 	}
 	var localOut bytes.Buffer
@@ -43,10 +45,10 @@ type {{.structName}} struct {
 		"structName": structName,
 	})
 	if err != nil {
-		return "", err
+		panic(err.Error())
 	}
 	state.declarations[localOut.String()] = true
-	return structName, nil
+	return structName
 }
 
 func genFields(typ reflect.Type) []reflect.StructField {

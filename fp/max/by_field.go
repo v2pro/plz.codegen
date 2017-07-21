@@ -6,14 +6,15 @@ import (
 	"reflect"
 )
 
-var ByItself = generic.Func("MaxByItself(vals T) E").
+var ByField = generic.Func("MaxByField(vals T) E").
 	Param("T", "array type").
 	Param("E", "array element type", func(argMap generic.ArgMap) interface{} {
-		return argMap["T"].(reflect.Type).Elem()
+	return argMap["T"].(reflect.Type).Elem()
 }).
-	ImportFunc(compare.ByItself).
+	Param("F", "the field to compare").
+	ImportFunc(compare.ByField).
 	Source(`
-{{ $compare := expand "CompareByItself" "T" .E }}
+{{ $compare := expand "CompareByField" "T" .E "F" .F }}
 currentMax := vals[0]
 for i := 1; i < len(vals); i++ {
 	if {{$compare}}(vals[i], currentMax) > 0 {

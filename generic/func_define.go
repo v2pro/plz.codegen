@@ -59,14 +59,14 @@ func (builder *FuncTemplateBuilder) Param(paramName string, paramDescription str
 	}
 	switch len(defaultValues) {
 	case 1:
-		defaultValueProvider, isProvider := defaultValues[0].(func(map[string]interface{})interface{})
+		defaultValueProvider, isProvider := defaultValues[0].(func(ArgMap)interface{})
 		if isProvider {
 			param.DefaultValueProvider = defaultValueProvider
 		} else {
 			if reflect.TypeOf(defaultValues[0]).Kind() == reflect.Func {
 				panic("default value provider should be func(map[string]interface{})interface{}")
 			}
-			param.DefaultValueProvider = func(argMap map[string]interface{}) interface{} {
+			param.DefaultValueProvider = func(argMap ArgMap) interface{} {
 				return defaultValues[0]
 			}
 		}
@@ -125,5 +125,5 @@ func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {
 type TemplateParam struct {
 	Name string
 	Description string
-	DefaultValueProvider func(argMap map[string]interface{}) interface{}
+	DefaultValueProvider func(argMap ArgMap) interface{}
 }

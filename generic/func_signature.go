@@ -73,7 +73,7 @@ type funcReturn struct {
 }
 
 func (signature *funcSignature) expand(out *bytes.Buffer,
-	expandedFuncName string, argMap map[string]interface{}) error {
+	expandedFuncName string, argMap map[string]interface{}) {
 	out.WriteString("\nfunc ")
 	out.WriteString(expandedFuncName)
 	out.WriteByte('(')
@@ -86,11 +86,7 @@ func (signature *funcSignature) expand(out *bytes.Buffer,
 		typ, isType := argMap[param.paramType].(reflect.Type)
 		if isType {
 			if state.testMode {
-				typeName, err := internalizeType(typ)
-				if err != nil {
-					return err
-				}
-				out.WriteString(typeName)
+				out.WriteString(internalizeType(typ))
 			} else {
 				out.WriteString(genName(typ))
 			}
@@ -108,14 +104,17 @@ func (signature *funcSignature) expand(out *bytes.Buffer,
 		out.WriteByte(' ')
 		typ, isType := argMap[ret.returnType].(reflect.Type)
 		if isType {
-			out.WriteString(genName(typ))
+			if state.testMode {
+				out.WriteString(internalizeType(typ))
+			} else {
+				out.WriteString(genName(typ))
+			}
 		} else {
 			out.WriteString(ret.returnType)
 		}
 	}
 	out.WriteByte(')')
 	out.WriteByte('{')
-	return nil
 }
 
 func (funcTemplate *FuncTemplate) expandTestModeEntryFunc(out *bytes.Buffer,
@@ -201,13 +200,5 @@ func objPtr(obj interface{}) unsafe.Pointer {
 	return (*((*emptyInterface)(unsafe.Pointer(&obj)))).word
 }
 	`] = true
-	typeName := typ.String()
-	if typ.PkgPath() != "" {
-		var err error
-		typeName, err = internalizeType(typ)
-		if err != nil {
-			return "", err
-		}
-	}
-	return fmt.Sprintf("*(*%s)(objPtr(%s))", typeName, identifier), nil
+	return fmt.Sprintf("*(*%s)(objPtr(%s))", internalizeType(typ), identifier), nil
 }
