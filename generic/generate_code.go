@@ -3,6 +3,8 @@ package generic
 import (
 	"bytes"
 	"io/ioutil"
+	"fmt"
+	"strings"
 )
 
 var expandedFuncs = map[string]interface{}{}
@@ -15,9 +17,10 @@ func GenerateCode(gopath string, pkgPath string) {
 	state.declarations = map[string]bool{}
 	state.expandedFuncNames = map[string]bool{}
 	state.pkgPath = pkgPath
+	pkgName := findPackageName(gopath, pkgPath)
 	prelog := []byte(`
-package model
-	`)
+package `)
+	prelog = append(prelog, pkgName...)
 	for importPackage := range state.importPackages {
 		prelog = append(prelog, '\n')
 		prelog = append(prelog, `import "`...)
@@ -47,6 +50,28 @@ package model
 	if err != nil {
 		panic(err.Error())
 	}
+}
+
+func findPackageName(gopath string, pkgPath string) string {
+	dir := gopath + "/src/" + pkgPath
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		panic(err.Error())
+	}
+	for _, file := range files {
+		content, err := ioutil.ReadFile(dir + "/" + file.Name())
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		lines := strings.Split(string(content), "\n")
+		for _, line := range lines {
+			if strings.Index(line, "package ") == 0 {
+				return strings.TrimSpace(line[8:])
+			}
+		}
+	}
+	panic("can not tell package from .go files in " + dir)
 }
 
 func RegisterExpandedFunc(expandedFuncName string, expandedFunc interface{}) {

@@ -69,6 +69,8 @@ func executeTmpCodegen(file string) {
 		fmt.Println(outBuf.String())
 		reportError(err.Error())
 	}
+	fmt.Println(errBuf.String())
+	fmt.Println(outBuf.String())
 }
 
 func reportError(msg string) {

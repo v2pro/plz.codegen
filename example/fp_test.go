@@ -11,6 +11,7 @@ import (
 func Test_max_min(t *testing.T) {
 	should := require.New(t)
 	should.Equal(3, plz.Max(1, 3, 2))
+	should.Equal(3, plz.Max(1.0, 3.0, 2.0))
 	should.Equal(model.User{3}, plz.Max(
 		model.User{1}, model.User{3}, model.User{2},
 		"Score"))

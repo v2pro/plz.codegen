@@ -41,9 +41,11 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 		return expandedFunc
 	}
 	if !DynamicCompilationEnabled {
-		err := logger.Error(nil, "dynamic compilation disabled, can not expand",
+		err := logger.Error(nil, "dynamic compilation disabled. " +
+			"please add generic.DeclareFunc to init() and re-run codegen",
 			"funcTemplate", funcTemplate.funcName,
-			"templateArgs", templateArgs)
+			"templateArgs", templateArgs,
+		"definedInFile", funcTemplate.definedInFile)
 		panic(err.Error())
 	}
 	prelog := `

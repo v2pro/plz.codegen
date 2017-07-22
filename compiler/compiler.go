@@ -24,7 +24,7 @@ type API interface {
 
 var ConfigDefault = Config{
 	PluginCacheDir: os.Getenv("HOME") + "/.wombat",
-	SourceTempDir:  "/tmp",
+	SourceTempDir:  os.Getenv("HOME") + "/.wombat",
 }.Froze()
 
 func DynamicCompile(source string) (*plugin.Plugin, error) {

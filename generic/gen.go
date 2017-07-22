@@ -15,6 +15,9 @@ func genName(typ reflect.Type) string {
 		}
 		state.importPackages[typ.PkgPath()] = true
 	}
+	if typ.Kind() == reflect.Ptr {
+		return "*" + genName(typ.Elem())
+	}
 	return typ.String()
 }
 

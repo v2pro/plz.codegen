@@ -3,6 +3,7 @@ package generic
 import (
 	"fmt"
 	"reflect"
+	"runtime"
 )
 
 type FuncTemplateBuilder struct {
@@ -16,8 +17,10 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 	if err != nil {
 		panic(err.Error())
 	}
+	_, definedInFile, _, _ := runtime.Caller(1)
 	return &FuncTemplateBuilder{funcTemplate: &FuncTemplate{
 		funcSignature:           parsedSignature,
+		definedInFile:           definedInFile,
 		templateParams:          map[string]TemplateParam{},
 		importedFuncTemplates:   importedFuncTemplates,
 		importedStructTemplates: importedStructTemplates,
@@ -54,12 +57,12 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 
 func (builder *FuncTemplateBuilder) Param(paramName string, paramDescription string, defaultValues ...interface{}) *FuncTemplateBuilder {
 	param := TemplateParam{
-		Name: paramName,
+		Name:        paramName,
 		Description: paramDescription,
 	}
 	switch len(defaultValues) {
 	case 1:
-		defaultValueProvider, isProvider := defaultValues[0].(func(ArgMap)interface{})
+		defaultValueProvider, isProvider := defaultValues[0].(func(ArgMap) interface{})
 		if isProvider {
 			param.DefaultValueProvider = defaultValueProvider
 		} else {
@@ -109,6 +112,7 @@ func (builder *FuncTemplateBuilder) Source(source string) *FuncTemplate {
 
 type FuncTemplate struct {
 	*funcSignature
+	definedInFile           string
 	templateParams          map[string]TemplateParam
 	templateSource          string
 	generators              map[string]interface{}
@@ -123,7 +127,7 @@ func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {
 }
 
 type TemplateParam struct {
-	Name string
-	Description string
+	Name                 string
+	Description          string
 	DefaultValueProvider func(argMap ArgMap) interface{}
 }
