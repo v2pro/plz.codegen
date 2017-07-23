@@ -24,6 +24,9 @@ var Anything = generic.DefineFunc("CopyAnything(err *error, dst DT, src ST)").
 {{$cp}}(err, dst, src)`)
 
 func dispatch(dstType reflect.Type, srcType reflect.Type) string {
+	if srcType.Kind() == reflect.Ptr {
+		return "CopyFromPtr"
+	}
 	return "CopySimpleValue"
 }
 
