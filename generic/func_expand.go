@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"github.com/v2pro/wombat/compiler"
 	"github.com/v2pro/plz"
-	"fmt"
 	"errors"
 )
 
@@ -41,26 +40,25 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 		return expandedFunc
 	}
 	if !DynamicCompilationEnabled {
-		err := logger.Error(nil, "dynamic compilation disabled. " +
+		err := logger.Error(nil, "dynamic compilation disabled. "+
 			"please add generic.DeclareFunc to init() and re-run codegen",
 			"funcTemplate", funcTemplate.funcName,
 			"templateArgs", templateArgs,
-		"definedInFile", funcTemplate.definedInFile)
+			"definedInFile", funcTemplate.definedInFile)
 		panic(err.Error())
 	}
-	prelog := `
-package main
-	`
+	prelog := []byte("package main")
 	for importPackage := range state.importPackages {
-		prelog = fmt.Sprintf(`
-%s
-import "%s"`, prelog, importPackage)
+		prelog = append(prelog, "\nimport \""...)
+		prelog = append(prelog, importPackage...)
+		prelog = append(prelog, '"')
 	}
 	for declaration := range state.declarations {
-		prelog = prelog + "\n" + declaration
+		prelog = append(prelog, '\n')
+		prelog = append(prelog, declaration...)
 	}
-	expandedSource := state.out.String()
-	plugin, err := compiler.DynamicCompile(prelog + expandedSource)
+	expandedSource := string(append(prelog, state.out.String()...))
+	plugin, err := compiler.DynamicCompile(expandedSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -75,6 +73,9 @@ import "%s"`, prelog, importPackage)
 }
 
 func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, error) {
+	for pkg := range funcTemplate.importedPackages {
+		state.importPackages[pkg] = true
+	}
 	argMap, err := funcTemplate.toArgMap(templateArgs)
 	if err != nil {
 		return "", err

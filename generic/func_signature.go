@@ -91,20 +91,22 @@ func (signature *funcSignature) expand(out *bytes.Buffer,
 		}
 	}
 	out.WriteByte(')')
-	out.WriteByte('(')
-	for i, ret := range signature.funcReturns {
-		if i != 0 {
-			out.WriteByte(',')
+	if len(signature.funcReturns) > 0 {
+		out.WriteByte('(')
+		for i, ret := range signature.funcReturns {
+			if i != 0 {
+				out.WriteByte(',')
+			}
+			out.WriteString(ret.returnName)
+			out.WriteByte(' ')
+			typ, isType := argMap[ret.returnType].(reflect.Type)
+			if isType {
+				out.WriteString(genName(typ))
+			} else {
+				out.WriteString(ret.returnType)
+			}
 		}
-		out.WriteString(ret.returnName)
-		out.WriteByte(' ')
-		typ, isType := argMap[ret.returnType].(reflect.Type)
-		if isType {
-			out.WriteString(genName(typ))
-		} else {
-			out.WriteString(ret.returnType)
-		}
+		out.WriteByte(')')
 	}
-	out.WriteByte(')')
 	out.WriteByte('{')
 }
