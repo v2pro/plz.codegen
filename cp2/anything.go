@@ -27,7 +27,17 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 	if srcType.Kind() == reflect.Ptr {
 		return "CopyFromPtr"
 	}
-	return "CopySimpleValue"
+	if dstType.Kind() == reflect.Ptr {
+		switch dstType.Elem().Kind() {
+		case reflect.Ptr:
+			return "CopyIntoPtr"
+		case reflect.Int, reflect.Int8:
+			if srcType.Kind() == dstType.Elem().Kind() {
+				return "CopySimpleValue"
+			}
+		}
+	}
+	panic("do not know how to copy " + srcType.String() + " to " + dstType.String())
 }
 
 var AnythingForPlz = generic.DefineFunc("CopyAnythingForPlz(dst interface{}, src interface{}) error").
