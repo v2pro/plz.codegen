@@ -34,13 +34,15 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		if srcType.Kind() == reflect.Slice && dstType.Elem().Kind() == reflect.Array {
 			return "CopySliceToArray"
 		}
-		if srcType.Kind() == reflect.Slice && dstType.Elem().Kind() == reflect.Slice {
+		if srcType.Kind() == reflect.Array && dstType.Elem().Kind() == reflect.Slice {
 			return "CopySliceToSlice"
 		}
 		if dstType.Elem().Kind() == srcType.Kind() {
 			switch dstType.Elem().Kind() {
 			case reflect.Array:
 				return "CopyArrayToArray"
+			case reflect.Slice:
+				return "CopySliceToSlice"
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 				reflect.Bool, reflect.String, reflect.Float32, reflect.Float64:
