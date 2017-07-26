@@ -28,13 +28,16 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		return "CopyFromPtr"
 	}
 	if dstType.Kind() == reflect.Ptr {
-		switch dstType.Elem().Kind() {
-		case reflect.Ptr:
+		if dstType.Elem().Kind() == reflect.Ptr {
 			return "CopyIntoPtr"
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-			reflect.Bool, reflect.String, reflect.Float32, reflect.Float64:
-			if srcType.Kind() == dstType.Elem().Kind() {
+		}
+		if dstType.Elem().Kind() == srcType.Kind() {
+			switch dstType.Elem().Kind() {
+			case reflect.Array:
+				return "CopyArrayToArray"
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+				reflect.Bool, reflect.String, reflect.Float32, reflect.Float64:
 				return "CopySimpleValue"
 			}
 		}
