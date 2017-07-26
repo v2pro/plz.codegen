@@ -6,6 +6,8 @@ import (
 	"reflect"
 )
 
+var Dispatchers = []func(dstType, srcType reflect.Type) string{}
+
 func init() {
 	util.GenCopy = func(dstType reflect.Type, srcType reflect.Type) func(interface{}, interface{}) error {
 		var ct func(interface{}, interface{}) error
@@ -30,6 +32,12 @@ var Anything = generic.DefineFunc("CopyAnything(err *error, dst DT, src ST)").
 {{$cp}}(err, dst, src)`)
 
 func dispatch(dstType reflect.Type, srcType reflect.Type) string {
+	for _, dispatcher := range Dispatchers {
+		tmpl := dispatcher(dstType, srcType)
+		if tmpl != "" {
+			return tmpl
+		}
+	}
 	if srcType.Kind() == reflect.Ptr {
 		switch srcType.Elem().Kind() {
 		case reflect.Ptr, reflect.Map, reflect.Slice:

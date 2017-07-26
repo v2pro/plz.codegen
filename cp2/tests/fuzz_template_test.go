@@ -4,7 +4,12 @@ import (
 	"github.com/v2pro/wombat/generic"
 	"reflect"
 	"testing"
+	_ "github.com/v2pro/wombat/cp2"
 )
+
+func init() {
+	generic.DynamicCompilationEnabled = true
+}
 
 var fuzzTestFunc = generic.DefineFunc("RandomTest(t *testing.T)").
 	Param("DT", "destination type").
