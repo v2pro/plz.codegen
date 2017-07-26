@@ -18,24 +18,10 @@ var copyJsonToArray = generic.DefineFunc(
 	ImportFunc(cp2.Anything).
 	Generators(
 	"ptrArrayElem", func(typ reflect.Type) reflect.Type {
-		if typ.Kind() != reflect.Ptr {
-			panic("unexpected")
-		}
-		typ = typ.Elem()
-		if typ.Kind() != reflect.Array {
-			panic("unexpected")
-		}
-		return reflect.PtrTo(typ.Elem())
+		return reflect.PtrTo(typ.Elem().Elem())
 	},
 	"arrayLen", func(typ reflect.Type) int {
-		if typ.Kind() != reflect.Ptr {
-			panic("unexpected")
-		}
-		typ = typ.Elem()
-		if typ.Kind() != reflect.Array {
-			panic("unexpected")
-		}
-		return typ.Len()
+		return typ.Elem().Len()
 	}).
 	Source(`
 {{ $cpElem := expand "CopyAnything" "DT" (.DT|ptrArrayElem) "ST" .ST }}
