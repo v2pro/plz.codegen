@@ -8,7 +8,7 @@ import (
 
 func init() {
 	cp2.Anything.ImportFunc(copyJsonToSimpleValue)
-	for _, kind := range []reflect.Kind{reflect.Int, reflect.String} {
+	for kind := range simpleValueMap {
 		fromJsonMap[kind] = "CopyJsonToSimpleValue"
 	}
 }
@@ -18,7 +18,10 @@ var copyJsonToSimpleValue = generic.DefineFunc(
 	Param("DT", "the dst type to copy into").
 	Param("ST", "the src type to copy from").
 	ImportFunc(cp2.Anything).
-	Generators("opFuncName", genOpFuncName).
+	Generators(
+	"opFuncName", func(typ reflect.Type) string {
+		return simpleValueMap[typ.Kind()]
+	}).
 	Source(`
 *dst = src.Read{{.DT|elem|opFuncName}}()
 	`)
