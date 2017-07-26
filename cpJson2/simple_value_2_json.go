@@ -4,23 +4,13 @@ import (
 	"github.com/v2pro/wombat/generic"
 	"github.com/v2pro/wombat/cp2"
 	"reflect"
-	"github.com/json-iterator/go"
 )
-
-var streamType = reflect.TypeOf(new(jsoniter.Stream))
 
 func init() {
 	cp2.Anything.ImportFunc(copySimpleValueToJson)
-	cp2.Dispatchers = append(cp2.Dispatchers, func(dstType, srcType reflect.Type) string {
-		if dstType != streamType {
-			return ""
-		}
-		switch srcType.Kind() {
-		case reflect.Int:
-			return "CopySimpleValueToJson"
-		}
-		return ""
-	})
+	for _, kind := range []reflect.Kind{reflect.Int} {
+		toJsonMap[kind] = "CopySimpleValueToJson"
+	}
 }
 
 var copySimpleValueToJson = generic.DefineFunc(
