@@ -31,6 +31,9 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		if dstType.Elem().Kind() == reflect.Ptr {
 			return "CopyIntoPtr"
 		}
+		if srcType.Kind() == reflect.Slice && dstType.Elem().Kind() == reflect.Array {
+			return "CopySliceToArray"
+		}
 		if dstType.Elem().Kind() == srcType.Kind() {
 			switch dstType.Elem().Kind() {
 			case reflect.Array:
