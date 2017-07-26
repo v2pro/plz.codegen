@@ -8,7 +8,7 @@ import (
 
 func init() {
 	cp2.Anything.ImportFunc(copySimpleValueToJson)
-	for _, kind := range []reflect.Kind{reflect.Int} {
+	for _, kind := range []reflect.Kind{reflect.Int, reflect.String} {
 		toJsonMap[kind] = "CopySimpleValueToJson"
 	}
 }

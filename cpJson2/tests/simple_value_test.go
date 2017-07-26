@@ -8,3 +8,7 @@ import (
 func Test_int(t *testing.T) {
 	runFuzzTest(t, generic.Int)
 }
+
+func Test_string(t *testing.T) {
+	runFuzzTest(t, generic.String)
+}
