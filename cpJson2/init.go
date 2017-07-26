@@ -16,6 +16,9 @@ func init() {
 		if srcType != iteratorType {
 			return ""
 		}
+		if dstType.Kind() == reflect.Map {
+			return "CopyJsonToMap"
+		}
 		if dstType.Kind() != reflect.Ptr {
 			return ""
 		}
