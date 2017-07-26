@@ -29,3 +29,7 @@ func Test_slice_int_2_array_int(t *testing.T) {
 func Test_slice_int_2_slice_int(t *testing.T) {
 	runFuzzTest(t, reflect.TypeOf([]int{}), reflect.TypeOf([]int{}))
 }
+
+func Test_map_string_int_2_map_string_int(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(map[string]int{}), reflect.TypeOf(map[string]int{}))
+}

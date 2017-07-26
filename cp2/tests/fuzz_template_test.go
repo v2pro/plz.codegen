@@ -27,7 +27,7 @@ for i := 0; i < 100; i++ {
 	helper.FromJson(&dst2, srcJson)
 	dst1Json := helper.ToJson(dst1)
 	dst2Json := helper.ToJson(dst2)
-	should.Equal(dst1Json, dst2Json)
+	should.Equal(dst2Json, dst1Json)
 }`)
 
 func runFuzzTest(t *testing.T, dstType reflect.Type, srcType reflect.Type) {
