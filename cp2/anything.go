@@ -34,6 +34,9 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		if srcType.Kind() == reflect.Slice && dstType.Elem().Kind() == reflect.Array {
 			return "CopySliceToArray"
 		}
+		if srcType.Kind() == reflect.Slice && dstType.Elem().Kind() == reflect.Slice {
+			return "CopySliceToSlice"
+		}
 		if dstType.Elem().Kind() == srcType.Kind() {
 			switch dstType.Elem().Kind() {
 			case reflect.Array:
