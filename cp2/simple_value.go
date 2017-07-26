@@ -9,4 +9,8 @@ func init() {
 var copySimpleValue = generic.DefineFunc("CopySimpleValue(err *error, dst DT, src ST)").
 	Param("DT", "the dst type to copy into").
 	Param("ST", "the src type to copy from").
-	Source(`*dst = ({{.DT|elem|name}})(src)`)
+	Source(`
+if dst != nil {
+	*dst = ({{.DT|elem|name}})(src)
+}
+`)

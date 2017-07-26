@@ -19,6 +19,10 @@ var copySliceToSlice = generic.DefineFunc("CopySliceToSlice(err *error, dst DT, 
 	}).
 	Source(`
 {{ $cp := expand "CopyAnything" "DT" (.DT|ptrSliceElem) "ST" (.ST|elem) }}
+if src == nil {
+	*dst = nil
+	return
+}
 dstLen := len(*dst)
 if len(src) < dstLen {
 	dstLen = len(src)

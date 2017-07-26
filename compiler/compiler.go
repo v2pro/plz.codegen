@@ -28,6 +28,9 @@ var ConfigDefault = Config{
 }.Froze()
 
 func DynamicCompile(source string) (*plugin.Plugin, error) {
+	if os.Getenv("WOMBAT_DEBUG") == "true" {
+		fmt.Println(annotateLines(source))
+	}
 	return ConfigDefault.DynamicCompile(source)
 }
 

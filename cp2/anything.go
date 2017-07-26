@@ -25,7 +25,10 @@ var Anything = generic.DefineFunc("CopyAnything(err *error, dst DT, src ST)").
 
 func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 	if srcType.Kind() == reflect.Ptr {
-		return "CopyFromPtr"
+		switch srcType.Elem().Kind() {
+		case reflect.Ptr, reflect.Map, reflect.Slice:
+			return "CopyFromPtrPtr"
+		}
 	}
 	if dstType.Kind() == reflect.Map &&
 		srcType.Kind() == reflect.Map {
@@ -62,6 +65,9 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 				return "CopySimpleValue"
 			}
 		}
+	}
+	if srcType.Kind() == reflect.Ptr {
+		return "CopyFromPtr"
 	}
 	panic("do not know how to copy " + srcType.String() + " to " + dstType.String())
 }
