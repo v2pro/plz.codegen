@@ -14,3 +14,11 @@ type TypeC struct {
 	Field1 int
 	Field2 int
 }
+
+type TypeD struct {
+	Field int
+}
+
+type TypeE struct {
+	Field *int
+}

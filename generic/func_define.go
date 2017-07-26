@@ -25,6 +25,7 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 		importedFuncTemplates:   importedFuncTemplates,
 		importedStructTemplates: importedStructTemplates,
 		importedPackages: map[string]bool{},
+		declarations: map[string]bool{},
 		generators: map[string]interface{}{
 			"name": genName,
 			"elem": genElem,
@@ -111,6 +112,11 @@ func (builder *FuncTemplateBuilder) ImportPackage(pkg string) *FuncTemplateBuild
 	return builder
 }
 
+func (builder *FuncTemplateBuilder) Declare(declaration string) *FuncTemplateBuilder {
+	builder.funcTemplate.declarations[declaration] = true
+	return builder
+}
+
 func (builder *FuncTemplateBuilder) Source(source string) *FuncTemplate {
 	builder.funcTemplate.templateSource = source
 	return builder.funcTemplate
@@ -125,6 +131,7 @@ type FuncTemplate struct {
 	importedFuncTemplates   map[string]*FuncTemplate
 	importedStructTemplates map[string]*StructTemplate
 	importedPackages        map[string]bool
+	declarations        map[string]bool
 }
 
 func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {

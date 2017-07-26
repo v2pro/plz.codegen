@@ -76,6 +76,9 @@ func (funcTemplate *FuncTemplate) expand(templateArgs []interface{}) (string, er
 	for pkg := range funcTemplate.importedPackages {
 		state.importPackages[pkg] = true
 	}
+	for declaration := range funcTemplate.declarations {
+		state.declarations[declaration] = true
+	}
 	argMap, err := funcTemplate.toArgMap(templateArgs)
 	if err != nil {
 		return "", err

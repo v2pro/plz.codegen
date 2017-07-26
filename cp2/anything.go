@@ -8,9 +8,15 @@ import (
 
 func init() {
 	util.GenCopy = func(dstType reflect.Type, srcType reflect.Type) func(interface{}, interface{}) error {
-		funcObj := generic.Expand(AnythingForPlz, "DT", dstType, "ST", srcType)
-		f := funcObj.(func(interface{}, interface{}) error)
-		return f
+		var ct func(interface{}, interface{}) error
+		funcObj := generic.Expand(AnythingForPlz,
+			"DT", dstType,
+			"ST", srcType,
+			"CT", reflect.TypeOf(ct))
+		f := funcObj.(func(func(interface{}, interface{}) error, interface{}, interface{}) error)
+		return func(dst, src interface{}) error {
+			return f(util.Copy, dst, src)
+		}
 	}
 }
 
@@ -29,6 +35,9 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		case reflect.Ptr, reflect.Map, reflect.Slice:
 			return "CopyFromPtrPtr"
 		}
+	}
+	if srcType.Kind() == reflect.Interface && srcType.NumMethod() == 0 {
+		return "CopyFromInterface"
 	}
 	if dstType.Kind() == reflect.Map &&
 		srcType.Kind() == reflect.Map {
@@ -72,12 +81,15 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 	panic("do not know how to copy " + srcType.String() + " to " + dstType.String())
 }
 
-var AnythingForPlz = generic.DefineFunc("CopyAnythingForPlz(dst interface{}, src interface{}) error").
+var AnythingForPlz = generic.DefineFunc("CopyAnythingForPlz(theCopyDynamically CT, dst interface{}, src interface{}) error").
 	Param("DT", "the dst type to copy into").
 	Param("ST", "the src type to copy from").
+	Param("CT", "type of copy dynamically function").
 	ImportFunc(Anything).
+	Declare("var copyDynamically func(interface{}, interface{}) error").
 	Source(`
 {{ $cp := expand "CopyAnything" "DT" .DT "ST" .ST }}
+copyDynamically = theCopyDynamically
 var err error
 {{$cp}}(&err, dst.({{.DT|name}}), src.({{.ST|name}}))
 return err`)
