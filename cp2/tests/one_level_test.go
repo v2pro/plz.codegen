@@ -42,3 +42,7 @@ func Test_struct_2_struct(t *testing.T) {
 func Test_struct_2_map_string_int(t *testing.T) {
 	runFuzzTest(t, reflect.TypeOf(map[string]int{}), reflect.TypeOf(model.TypeC{}))
 }
+
+func Test_map_string_int_2_struct(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(model.TypeC{}), reflect.TypeOf(map[string]int{}))
+}
