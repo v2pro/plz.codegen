@@ -31,6 +31,10 @@ func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 		srcType.Kind() == reflect.Map {
 		return "CopyMapToMap"
 	}
+	if dstType.Kind() == reflect.Map &&
+		srcType.Kind() == reflect.Struct {
+		return "CopyStructToMap"
+	}
 	if dstType.Kind() == reflect.Ptr {
 		if dstType.Elem().Kind() == reflect.Ptr || dstType.Elem().Kind() == reflect.Map {
 			return "CopyIntoPtr"
