@@ -1,8 +1,8 @@
 
 package example
+import "io"
 import "github.com/v2pro/wombat/example/model"
 import "github.com/v2pro/wombat/generic"
-import "io"
 func init() {
 generic.RegisterExpandedFunc("CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_model__UserInfo_ST_model__User2",CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_model__UserInfo_ST_model__User2)
 generic.RegisterExpandedFunc("CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_string_ST_string",CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_string_ST_string)
