@@ -30,7 +30,7 @@ func genElem(typ reflect.Type) reflect.Type {
 	return typ.Elem()
 }
 
-func genMethod(methodName string, typ reflect.Type) (*reflect.Method, error){
+func genMethod(methodName string, typ reflect.Type) (*reflect.Method, error) {
 	method, found := typ.MethodByName(methodName)
 	if found {
 		return &method, nil

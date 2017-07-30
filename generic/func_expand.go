@@ -35,17 +35,20 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			"templateArgs", templateArgs)
 		panic(err.Error())
 	}
-	expandedFunc := expandedFuncs[expandedFuncName]
-	if expandedFunc != nil {
-		return expandedFunc
-	}
-	if !DynamicCompilationEnabled {
-		err := logger.Error(nil, "dynamic compilation disabled. "+
-			"please add generic.DeclareFunc to init() and re-run codegen",
-			"funcTemplate", funcTemplate.funcName,
-			"templateArgs", templateArgs,
-			"definedInFile", funcTemplate.definedInFile)
-		panic(err.Error())
+	if !inDeclaringByExample {
+		expandedFunc := expandedFuncs[expandedFuncName]
+		if expandedFunc != nil {
+			return expandedFunc
+		}
+		if !DynamicCompilationEnabled {
+			err := logger.Error(nil, "dynamic compilation disabled. "+
+				"please add generic.DeclareFunc to init() and re-run codegen",
+				"funcTemplate", funcTemplate.funcName,
+				"templateArgs", templateArgs,
+				"definedInFile", funcTemplate.definedInFile,
+				"expandedFuncName", expandedFuncName)
+			panic(err.Error())
+		}
 	}
 	prelog := []byte("package main")
 	for importPackage := range state.importPackages {
@@ -68,6 +71,13 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			"expandedFuncName", expandedFuncName,
 			"expandedSource", expandedSource)
 		panic(err.Error())
+	}
+	if inDeclaringByExample {
+		declaration := funcDeclaration{
+			funcTemplate: funcTemplate,
+			templateArgs: templateArgs,
+		}
+		funcDeclarations = append(funcDeclarations, declaration)
 	}
 	return symbol
 }

@@ -21,6 +21,9 @@ func GenerateCode(gopath string, pkgPath string) {
 	prelog := []byte(`
 package `)
 	prelog = append(prelog, pkgName...)
+	for _, funcDeclaration := range funcDeclarations {
+		funcDeclaration.funcTemplate.expand(funcDeclaration.templateArgs)
+	}
 	for importPackage := range state.importPackages {
 		prelog = append(prelog, '\n')
 		prelog = append(prelog, `import "`...)
@@ -32,6 +35,9 @@ package `)
 		expandedFuncName, err := funcDeclaration.funcTemplate.expand(funcDeclaration.templateArgs)
 		if err != nil {
 			panic(err.Error())
+		}
+		for declaration := range funcDeclaration.funcTemplate.declarations {
+			state.declarations[declaration] = true
 		}
 		prelog = append(prelog, '\n')
 		prelog = append(prelog, `generic.RegisterExpandedFunc("`...)

@@ -7,9 +7,16 @@ import (
 	"github.com/v2pro/wombat/generic"
 	"github.com/v2pro/wombat/example/model"
 	"github.com/v2pro/wombat/container"
+	"github.com/v2pro/wombat/container/pair"
 )
 
-func Test_pair(t *testing.T) {
+func init() {
+	generic.Declare(func() {
+		generic.New(pair.Pair, reflect.TypeOf(new(model.IntStringPair)).Elem())
+	})
+}
+
+func Demo_pair(t *testing.T) {
 	should := require.New(t)
 	intStringPairType := reflect.TypeOf(new(model.IntStringPair)).Elem()
 	pair := generic.New(container.Pair, intStringPairType).(model.IntStringPair)
