@@ -37,3 +37,23 @@ func Test_slice_slice_int(t *testing.T) {
 func Test_slice_struct(t *testing.T) {
 	runFuzzTest(t, reflect.TypeOf([]model.TypeA{}))
 }
+
+func Test_struct_and_other(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(model.TypeC{}))
+}
+
+func Test_map_string_array_int(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(map[string][3]int{}))
+}
+
+func Test_map_string_slice_int(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(map[string][]int{}))
+}
+
+func Test_map_string_struct(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(map[string]model.TypeA{}))
+}
+
+func Test_map_string_map_string_int(t *testing.T) {
+	runFuzzTest(t, reflect.TypeOf(map[string]map[string]int{}))
+}

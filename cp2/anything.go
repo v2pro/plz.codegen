@@ -25,11 +25,37 @@ func init() {
 var Anything = generic.DefineFunc("CopyAnything(err *error, dst DT, src ST)").
 	Param("DT", "the dst type to copy into").
 	Param("ST", "the src type to copy from").
-	Generators("dispatch", dispatch).
+	Generators(
+	"dispatch", dispatch,
+	"hasErrorField", func(typ reflect.Type) bool {
+		if typ.Kind() != reflect.Ptr {
+			return false
+		}
+		typ = typ.Elem()
+		if typ.Kind() != reflect.Struct {
+			return false
+		}
+		_, found := typ.FieldByName("Error")
+		return found
+	}).
+	ImportPackage("io").
+	Declare("var ioEOF = io.EOF").
 	Source(`
 {{ $tmpl := dispatch .DT .ST }}
 {{ $cp := expand $tmpl "DT" .DT "ST" .ST }}
-{{$cp}}(err, dst, src)`)
+{{$cp}}(err, dst, src)
+{{ if hasErrorField .ST }}
+if src.Error != nil && src.Error != ioEOF {
+	*err = src.Error
+}
+{{ end }}
+{{ if hasErrorField .DT }}
+if dst.Error != nil {
+	*err = dst.Error
+}
+{{ end }}
+`)
+
 
 func dispatch(dstType reflect.Type, srcType reflect.Type) string {
 	for _, dispatcher := range Dispatchers {
