@@ -11,8 +11,8 @@ generic.RegisterExpandedFunc("MaxByItselfForPlz_T_int",MaxByItselfForPlz_T_int)
 generic.RegisterExpandedFunc("MaxByItselfForPlz_T_float64",MaxByItselfForPlz_T_float64)
 generic.RegisterExpandedFunc("MaxByFieldForPlz_F_Score_T_model__User",MaxByFieldForPlz_F_Score_T_model__User)
 generic.RegisterExpandedFunc("New_Pair_I_model__IntStringPair",New_Pair_I_model__IntStringPair)}
-var copyDynamically func(interface{}, interface{}) error
 var ioEOF = io.EOF
+var copyDynamically func(interface{}, interface{}) error
 func CopySimpleValue_DT_ptr_string_ST_string(err *error,dst *string,src string){
 if dst != nil {
 	*dst = (string)(src)

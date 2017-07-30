@@ -35,7 +35,12 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			"templateArgs", templateArgs)
 		panic(err.Error())
 	}
-	if !inDeclaringByExample {
+	if inDeclaringByExample {
+		funcDeclarations = append(funcDeclarations, funcDeclaration{
+			funcTemplate: funcTemplate,
+			templateArgs: templateArgs,
+		})
+	} else {
 		expandedFunc := expandedFuncs[expandedFuncName]
 		if expandedFunc != nil {
 			return expandedFunc
@@ -71,13 +76,6 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			"expandedFuncName", expandedFuncName,
 			"expandedSource", expandedSource)
 		panic(err.Error())
-	}
-	if inDeclaringByExample {
-		declaration := funcDeclaration{
-			funcTemplate: funcTemplate,
-			templateArgs: templateArgs,
-		}
-		funcDeclarations = append(funcDeclarations, declaration)
 	}
 	return symbol
 }
