@@ -1,8 +1,8 @@
 
 package example
+import "github.com/v2pro/wombat/example/model"
 import "github.com/v2pro/wombat/generic"
 import "io"
-import "github.com/v2pro/wombat/example/model"
 func init() {
 generic.RegisterExpandedFunc("CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_model__UserInfo_ST_model__User2",CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_model__UserInfo_ST_model__User2)
 generic.RegisterExpandedFunc("CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_string_ST_string",CopyAnythingForPlz_CT_gXD56NMK6FVXA26GM25XVH4ZILKLIKTKL_DT_ptr_string_ST_string)
@@ -11,8 +11,8 @@ generic.RegisterExpandedFunc("MaxByItselfForPlz_T_int",MaxByItselfForPlz_T_int)
 generic.RegisterExpandedFunc("MaxByItselfForPlz_T_float64",MaxByItselfForPlz_T_float64)
 generic.RegisterExpandedFunc("MaxByFieldForPlz_F_Score_T_model__User",MaxByFieldForPlz_F_Score_T_model__User)
 generic.RegisterExpandedFunc("New_Pair_I_model__IntStringPair",New_Pair_I_model__IntStringPair)}
-var ioEOF = io.EOF
 var copyDynamically func(interface{}, interface{}) error
+var ioEOF = io.EOF
 func CopySimpleValue_DT_ptr_string_ST_string(err *error,dst *string,src string){
 if dst != nil {
 	*dst = (string)(src)

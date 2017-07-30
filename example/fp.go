@@ -9,7 +9,7 @@ import (
 	"github.com/v2pro/wombat/generic"
 )
 
-//go:generate codegen -pkg github.com/v2pro/wombat/example
+//go:generate wombat-codegen -pkg github.com/v2pro/wombat/example
 func init() {
 	generic.Declare(func() {
 		plz.Max(int(0))
