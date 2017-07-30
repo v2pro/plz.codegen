@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/v2pro/plz"
 	"testing"
+	_ "github.com/v2pro/wombat/cp2"
 )
 
 type MyInterface interface{
