@@ -9,26 +9,23 @@ import (
 	"encoding/base32"
 	"runtime"
 	"bytes"
-	"github.com/v2pro/plz"
 	"strings"
 	"strconv"
-	"github.com/v2pro/plz/logging"
 	"fmt"
+	"github.com/v2pro/plz/countlog"
 )
-
-var logger = plz.LoggerOf("package", "gen")
 
 type API interface {
 	DynamicCompile(source string) (*plugin.Plugin, error)
 }
 
 var ConfigDefault = Config{
-	PluginCacheDir: os.Getenv("HOME") + "/.wombat",
-	SourceTempDir:  os.Getenv("HOME") + "/.wombat",
+	PluginCacheDir: os.Getenv("HOME") + "/.docstore_handler",
+	SourceTempDir:  os.Getenv("HOME") + "/.docstore_handler",
 }.Froze()
 
 func DynamicCompile(source string) (*plugin.Plugin, error) {
-	if os.Getenv("WOMBAT_DEBUG") == "true" {
+	if os.Getenv("DOCSTORE_DEBUG") == "true" {
 		fmt.Println(annotateLines(source))
 	}
 	return ConfigDefault.DynamicCompile(source)
@@ -52,9 +49,11 @@ func (frozen *frozenConfig) DynamicCompile(source string) (*plugin.Plugin, error
 	if _, err := os.Stat(cfg.PluginCacheDir); err != nil {
 		err := os.Mkdir(cfg.PluginCacheDir, 0777)
 		if err != nil {
-			return nil, logger.Error(err,
-				"failed to create plugin cache dir",
+			countlog.Error(
+				"event!compiler.failed to create plugin cache dir",
+				"err", err,
 				"dir", cfg.PluginCacheDir)
+			return nil, err
 		}
 	}
 	sourceHash := hash(source)
@@ -63,17 +62,15 @@ func (frozen *frozenConfig) DynamicCompile(source string) (*plugin.Plugin, error
 	if _, err := os.Stat(soFileName); err == nil {
 		thePlugin, err := plugin.Open(soFileName)
 		if err != nil {
-			logger.Warning(
-				"failed to load cached plugin",
+			countlog.Warn(
+				"event!compiler.failed to load cached plugin",
 				"soFileName", soFileName)
 		} else {
 			if verifySourceHash(thePlugin, sourceHash) {
-				if logger.ShouldLog(logging.DebugLevel) {
-					logger.Debug("reuse plugin", "soFileName", soFileName)
-				}
+				countlog.Debug("event!compiler.reuse plugin", "soFileName", soFileName)
 				return thePlugin, nil
 			}
-			logger.Info("cached date plugin is out of date", "soFileName", soFileName)
+			countlog.Info("event!compiler.cached date plugin is out of date", "soFileName", soFileName)
 		}
 	}
 	err := ioutil.WriteFile(srcFileName, []byte(fmt.Sprintf(`
@@ -81,35 +78,36 @@ func (frozen *frozenConfig) DynamicCompile(source string) (*plugin.Plugin, error
 var SOURCE__HASH = "%s"
 	`, source, sourceHash)), 0666)
 	if err != nil {
-		return nil, logger.Error(err,
-			"failed to write source temp file",
+		countlog.Error("event!compiler.failed to write source temp file",
+			"err", err,
 			"srcFileName", srcFileName)
+		return nil, err
 	}
-	if logger.ShouldLog(logging.DebugLevel) {
-		logger.Debug("build plugin", "soFileName", soFileName, "srcFileName", srcFileName)
-	}
-	cmd := exec.Command("go", "build", "-buildmode=plugin", "-o", soFileName, srcFileName)
+	countlog.Debug("event!compiler.build plugin", "soFileName", soFileName, "srcFileName", srcFileName)
+	cmd := exec.Command("go", "build", "-gcflags", "-N", "-buildmode=plugin", "-o", soFileName, srcFileName)
 	var errBuf bytes.Buffer
 	cmd.Stderr = &errBuf
 	var outBuf bytes.Buffer
 	cmd.Stdout = &outBuf
 	err = cmd.Run()
 	if err != nil {
-		return nil, logger.Error(err,
-			"failed to compile generated plugin",
+		countlog.Error(
+			"event!compiler.failed to compile generated plugin",
+			"err", err,
 			"stdout", outBuf.String(),
 			"stderr", errBuf.String(),
 			"srcFileName", srcFileName,
 			"source", annotateLines(source))
+		return nil, err
 	}
-	if logger.ShouldLog(logging.DebugLevel) {
-		logger.Debug("open plugin", "soFileName", soFileName)
-	}
+	countlog.Debug("event!compiler.open plugin", "soFileName", soFileName)
 	thePlugin, err := plugin.Open(soFileName)
 	if err != nil {
-		return nil, logger.Error(err,
-			"failed to load generated plugin",
+		countlog.Error(
+			"event!compiler.failed to load generated plugin",
+			"err", err,
 			"soFileName", soFileName)
+		return nil, err
 	}
 	return thePlugin, nil
 }
@@ -137,16 +135,16 @@ func annotateLines(source string) string {
 func verifySourceHash(thePlugin *plugin.Plugin, sourceHash string) bool {
 	symbol, err := thePlugin.Lookup("SOURCE__HASH")
 	if err != nil {
-		logger.Error(err, "SOURCE__HASH missing from so")
+		countlog.Error("event!compiler.SOURCE__HASH missing from so", "err", err)
 		return false
 	}
 	actualSourceHash, isStr := symbol.(*string)
 	if !isStr {
-		logger.Error(nil, "SOURCE__HASH is not string")
+		countlog.Error("event!compiler.SOURCE__HASH is not string")
 		return false
 	}
 	if *actualSourceHash != sourceHash {
-		logger.Error(nil, "SOURCE__HASH mismatch",
+		countlog.Error("event!compiler.SOURCE__HASH mismatch",
 			"expected", sourceHash,
 			"actual", *actualSourceHash)
 		return false

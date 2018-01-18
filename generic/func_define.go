@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"github.com/v2pro/plz/countlog"
 )
 
 type FuncTemplateBuilder struct {
@@ -24,8 +25,8 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 		templateParams:          map[string]TemplateParam{},
 		importedFuncTemplates:   importedFuncTemplates,
 		importedStructTemplates: importedStructTemplates,
-		importedPackages: map[string]bool{},
-		declarations: map[string]bool{},
+		importedPackages:        map[string]bool{},
+		declarations:            map[string]bool{},
 		generators: map[string]interface{}{
 			"name": genName,
 			"elem": genElem,
@@ -34,8 +35,11 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 				if depFunc != nil {
 					expandedFuncName, err := depFunc.expand(templateArgs)
 					if err != nil {
-						return "", logger.Error(err, fmt.Sprintf("expand func %s failed", depName),
+						countlog.Error("event!expand func failed",
+							"depName", depName,
+							"err", err,
 							"templateArgs", templateArgs)
+						return "", err
 					}
 					return expandedFuncName, nil
 				}
@@ -43,12 +47,15 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 				if depStruct != nil {
 					expandedStructName, err := depStruct.expand(templateArgs)
 					if err != nil {
-						return "", logger.Error(err, fmt.Sprintf("expand struct %s failed", depName),
+						countlog.Error("event!expand struct failed",
+							"depName", depName,
+							"err", err,
 							"templateArgs", templateArgs)
+						return "", err
 					}
 					return expandedStructName, nil
 				}
-				logger.Error(nil, "missing dependency", "depName", depName)
+				countlog.Error("event!missing dependency", "depName", depName)
 				return "", fmt.Errorf(
 					"referenced generic function %s should be imported by ImportFunc",
 					depName)
@@ -131,7 +138,7 @@ type FuncTemplate struct {
 	importedFuncTemplates   map[string]*FuncTemplate
 	importedStructTemplates map[string]*StructTemplate
 	importedPackages        map[string]bool
-	declarations        map[string]bool
+	declarations            map[string]bool
 }
 
 func (funcTemplate *FuncTemplate) ImportFunc(funcTemplates ...*FuncTemplate) {

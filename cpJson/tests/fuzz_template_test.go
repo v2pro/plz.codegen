@@ -27,10 +27,10 @@ for i := 0; i < 100; i++ {
 	var src {{.T|name}}
 	fz.Fuzz(&src)
 	stream := jsoniter.NewStream(jsoniter.ConfigDefault, nil, 512)
-	should.Nil(plz.Copy(stream, src))
+	should.NilValue(plz.Copy(stream, src))
 	var dst {{.T|name}}
 	iterator := jsoniter.ParseBytes(jsoniter.ConfigDefault, stream.Buffer())
-	should.Nil(plz.Copy(&dst, iterator))
+	should.NilValue(plz.Copy(&dst, iterator))
 	if !reflect.DeepEqual(src, dst) {
 		fmt.Println(src)
 		fmt.Println(string(stream.Buffer()))

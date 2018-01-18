@@ -2,7 +2,6 @@ package cp
 
 import (
 	"github.com/v2pro/wombat/generic"
-	"github.com/v2pro/plz/util"
 	"reflect"
 )
 

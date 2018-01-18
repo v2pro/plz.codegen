@@ -23,8 +23,8 @@ var simpleValueMap = map[reflect.Kind]string{
 	reflect.Uint64: "Uint64",
 	reflect.Float32: "Float32",
 	reflect.Float64: "Float64",
-	reflect.String: "String",
-	reflect.Bool: "Bool",
+	reflect.String: "StringValue",
+	reflect.Bool: "BoolValue",
 }
 
 func init() {

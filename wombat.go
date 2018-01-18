@@ -1,9 +1,6 @@
 package wombat
 
 import (
-	// register fp functions to plz
-	_ "github.com/v2pro/wombat/fp"
-	"github.com/v2pro/wombat/gen"
 	"reflect"
 )
 
@@ -21,23 +18,3 @@ var Float32 = reflect.TypeOf(float32(0))
 var Float64 = reflect.TypeOf(float64(0))
 var String = reflect.TypeOf("")
 var Bool = reflect.TypeOf(true)
-
-// Declare export from gen
-func Declare(template *gen.FuncTemplate, templateArgs ...interface{}) {
-	gen.Declare(template, templateArgs...)
-}
-
-// CompilePlugin export from gen
-func CompilePlugin(soFileName string) {
-	gen.CompilePlugin(soFileName)
-}
-
-// LoadPlugin export from gen
-func LoadPlugin(soFileName string) {
-	gen.LoadPlugin(soFileName)
-}
-
-// DisableDynamicCompilation export from gen
-func DisableDynamicCompilation() {
-	gen.DisableDynamicCompilation()
-}

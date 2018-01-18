@@ -4,12 +4,11 @@ import (
 	"text/template"
 	"sync"
 	"bytes"
-	"github.com/v2pro/wombat/compiler"
-	"github.com/v2pro/plz"
 	"errors"
+	"github.com/v2pro/quokka/docstore/compiler"
+	"github.com/v2pro/plz/countlog"
 )
 
-var logger = plz.LoggerOf("package", "generic")
 var expandLock = &sync.Mutex{}
 var templates = map[string]*template.Template{}
 var state = struct {
@@ -30,7 +29,8 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 	state.expandedFuncNames = map[string]bool{}
 	expandedFuncName, err := funcTemplate.expand(templateArgs)
 	if err != nil {
-		logger.Error(err, "expand func template failed",
+		countlog.Error("event!expand func template failed",
+			"err", err,
 			"funcTemplate", funcTemplate.funcName,
 			"templateArgs", templateArgs)
 		panic(err.Error())
@@ -46,13 +46,13 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			return expandedFunc
 		}
 		if !DynamicCompilationEnabled {
-			err := logger.Error(nil, "dynamic compilation disabled. "+
+			countlog.Error("event!dynamic compilation disabled. " +
 				"please add generic.DeclareFunc to init() and re-run codegen",
 				"funcTemplate", funcTemplate.funcName,
 				"templateArgs", templateArgs,
 				"definedInFile", funcTemplate.definedInFile,
 				"expandedFuncName", expandedFuncName)
-			panic(err.Error())
+			panic("dynamic compilation disabled")
 		}
 	}
 	prelog := []byte("package main")
@@ -72,7 +72,8 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 	}
 	symbol, err := plugin.Lookup(expandedFuncName)
 	if err != nil {
-		logger.Error(err, "lookup symbol failed",
+		countlog.Error("event!lookup symbol failed",
+			"err", err,
 			"expandedFuncName", expandedFuncName,
 			"expandedSource", expandedSource)
 		panic(err.Error())
