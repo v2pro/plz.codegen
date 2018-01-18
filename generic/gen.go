@@ -26,6 +26,10 @@ func genName(typ reflect.Type) string {
 	return typ.String()
 }
 
+func genKey(typ reflect.Type) reflect.Type {
+	return typ.Key()
+}
+
 func genElem(typ reflect.Type) reflect.Type {
 	return typ.Elem()
 }

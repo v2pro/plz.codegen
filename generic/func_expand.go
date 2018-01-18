@@ -46,7 +46,7 @@ func Expand(funcTemplate *FuncTemplate, templateArgs ...interface{}) interface{}
 			return expandedFunc
 		}
 		if !DynamicCompilationEnabled {
-			countlog.Error("event!dynamic compilation disabled. " +
+			countlog.Error("event!dynamic compilation disabled. "+
 				"please add generic.DeclareFunc to init() and re-run codegen",
 				"funcTemplate", funcTemplate.funcName,
 				"templateArgs", templateArgs,

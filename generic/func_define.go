@@ -29,6 +29,7 @@ func DefineFunc(signature string) *FuncTemplateBuilder {
 		declarations:            map[string]bool{},
 		generators: map[string]interface{}{
 			"name": genName,
+			"key": genKey,
 			"elem": genElem,
 			"expand": func(depName string, templateArgs ...interface{}) (string, error) {
 				depFunc := importedFuncTemplates[depName]
