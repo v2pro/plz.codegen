@@ -44,7 +44,7 @@ func main() {
 }
 
 func goInstallTmpCodegen() {
-	cmd := exec.Command("go", "install", "tmp-codegen")
+	cmd := exec.Command("go", "install", "-tags", "codegen", "tmp-codegen")
 	var errBuf bytes.Buffer
 	cmd.Stderr = &errBuf
 	var outBuf bytes.Buffer
