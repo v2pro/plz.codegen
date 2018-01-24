@@ -17,11 +17,11 @@ func genName(typ reflect.Type) string {
 	}
 	switch typ.Kind() {
 	case reflect.Ptr:
-		return "*" + genName(typ.Elem())
+		genName(typ.Elem())
 	case reflect.Slice:
-		return "[]" + genName(typ.Elem())
+		genName(typ.Elem())
 	case reflect.Array:
-		return fmt.Sprintf("[%d]%s", typ.Len(), genName(typ.Elem()))
+		genName(typ.Elem())
 	}
 	return typ.String()
 }

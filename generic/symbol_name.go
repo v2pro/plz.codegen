@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+type MangledNameProvider interface {
+	MangledName() string
+}
+
 func expandSymbolName(plainName string, argMap map[string]interface{}) string {
 	expanded := []byte(plainName)
 	keys := []string{}
@@ -17,6 +21,9 @@ func expandSymbolName(plainName string, argMap map[string]interface{}) string {
 	sort.Strings(keys)
 	for _, key := range keys {
 		value := argMap[key]
+		if value == nil {
+			panic("template arg " + key + " is nil")
+		}
 		expanded = append(expanded, '_')
 		expanded = append(expanded, key...)
 		switch typedArg := value.(type) {
@@ -29,6 +36,9 @@ func expandSymbolName(plainName string, argMap map[string]interface{}) string {
 		case reflect.Type:
 			expanded = append(expanded, '_')
 			expanded = append(expanded, typeToSymbol(typedArg)...)
+		case MangledNameProvider:
+			expanded = append(expanded, '_')
+			expanded = append(expanded, typedArg.MangledName()...)
 		default:
 			panic(fmt.Sprintf("unsupported template arg %v of type %s", value, reflect.TypeOf(value).String()))
 		}
