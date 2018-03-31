@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"fmt"
 	"io/ioutil"
-	"flag"
 	"os"
 )
 
