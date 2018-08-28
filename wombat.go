@@ -1,6 +1,7 @@
 package wombat
 
 import (
+	"bytes"
 	"reflect"
 	"os/exec"
 	"fmt"
